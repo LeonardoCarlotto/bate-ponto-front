@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import NavBar from './NavBar';
 
 function App() {
   const [records, setRecords] = useState([]);
@@ -58,16 +59,14 @@ function App() {
   const dates = Object.keys(groupedRecords).sort((a, b) => new Date(b) - new Date(a)); // ordenar do mais recente
 
   return (
-    <Container maxWidth="sm" style={{ marginTop: '2rem' }}>
-      <Typography variant="h4" gutterBottom align="center">
-        Sistema de Ponto
-      </Typography>
+    <Container maxWidth="sm" style={{ marginTop: '12rem' }}>
+      <NavBar ></NavBar>
 
-      <Typography variant="h6" align="center" gutterBottom>
+      <Typography variant="h4" align="center" gutterBottom>
         {currentTime.toLocaleDateString()} - {currentTime.toLocaleTimeString()}
       </Typography>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '4rem' }}>
         <Button variant="contained" color="primary" onClick={addRecord}>
           Registrar Ponto
         </Button>
