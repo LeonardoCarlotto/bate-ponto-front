@@ -42,3 +42,40 @@ export async function login(email, password) {
 
   return await response.json();
 }
+
+export const updateRegister = async (token, id, payload) => {
+  const response = await fetch(
+    `http://localhost:8080/registers/${id}/edit`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao atualizar");
+  }
+
+  return response.json();
+};
+
+export const createManualRegister = async (token, payload) => {
+  const response = await fetch("http://localhost:8080/registers/manual", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao criar registro manual");
+  }
+
+  return response.json();
+};

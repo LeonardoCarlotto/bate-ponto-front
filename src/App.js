@@ -11,21 +11,37 @@ import {
   TableRow,
   Paper,
   Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  IconButton,
 } from "@mui/material";
 
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
+
 
 import NavBar from "./NavBar";
 import LoginScreen from "./screens/LoginScreen";
-import { registerPoint, getUserRegisters } from "./services/Api";
+import {
+  registerPoint,
+  getUserRegisters,
+  updateRegister,
+  createManualRegister,
+} from "./services/Api";
 
 function App() {
   const [records, setRecords] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("token")
+    !!localStorage.getItem("token"),
   );
 
   /* ===============================
@@ -35,6 +51,31 @@ function App() {
   const [holdProgress, setHoldProgress] = useState(0);
   const holdTimeout = useRef(null);
   const progressInterval = useRef(null);
+
+  const handleSaveEdit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token || !selectedRecord) return;
+
+      await updateRegister(token, selectedRecord.id, {
+        observation: observation,
+        newRegistro: editTime,
+      });
+
+      setOpenEdit(false);
+      setSelectedRecord(null);
+
+      await fetchRegisters(); // recarrega tabela
+    } catch (error) {
+      console.error("Erro ao atualizar registro:", error);
+    }
+  };
+
+  const handleRemoveTurno = (index) => {
+    const updated = [...dayRecordsEdit];
+    updated.splice(index, 1);
+    setDayRecordsEdit(updated);
+  };
 
   const startHolding = () => {
     setIsHolding(true);
@@ -60,6 +101,85 @@ function App() {
     clearTimeout(holdTimeout.current);
     clearInterval(progressInterval.current);
     setHoldProgress(0);
+  };
+
+  const [openEdit, setOpenEdit] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [editTime, setEditTime] = useState("");
+  const [observation, setObservation] = useState("");
+  const [openDayEdit, setOpenDayEdit] = useState(false);
+  const [editingDate, setEditingDate] = useState("");
+  const [dayRecordsEdit, setDayRecordsEdit] = useState([]);
+
+  const handleEditDay = (date) => {
+    const recordsOfDay = groupedRecords[date] || [];
+
+    const formatted = recordsOfDay.map((r) => ({
+      id: r.id,
+      time: r.datetime.toTimeString().slice(0, 5),
+      type: r.type,
+    }));
+
+    setEditingDate(date);
+    setDayRecordsEdit(formatted);
+    setOpenDayEdit(true);
+  };
+
+  const handleSaveDayEdit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const [day, month, year] = editingDate.split("/");
+
+      const ordered = [...dayRecordsEdit].sort((a, b) =>
+        a.time.localeCompare(b.time),
+      );
+
+      const promises = ordered
+        .filter((r) => r.time)
+        .map((r) => {
+          const isoDateTime = `${year}-${month}-${day}T${r.time}:00`;
+
+          if (r.id) {
+            return updateRegister(token, r.id, {
+              observation: "Edição manual do dia",
+              newRegistro: r.time,
+            });
+          } else {
+            return createManualRegister(token, {
+              dataTime: isoDateTime,
+              type: r.type,
+              observation: "Inserido manualmente",
+            });
+          }
+        });
+
+      await Promise.all(promises);
+
+      setOpenDayEdit(false);
+      setDayRecordsEdit([]);
+      setEditingDate("");
+
+      await fetchRegisters();
+    } catch (error) {
+      console.error("Erro ao salvar edição do dia:", error);
+    }
+  };
+
+  const handleAddTurno = () => {
+    const totalExistentes = dayRecordsEdit.length;
+
+    const nextType = totalExistentes % 2 === 0 ? "ENTRADA" : "SAIDA";
+
+    setDayRecordsEdit([
+      ...dayRecordsEdit,
+      {
+        id: null,
+        time: "",
+        type: nextType,
+      },
+    ]);
   };
 
   /* ===============================
@@ -152,7 +272,7 @@ function App() {
   }, {});
 
   const dates = Object.keys(groupedRecords).sort(
-    (a, b) => new Date(b) - new Date(a)
+    (a, b) => new Date(b) - new Date(a),
   );
 
   const todayKey = new Date().toLocaleDateString();
@@ -189,6 +309,7 @@ function App() {
             <TableCell>Total por Turno</TableCell>
             <TableCell>Total do Dia</TableCell>
             <TableCell>Status</TableCell>
+            <TableCell>Editar</TableCell>
           </TableRow>
         </TableHead>
 
@@ -226,7 +347,7 @@ function App() {
 
                       <ArrowDownwardIcon color="error" fontSize="small" />
                       {formatTime(saida.datetime)}
-                    </div>
+                    </div>,
                   );
 
                   totalTurnos.push(<div>{formatDuration(duration)}</div>);
@@ -237,15 +358,17 @@ function App() {
                     turnos.push(
                       <div
                         key={i}
-                        style={{ display: "flex", alignItems: "center", gap: 6 }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
                       >
-                        <ArrowUpwardIcon
-                          color="success"
-                          fontSize="small"
-                        />
-                        {formatTime(entrada.datetime)} - 
-                        <AccessTimeIcon color="warning" fontSize="small" /> Aguardando
-                      </div>
+                        <ArrowUpwardIcon color="success" fontSize="small" />
+                        {formatTime(entrada.datetime)} -
+                        <AccessTimeIcon color="warning" fontSize="small" />{" "}
+                        Aguardando
+                      </div>,
                     );
                     totalTurnos.push(<div> -h --min </div>);
                   }
@@ -270,6 +393,14 @@ function App() {
                       <Chip label="OK" color="success" size="small" />
                     )}
                   </TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEditDay(date)}
+                    >
+                      <EditIcon fontSize="inherit" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               );
             })
@@ -287,8 +418,7 @@ function App() {
       <NavBar onLogout={handleLogout} />
 
       <Typography variant="h4" align="center" gutterBottom>
-        {currentTime.toLocaleDateString()} -{" "}
-        {currentTime.toLocaleTimeString()}
+        {currentTime.toLocaleDateString()} - {currentTime.toLocaleTimeString()}
       </Typography>
 
       <div
@@ -300,16 +430,39 @@ function App() {
       >
         <Button
           variant="contained"
-          color={isHolding ? "success" : "primary"}
+          startIcon={isHolding ? <AccessTimeIcon /> : <FactCheckIcon />}
           onMouseDown={startHolding}
           onMouseUp={stopHolding}
           onMouseLeave={stopHolding}
           onTouchStart={startHolding}
           onTouchEnd={stopHolding}
-          sx={{ position: "relative", overflow: "hidden" }}
+          sx={{
+            position: "relative",
+            overflow: "hidden",
+            width: 280,
+            height: 72,
+            borderRadius: "18px",
+            fontSize: "1.1rem",
+            fontWeight: 600,
+            textTransform: "none",
+            background: isHolding
+              ? "linear-gradient(135deg, #4caf50, #2e7d32)"
+              : "linear-gradient(135deg, #1976d2, #0d47a1)",
+            boxShadow: isHolding
+              ? "0 0 20px rgba(76,175,80,0.6)"
+              : "0 8px 20px rgba(0,0,0,0.15)",
+            transition: "all 0.2s ease",
+            "&:hover": {
+              transform: "scale(1.03)",
+              boxShadow: "0 10px 24px rgba(0,0,0,0.25)",
+            },
+            "&:active": {
+              transform: "scale(0.97)",
+            },
+          }}
         >
           {isHolding
-            ? `Segure... ${Math.floor(holdProgress)}%`
+            ? `Confirmando ${Math.floor(holdProgress)}%`
             : "Registrar Ponto"}
 
           {isHolding && (
@@ -318,9 +471,10 @@ function App() {
                 position: "absolute",
                 bottom: 0,
                 left: 0,
-                height: 4,
+                height: 6,
                 width: `${holdProgress}%`,
-                backgroundColor: "lime",
+                background:
+                  "linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.8))",
                 transition: "width 0.05s linear",
               }}
             />
@@ -337,6 +491,106 @@ function App() {
 
       <Typography variant="h6">Registros Anteriores</Typography>
       {renderTable(pastDates)}
+
+      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
+        <DialogTitle>Editar Registro</DialogTitle>
+
+        <DialogContent>
+          <TextField
+            label="Novo Horário"
+            type="time"
+            fullWidth
+            margin="normal"
+            value={editTime}
+            onChange={(e) => setEditTime(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <TextField
+            label="Observação"
+            fullWidth
+            margin="normal"
+            multiline
+            rows={3}
+            value={observation}
+            onChange={(e) => setObservation(e.target.value)}
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={handleSaveEdit}>
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openDayEdit}
+        onClose={() => setOpenDayEdit(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Editar Dia {editingDate}</DialogTitle>
+
+        <DialogContent>
+          {dayRecordsEdit.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 14,
+              }}
+            >
+              {/* Ícone dinâmico */}
+              {item.type === "ENTRADA" ? (
+                <ArrowUpwardIcon color="success" />
+              ) : (
+                <ArrowDownwardIcon color="error" />
+              )}
+
+              {/* Campo Hora */}
+              <TextField
+                type="time"
+                size="small"
+                value={item.time}
+                onChange={(e) => {
+                  const updated = [...dayRecordsEdit];
+                  updated[index].time = e.target.value;
+                  setDayRecordsEdit(updated);
+                }}
+                InputLabelProps={{ shrink: true }}
+              />
+
+              {/* Remover */}
+              <IconButton
+                color="error"
+                onClick={() => handleRemoveTurno(index)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </div>
+          ))}
+
+          <Button
+            startIcon={<AddIcon />}
+            variant="outlined"
+            onClick={handleAddTurno}
+            fullWidth
+          >
+            Adicionar Turno
+          </Button>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setOpenDayEdit(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={handleSaveDayEdit}>
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
