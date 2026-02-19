@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Container, TextField, Button, Typography, Paper } from "@mui/material";
-import { login } from "../services/Api";
+import { login } from "../services/api";
 
 function LoginScreen({ onLogin }) {
   const [email, setEmail] = useState("");

@@ -27,7 +27,6 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 
-
 import NavBar from "./NavBar";
 import LoginScreen from "./screens/LoginScreen";
 import {
@@ -35,7 +34,7 @@ import {
   getUserRegisters,
   updateRegister,
   createManualRegister,
-} from "./services/Api";
+} from "./services/api";
 
 function App() {
   const [records, setRecords] = useState([]);
@@ -71,6 +70,29 @@ function App() {
     }
   };
 
+  const calcularHorasAteAgora = () => {
+    const hoje = new Date().toLocaleDateString();
+
+    const registrosHoje = records.filter(
+      (r) => r.datetime.toLocaleDateString() === hoje,
+    );
+
+    let totalMs = 0;
+
+    for (let i = 0; i < registrosHoje.length; i += 2) {
+      const entrada = registrosHoje[i];
+      const saida = registrosHoje[i + 1];
+
+      if (entrada && saida && saida.type === "SAIDA") {
+        totalMs += saida.datetime - entrada.datetime;
+      } else if (entrada && !saida) {
+        totalMs += new Date() - entrada.datetime;
+      }
+    }
+
+    return totalMs;
+  };
+
   const handleRemoveTurno = (index) => {
     const updated = [...dayRecordsEdit];
     updated.splice(index, 1);
@@ -80,7 +102,6 @@ function App() {
   const startHolding = () => {
     setIsHolding(true);
     setHoldProgress(0);
-
     const startTime = Date.now();
 
     progressInterval.current = setInterval(() => {
@@ -350,7 +371,7 @@ function App() {
                     </div>,
                   );
 
-                  totalTurnos.push(<div>{formatDuration(duration)}</div>);
+                  totalTurnos.push(<div key={`dur-${i}`}>{formatDuration(duration)}</div>);
                 } else {
                   inconsistent = true;
 
@@ -370,7 +391,7 @@ function App() {
                         Aguardando
                       </div>,
                     );
-                    totalTurnos.push(<div> -h --min </div>);
+                    totalTurnos.push(<div key={`dur-${i}`}> -h --min </div>);
                   }
                 }
               }
@@ -383,7 +404,7 @@ function App() {
                   <TableCell>{totalTurnos}</TableCell>
 
                   <TableCell>
-                    {totalMs > 0 ? formatDuration(totalMs) : "-"}
+                    {totalMs > 0 && !inconsistent ? formatDuration(totalMs) : "-h --min"}
                   </TableCell>
 
                   <TableCell>
@@ -420,7 +441,9 @@ function App() {
       <Typography variant="h4" align="center" gutterBottom>
         {currentTime.toLocaleDateString()} - {currentTime.toLocaleTimeString()}
       </Typography>
-
+      <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+        Horas trabalhadas hoje: {formatDuration(calcularHorasAteAgora())}
+      </Typography>
       <div
         style={{
           display: "flex",
