@@ -13,10 +13,16 @@ import {
   Chip,
   CircularProgress,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminEditedRegistersScreen({ onBack }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+   const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   useEffect(() => {
     async function fetchEditedRegisters() {
@@ -54,7 +60,7 @@ export default function AdminEditedRegistersScreen({ onBack }) {
         Registros Editados
       </Typography>
 
-      <Button variant="outlined" onClick={onBack} sx={{ mb: 2 }}>
+      <Button variant="outlined" onClick={handleBack} sx={{ mb: 2 }}>
         Voltar
       </Button>
 

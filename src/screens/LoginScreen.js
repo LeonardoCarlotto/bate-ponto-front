@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Container, TextField, Button, Typography, Paper } from "@mui/material";
 import { login } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function LoginScreen({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -14,6 +16,7 @@ function LoginScreen({ onLogin }) {
       // salva token
       localStorage.setItem("token", data.token);
 
+      navigate("/", { replace: true });
       onLogin(); // avisa App que logou
     } catch (err) {
       setError("Email ou senha inválidos");

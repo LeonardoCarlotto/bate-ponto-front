@@ -9,6 +9,7 @@ import {
   Checkbox,
   Box,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateUserScreen({ onBack }) {
   const [name, setName] = useState("");
@@ -17,6 +18,11 @@ export default function CreateUserScreen({ onBack }) {
   const [type, setType] = useState("EMPLOYEE");
   const [role, setRole] = useState("EMPLOYEE");
   const [active, setActive] = useState(true);
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   const handleSubmit = async () => {
     try {
@@ -109,14 +115,21 @@ export default function CreateUserScreen({ onBack }) {
 
       <FormControlLabel
         control={
-          <Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />
+          <Checkbox
+            checked={active}
+            onChange={(e) => setActive(e.target.checked)}
+          />
         }
         label="Usuário ativo"
       />
 
       <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-        <Button variant="outlined" onClick={onBack}>Voltar</Button>
-        <Button variant="contained" onClick={handleSubmit}>Criar Usuário</Button>
+        <Button variant="outlined" onClick={handleBack}>
+          Voltar
+        </Button>
+        <Button variant="contained" onClick={handleSubmit}>
+          Criar Usuário
+        </Button>
       </Box>
     </Container>
   );
