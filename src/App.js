@@ -35,6 +35,8 @@ import {
   updateRegister,
   createManualRegister,
 } from "./services/api";
+import AdminEditedRegistersScreen from "./screens/AdminEditedRegistersScreen";
+import CreateUserScreen from "./screens/CreateUserScreen";
 
 function App() {
   const [records, setRecords] = useState([]);
@@ -42,6 +44,8 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("token"),
   );
+  const [isAdminScreen, setIsAdminScreen] = useState(false); // Registros editados
+  const [isCreateUserScreen, setIsCreateUserScreen] = useState(false); // Criar Colaborador
 
   /* ===============================
      BOTÃO SEGURAR 3 SEGUNDOS
@@ -371,7 +375,9 @@ function App() {
                     </div>,
                   );
 
-                  totalTurnos.push(<div key={`dur-${i}`}>{formatDuration(duration)}</div>);
+                  totalTurnos.push(
+                    <div key={`dur-${i}`}>{formatDuration(duration)}</div>,
+                  );
                 } else {
                   inconsistent = true;
 
@@ -404,7 +410,9 @@ function App() {
                   <TableCell>{totalTurnos}</TableCell>
 
                   <TableCell>
-                    {totalMs > 0 && !inconsistent ? formatDuration(totalMs) : "-h --min"}
+                    {totalMs > 0 && !inconsistent
+                      ? formatDuration(totalMs)
+                      : "-h --min"}
                   </TableCell>
 
                   <TableCell>
@@ -434,9 +442,38 @@ function App() {
   /* ===============================
      TELA PRINCIPAL
   =============================== */
+  if (isCreateUserScreen) {
+    return (
+      <>
+        <NavBar
+          onLogout={handleLogout}
+          onOpenAdmin={() => setIsAdminScreen(true)}
+          onOpenCreateUser={() => setIsCreateUserScreen(true)}
+        />
+        <CreateUserScreen onBack={() => setIsCreateUserScreen(false)} />
+      </>
+    );
+  }
+
+  if (isAdminScreen) {
+    return (
+      <>
+        <NavBar
+          onLogout={handleLogout}
+          onOpenAdmin={() => setIsAdminScreen(true)}
+          onOpenCreateUser={() => setIsCreateUserScreen(true)}
+        />
+        <AdminEditedRegistersScreen onBack={() => setIsAdminScreen(false)} />
+      </>
+    );
+  }
   return (
     <Container maxWidth="md" sx={{ mt: "6rem" }}>
-      <NavBar onLogout={handleLogout} />
+      <NavBar
+        onLogout={handleLogout}
+        onOpenAdmin={() => setIsAdminScreen(true)}
+        onOpenCreateUser={() => setIsCreateUserScreen(true)}
+      />
 
       <Typography variant="h4" align="center" gutterBottom>
         {currentTime.toLocaleDateString()} - {currentTime.toLocaleTimeString()}

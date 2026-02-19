@@ -1,55 +1,60 @@
 import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
+import { AppBar, Toolbar, Typography, Box, Button, Menu, MenuItem } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
-export default function NavBar({ onLogout }) {
+export default function NavBar({ onLogout, onOpenAdmin, onOpenCreateUser }) {
   const [userName, setUserName] = useState("");
+  const [userType, setUserType] = useState(""); // ADMIN ou EMPLOYEE
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const open = Boolean(anchorEl);
 
   useEffect(() => {
-    async function fetchUserName() {
+    async function fetchUser() {
       try {
         const token = localStorage.getItem("token");
-
         const response = await fetch("http://localhost:8080/user/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        if (!response.ok) throw new Error("Erro ao buscar usuário");
-
+        if (!response.ok) throw new Error("Erro ao buscar Colaborador");
         const data = await response.json();
         setUserName(data.name);
+        setUserType(data.type); // ADMIN ou EMPLOYEE
       } catch (error) {
         console.error(error);
         setUserName("User");
       }
     }
-
-    fetchUserName();
+    fetchUser();
   }, []);
+
+  const handleMenuOpen = (event) => {
+    if (userType === "ADMIN") setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => setAnchorEl(null);
 
   return (
     <AppBar position="fixed">
       <Toolbar>
-        <Typography variant="h6">
-          Sistema de Ponto
-        </Typography>
-
+        <Typography variant="h6">Sistema de Ponto</Typography>
         <Box sx={{ flexGrow: 1 }} />
 
-        <Button
-          color="inherit"
-          startIcon={<AccountCircleIcon />}
-        >
+        <Button color="inherit" startIcon={<AccountCircleIcon />} onClick={handleMenuOpen}>
           {userName || "Carregando..."}
         </Button>
 
-        <Button
-          color="inherit"
-          onClick={onLogout}
-          sx={{ marginLeft: 2 }}
-        >
+        {userType === "ADMIN" && (
+          <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+            <MenuItem onClick={() => { handleMenuClose(); onOpenAdmin && onOpenAdmin(); }}>
+              Registros Editados
+            </MenuItem>
+            <MenuItem onClick={() => { handleMenuClose(); onOpenCreateUser && onOpenCreateUser(); }}>
+              Criar Colaborador
+            </MenuItem>
+          </Menu>
+        )}
+
+        <Button color="inherit" onClick={onLogout} sx={{ marginLeft: 2 }}>
           Logout
         </Button>
       </Toolbar>
