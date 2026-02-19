@@ -141,7 +141,7 @@ export default function DashboardScreen() {
   }, {});
 
   const dates = Object.keys(groupedRecords).sort(
-    (a, b) => new Date(b) - new Date(a)
+      (a, b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))
   );
 
   const todayKey = new Date().toLocaleDateString();

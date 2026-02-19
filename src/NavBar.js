@@ -1,6 +1,14 @@
 // src/NavBar.js
 import { useState, useEffect } from "react";
-import { AppBar, Toolbar, Typography, Box, Button, Menu, MenuItem } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Button,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -31,9 +39,6 @@ export default function NavBar({ onLogout }) {
     fetchUser();
   }, []);
 
-  const handleMenuOpen = (event) => {
-    if (userType === "ADMIN") setAnchorEl(event.currentTarget);
-  };
   const handleMenuClose = () => setAnchorEl(null);
 
   const goTo = (path) => {
@@ -51,22 +56,37 @@ export default function NavBar({ onLogout }) {
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
 
-        <Button color="inherit" startIcon={<AccountCircleIcon />} onClick={handleMenuOpen}>
+        <Button
+          color="inherit"
+          startIcon={<AccountCircleIcon />}
+          onClick={(event) => setAnchorEl(event.currentTarget)}
+        >
           {userName || "Carregando..."}
         </Button>
 
-        {userType === "ADMIN" && (
-          <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-            <MenuItem onClick={() => goTo("/admin")}>
-              Registros Editados
+        <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+          {userType === "ADMIN" ? (
+            <>
+              <MenuItem onClick={() => goTo("/admin")}>
+                Registros Editados
+              </MenuItem>
+              <MenuItem onClick={() => goTo("/create-user")}>
+                Criar Colaborador
+              </MenuItem>
+            </>
+          ) : (
+            <MenuItem onClick={() => goTo("/generate-report")}>
+              Gerar Relatório
             </MenuItem>
-            <MenuItem onClick={() => goTo("/create-user")}>
-              Criar Colaborador
-            </MenuItem>
-          </Menu>
-        )}
+          )}
+        </Menu>
 
-        <Button color="inherit" startIcon={<LogoutIcon />} onClick={onLogout} sx={{ marginLeft: 2 }}>
+        <Button
+          color="inherit"
+          startIcon={<LogoutIcon />}
+          onClick={onLogout}
+          sx={{ marginLeft: 2 }}
+        >
           SAIR
         </Button>
       </Toolbar>
