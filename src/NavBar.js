@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Box, Button, Menu, MenuItem } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function NavBar({ onLogout }) {
   const [userName, setUserName] = useState("");
@@ -65,8 +66,8 @@ export default function NavBar({ onLogout }) {
           </Menu>
         )}
 
-        <Button color="inherit" onClick={onLogout} sx={{ marginLeft: 2 }}>
-          Logout
+        <Button color="inherit" startIcon={<LogoutIcon />} onClick={onLogout} sx={{ marginLeft: 2 }}>
+          SAIR
         </Button>
       </Toolbar>
     </AppBar>
