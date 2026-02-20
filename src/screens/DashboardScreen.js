@@ -26,7 +26,6 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import FactCheckIcon from "@mui/icons-material/FactCheck";
 
 import {
   registerPoint,
@@ -112,7 +111,7 @@ export default function DashboardScreen() {
 
     progressInterval.current = setInterval(() => {
       const elapsed = Date.now() - startTime;
-      const progress = Math.min((elapsed / 1000) * 100, 100);
+      const progress = Math.min((elapsed / 600) * 100, 100);
       setHoldProgress(progress);
     }, 50);
 
@@ -350,7 +349,7 @@ export default function DashboardScreen() {
       <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
         <Button
           variant="contained"
-          startIcon={isHolding ? <AccessTimeIcon /> : <FactCheckIcon />}
+          startIcon={<AccessTimeIcon />}
           onMouseDown={startHolding}
           onMouseUp={stopHolding}
           onMouseLeave={stopHolding}

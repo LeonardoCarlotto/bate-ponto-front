@@ -65,6 +65,9 @@ export default function NavBar({ onLogout }) {
         </Button>
 
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+          <MenuItem onClick={() => goTo("/")}>
+              Inicio
+            </MenuItem>
           {userType === "ADMIN" ? (
             <>
               <MenuItem onClick={() => goTo("/admin")}>
@@ -75,8 +78,8 @@ export default function NavBar({ onLogout }) {
               </MenuItem>
             </>
           ) : (
-            <MenuItem onClick={() => goTo("/generate-report")}>
-              Gerar Relatório
+            <MenuItem onClick={() => goTo("/report")}>
+              Gerar Relatorio
             </MenuItem>
           )}
         </Menu>

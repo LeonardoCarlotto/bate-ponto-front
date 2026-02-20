@@ -79,3 +79,27 @@ export const createManualRegister = async (token, payload) => {
 
   return response.json();
 };
+
+export const reportPdf = async (token, mes, ano) => {
+  const response = await fetch(`http://localhost:8080/registers/user/pdf?mes=${mes}&ano=${ano}`, {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + token,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao baixar o PDF');
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relatorio_ponto_${String(mes).padStart(2,'0')}_${ano}.pdf`;
+  a.click();
+
+  // Liberar URL depois do download
+  window.URL.revokeObjectURL(url);
+};

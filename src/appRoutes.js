@@ -4,6 +4,7 @@ import LoginScreen from "./screens/LoginScreen";
 import DashboardScreen from "./screens/DashboardScreen";
 import AdminEditedRegistersScreen from "./screens/AdminEditedRegistersScreen";
 import CreateUserScreen from "./screens/CreateUserScreen";
+import ReportScreen from "./screens/ReportScreen"
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
   {
     path: "/create-user",
     element: <CreateUserScreen />,
+    private: true,
+  },
+  {
+    path: "/report",
+    element: <ReportScreen />,
     private: true,
   },
 ];
