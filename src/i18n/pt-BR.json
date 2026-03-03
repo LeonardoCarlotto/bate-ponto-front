@@ -1,0 +1,40 @@
+{
+  "nav.home": "Início",
+  "nav.changePassword": "Alterar senha",
+  "nav.editedRecords": "Registros editados",
+  "nav.createUser": "Criar colaborador",
+  "nav.listUsers": "Listar usuários",
+  "nav.report": "Gerar relatório",
+
+  "button.back": "Voltar",
+  "button.submit": "Alterar",
+  "button.createUser": "Criar usuário",
+
+  "label.currentPassword": "Senha atual",
+  "label.newPassword": "Nova senha",
+
+  "message.passwordChanged": "Senha alterada com sucesso",
+  "message.errorChangingPassword": "Erro ao alterar senha",
+  "message.userCreateSuccess": "Usuário criado com sucesso!",
+  "message.errorCreatingUser": "Falha ao criar usuário",
+
+  "screen.changePassword.title": "Alterar senha",
+  "screen.userList.title": "Lista de usuários",
+  "table.id": "ID",
+  "message.errorFetchingRecords": "Erro ao buscar registros",
+  "table.name": "Nome",
+  "table.email": "Email",
+  "table.type": "Tipo",
+  "table.role": "Role",
+  "table.active": "Ativo",
+  "table.actions": "Ações",
+  "table.yes": "Sim",
+  "table.no": "Não",
+  "label.type": "Tipo",
+  "label.role": "Role",
+  "label.userActive": "Usuário ativo",
+  "table.date": "Data",
+  "table.time": "Hora",
+  "table.observation": "Observação",
+  "screen.adminEdited.title": "Registros editados"
+} 

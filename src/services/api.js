@@ -103,3 +103,47 @@ export const reportPdf = async (token, mes, ano) => {
   // Liberar URL depois do download
   window.URL.revokeObjectURL(url);
 };
+
+// new user-related endpoints
+export async function getAllUsers(token) {
+  const response = await fetch(`${API_URL}/user/all`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) throw new Error("Erro ao buscar usuários");
+  return await response.json();
+}
+
+export async function changeMyPassword(token, currentPassword, newPassword) {
+  const response = await fetch(`${API_URL}/user/change-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(err || "Erro ao alterar senha");
+  }
+  return await response.json();
+}
+
+export async function changeUserPassword(token, userId, newPassword) {
+  const response = await fetch(`${API_URL}/user/change-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ userId, newPassword }),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(err || "Erro ao alterar senha do usuário");
+  }
+  return await response.json();
+}

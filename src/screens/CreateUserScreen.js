@@ -10,6 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "../i18n";
 
 export default function CreateUserScreen({ onBack }) {
   const [name, setName] = useState("");
@@ -19,6 +20,7 @@ export default function CreateUserScreen({ onBack }) {
   const [role, setRole] = useState("EMPLOYEE");
   const [active, setActive] = useState(true);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleBack = () => {
     navigate(-1);
@@ -47,24 +49,24 @@ export default function CreateUserScreen({ onBack }) {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Erro ao criar usu·rio");
+      if (!response.ok) throw new Error("Erro ao criar usu√°rio");
 
-      alert("Usu·rio criado com sucesso!");
+      alert(t("message.userCreateSuccess"));
       onBack();
     } catch (err) {
       console.error(err);
-      alert("Falha ao criar usu·rio");
+      alert("Falha ao criar usu√°rio");
     }
   };
 
   return (
     <Container maxWidth="sm" sx={{ mt: "6rem" }}>
       <Typography variant="h5" gutterBottom>
-        Criar Usu·rio
+        {t("button.createUser")}
       </Typography>
 
       <TextField
-        label="Nome"
+        label={t("table.name")}
         fullWidth
         margin="normal"
         value={name}
@@ -72,7 +74,7 @@ export default function CreateUserScreen({ onBack }) {
       />
 
       <TextField
-        label="Email"
+        label={t("table.email")}
         type="email"
         fullWidth
         margin="normal"
@@ -81,7 +83,7 @@ export default function CreateUserScreen({ onBack }) {
       />
 
       <TextField
-        label="Senha"
+        label={t("label.newPassword")}
         type="password"
         fullWidth
         margin="normal"
@@ -91,7 +93,7 @@ export default function CreateUserScreen({ onBack }) {
 
       <TextField
         select
-        label="Tipo"
+        label={t("label.type")}
         fullWidth
         margin="normal"
         value={type}
@@ -103,7 +105,7 @@ export default function CreateUserScreen({ onBack }) {
 
       <TextField
         select
-        label="Role"
+        label={t("label.role")}
         fullWidth
         margin="normal"
         value={role}
@@ -120,15 +122,15 @@ export default function CreateUserScreen({ onBack }) {
             onChange={(e) => setActive(e.target.checked)}
           />
         }
-        label="Usu·rio ativo"
+        label={t("table.active")}
       />
 
       <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
         <Button variant="outlined" onClick={handleBack}>
-          Voltar
+          {t("button.back")}
         </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          Criar Usu·rio
+          {t("button.createUser")}
         </Button>
       </Box>
     </Container>

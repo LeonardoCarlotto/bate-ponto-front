@@ -12,8 +12,10 @@ import {
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useTranslation } from "./i18n";
 
 export default function NavBar({ onLogout }) {
+  const { t } = useTranslation();
   const [userName, setUserName] = useState("");
   const [userType, setUserType] = useState(""); // ADMIN ou EMPLOYEE
   const [anchorEl, setAnchorEl] = useState(null);
@@ -66,20 +68,26 @@ export default function NavBar({ onLogout }) {
 
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
           <MenuItem onClick={() => goTo("/")}>
-              Inicio
+              {t("nav.home")}
+            </MenuItem>
+          <MenuItem onClick={() => goTo("/change-password")}>
+              {t("nav.changePassword")}
             </MenuItem>
           {userType === "ADMIN" ? (
             <>
               <MenuItem onClick={() => goTo("/admin")}>
-                Registros Editados
+                {t("nav.editedRecords")}
               </MenuItem>
               <MenuItem onClick={() => goTo("/create-user")}>
-                Criar Colaborador
+                {t("nav.createUser")}
+              </MenuItem>
+              <MenuItem onClick={() => goTo("/users")}>
+                {t("nav.listUsers")}
               </MenuItem>
             </>
           ) : (
             <MenuItem onClick={() => goTo("/report")}>
-              Gerar Relatorio
+              {t("nav.report")}
             </MenuItem>
           )}
         </Menu>

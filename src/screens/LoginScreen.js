@@ -19,7 +19,7 @@ function LoginScreen({ onLogin }) {
       navigate("/", { replace: true });
       onLogin(); // avisa App que logou
     } catch (err) {
-      setError("Email ou senha inv·lidos");
+      setError("Email ou senha inv√°lidos");
     }
   };
 

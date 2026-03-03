@@ -4,7 +4,9 @@ import LoginScreen from "./screens/LoginScreen";
 import DashboardScreen from "./screens/DashboardScreen";
 import AdminEditedRegistersScreen from "./screens/AdminEditedRegistersScreen";
 import CreateUserScreen from "./screens/CreateUserScreen";
-import ReportScreen from "./screens/ReportScreen"
+import ReportScreen from "./screens/ReportScreen";
+import ChangePasswordScreen from "./screens/ChangePasswordScreen";
+import UserListScreen from "./screens/UserListScreen"
 
 const routes = [
   {
@@ -25,6 +27,16 @@ const routes = [
   {
     path: "/create-user",
     element: <CreateUserScreen />,
+    private: true,
+  },
+  {
+    path: "/users",
+    element: <UserListScreen />,
+    private: true,
+  },
+  {
+    path: "/change-password",
+    element: <ChangePasswordScreen />,
     private: true,
   },
   {

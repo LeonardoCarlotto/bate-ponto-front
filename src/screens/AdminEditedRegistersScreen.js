@@ -14,11 +14,13 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "../i18n";
 
 export default function AdminEditedRegistersScreen({ onBack }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
    const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleBack = () => {
     navigate(-1);
@@ -40,7 +42,7 @@ export default function AdminEditedRegistersScreen({ onBack }) {
           }
         );
 
-        if (!response.ok) throw new Error("Erro ao buscar registros");
+        if (!response.ok) throw new Error(t("message.errorFetchingRecords"));
 
         const data = await response.json();
         setRecords(data);
@@ -52,16 +54,16 @@ export default function AdminEditedRegistersScreen({ onBack }) {
     }
 
     fetchEditedRegisters();
-  }, []);
+  }, [t]); // include t to satisfy eslint rules
 
   return (
     <Container maxWidth="lg" sx={{ mt: 10 }}>
       <Typography variant="h5" gutterBottom>
-        Registros Editados
+        {t("screen.adminEdited.title")}
       </Typography>
 
       <Button variant="outlined" onClick={handleBack} sx={{ mb: 2 }}>
-        Voltar
+        {t("button.back")}
       </Button>
 
       {loading ? (
@@ -71,12 +73,12 @@ export default function AdminEditedRegistersScreen({ onBack }) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Colaborador</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Data</TableCell>
-                <TableCell>Hora</TableCell>
-                <TableCell>Tipo</TableCell>
-                <TableCell>Observação</TableCell>
+                <TableCell>{t("table.name")}</TableCell>
+                <TableCell>{t("table.email")}</TableCell>
+                <TableCell>{t("table.date") || "Data"}</TableCell>
+                <TableCell>{t("table.time") || "Hora"}</TableCell>
+                <TableCell>{t("table.type")}</TableCell>
+                <TableCell>{t("table.observation") || "Observação"}</TableCell>
               </TableRow>
             </TableHead>
 

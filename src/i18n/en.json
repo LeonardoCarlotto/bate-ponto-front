@@ -1,0 +1,40 @@
+{
+  "nav.home": "Home",
+  "nav.changePassword": "Change password",
+  "nav.editedRecords": "Edited records",
+  "nav.createUser": "Create user",
+  "nav.listUsers": "List users",
+  "nav.report": "Generate report",
+
+  "button.back": "Back",
+  "button.submit": "Submit",
+  "button.createUser": "Create user",
+
+  "label.currentPassword": "Current password",
+  "label.newPassword": "New password",
+
+  "message.passwordChanged": "Password changed successfully",
+  "message.errorChangingPassword": "Error changing password",
+  "message.userCreateSuccess": "User created successfully!",
+  "message.errorCreatingUser": "Failed to create user",
+
+  "screen.changePassword.title": "Change password",
+  "screen.userList.title": "User list",
+  "table.id": "ID",
+  "message.errorFetchingRecords": "Error fetching records",
+  "table.name": "Name",
+  "table.email": "Email",
+  "table.type": "Type",
+  "table.role": "Role",
+  "table.active": "Active",
+  "table.actions": "Actions",
+  "table.yes": "Yes",
+  "table.no": "No",
+  "label.type": "Type",
+  "label.role": "Role",
+  "label.userActive": "User active",
+  "table.date": "Date",
+  "table.time": "Time",
+  "table.observation": "Observation",
+  "screen.adminEdited.title": "Edited records"
+} 

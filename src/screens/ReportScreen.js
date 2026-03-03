@@ -17,7 +17,7 @@ const ReportScreen = () => {
 
   const handleDownload = async () => {
     if (!mes || !ano) {
-      setError("Por favor, informe mês e ano");
+      setError("Por favor, informe mÃªs e ano");
       return;
     }
     setError("");
@@ -25,7 +25,7 @@ const ReportScreen = () => {
       await reportPdf(token, mes, ano);
     } catch (err) {
       console.error(err);
-      setError("Erro ao gerar o relatório");
+      setError("Erro ao gerar o relatÃ³rio");
     }
   };
 
