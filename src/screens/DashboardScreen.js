@@ -397,7 +397,7 @@ export default function DashboardScreen() {
           <TextField label="Observação" fullWidth margin="normal" multiline rows={3} value={observation} onChange={e => setObservation(e.target.value)} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
+          <Button variant="contained" color="error" onClick={() => setOpenEdit(false)}>Cancelar</Button>
           <Button variant="contained" onClick={handleSaveEdit}>Salvar</Button>
         </DialogActions>
       </Dialog>
@@ -419,7 +419,7 @@ export default function DashboardScreen() {
           <Button startIcon={<AddIcon />} variant="outlined" onClick={handleAddTurno} fullWidth>Adicionar Turno</Button>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDayEdit(false)}>Cancelar</Button>
+          <Button variant="contained" color="error" onClick={() => setOpenDayEdit(false)}>Cancelar</Button>
           <Button variant="contained" onClick={handleSaveDayEdit}>Salvar</Button>
         </DialogActions>
       </Dialog>

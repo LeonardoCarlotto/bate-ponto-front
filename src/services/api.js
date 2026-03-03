@@ -129,21 +129,21 @@ export async function changeMyPassword(token, currentPassword, newPassword) {
     const err = await response.text();
     throw new Error(err || "Erro ao alterar senha");
   }
-  return await response.json();
+  return await response;
 }
 
-export async function changeUserPassword(token, userId, newPassword) {
+export async function changeUserPassword(token, targetUserId, newPassword) {
   const response = await fetch(`${API_URL}/user/change-password`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ userId, newPassword }),
+    body: JSON.stringify({ targetUserId, newPassword }),
   });
   if (!response.ok) {
     const err = await response.text();
     throw new Error(err || "Erro ao alterar senha do usuário");
   }
-  return await response.json();
+  return await response;
 }
