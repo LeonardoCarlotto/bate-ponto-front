@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Typography,
@@ -20,6 +20,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { getAllUsers, changeUserPassword } from "../services/api";
 import { useTranslation } from "../i18n";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function UserListScreen() {
   const [users, setUsers] = useState([]);
@@ -29,24 +30,25 @@ export default function UserListScreen() {
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { handleUnauthorized } = useAuth();
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const data = await getAllUsers(token);
+      const data = await getAllUsers(token, handleUnauthorized);
       setUsers(data);
     } catch (err) {
       console.error(err);
-      alert("Falha ao buscar usuÃ¡rios");
+      alert("Falha ao buscar usuários");
     } finally {
       setLoading(false);
     }
-  };
+  }, [handleUnauthorized]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const handleBack = () => {
     navigate(-1);
@@ -68,7 +70,7 @@ export default function UserListScreen() {
     try {
       const token = localStorage.getItem("token");
       if (!token || !selectedUser) return;
-      await changeUserPassword(token, selectedUser.id, newPassword);
+      await changeUserPassword(token, selectedUser.id, newPassword, handleUnauthorized);
       alert(t("message.passwordChanged"));
       closeDialog();
     } catch (err) {

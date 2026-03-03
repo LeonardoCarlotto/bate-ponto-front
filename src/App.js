@@ -1,20 +1,13 @@
 // src/App.js
-import React, { useState } from "react";
+import React from "react";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import AppRoutes from "./appRoutes";
 import PrivateLayout from "./components/PrivateLayout";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("token")
-  );
-
-  const handleLogin = () => setIsAuthenticated(true);
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsAuthenticated(false);
-  };
+function AppContent() {
+  const { isAuthenticated, handleLogin, handleLogout } = useAuth();
 
   return (
     <Router>
@@ -54,6 +47,14 @@ function App() {
         />
       </Routes>
     </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

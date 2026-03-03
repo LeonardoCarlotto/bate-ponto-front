@@ -1,5 +1,5 @@
 // src/screens/DashboardScreen.js
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Container,
   Typography,
@@ -33,8 +33,10 @@ import {
   updateRegister,
   createManualRegister,
 } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function DashboardScreen() {
+  const { handleUnauthorized } = useAuth();
   const [records, setRecords] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -55,12 +57,12 @@ export default function DashboardScreen() {
   /* ===============================
      BUSCAR REGISTROS
   =============================== */
-  const fetchRegisters = async () => {
+  const fetchRegisters = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const data = await getUserRegisters(token);
+      const data = await getUserRegisters(token, handleUnauthorized);
       const mapped = data
         .map((r) => {
           if (!r.date || !r.time) return null;
@@ -82,13 +84,13 @@ export default function DashboardScreen() {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [handleUnauthorized]);
 
   useEffect(() => {
     fetchRegisters();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [fetchRegisters]);
 
   /* ===============================
      REGISTRAR PONTO
@@ -97,7 +99,7 @@ export default function DashboardScreen() {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      await registerPoint(token);
+      await registerPoint(token, handleUnauthorized);
       await fetchRegisters();
     } catch (error) {
       console.error(error);
@@ -199,7 +201,7 @@ export default function DashboardScreen() {
       await updateRegister(token, selectedRecord.id, {
         observation,
         newRegistro: editTime,
-      });
+      }, handleUnauthorized);
       setOpenEdit(false);
       setSelectedRecord(null);
       fetchRegisters();
@@ -223,15 +225,15 @@ export default function DashboardScreen() {
           const isoDateTime = `${year}-${month}-${day}T${r.time}:00`;
           if (r.id) {
             return updateRegister(token, r.id, {
-              observation: "EdiÃ§Ã£o manual do dia",
+              observation: "Edição manual do dia",
               newRegistro: r.time,
-            });
+            }, handleUnauthorized);
           } else {
             return createManualRegister(token, {
               dataTime: isoDateTime,
               type: r.type,
               observation: "Inserido manualmente",
-            });
+            }, handleUnauthorized);
           }
         });
       await Promise.all(promises);

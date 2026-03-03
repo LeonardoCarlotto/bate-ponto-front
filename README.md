@@ -11,8 +11,17 @@ In the project directory, you can run:
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.  
 
-*Backend configuration*  
-The frontend expects an environment variable `REACT_APP_API_URL` pointing to your API (defaults to `http://localhost:8080`). In production set this variable appropriately (e.g. `https://api.meusite.com`).
+### Environment Configuration
+
+Create a `.env` file in the project root based on `.env.example` to configure your backend API URL:
+
+```bash
+REACT_APP_API_URL=http://localhost:8080
+```
+
+**For production**: Set `REACT_APP_API_URL` to your production backend URL (e.g., `https://api.yourdomain.com`).
+
+The frontend will use this URL for all API calls. Defaults to `http://localhost:8080` if not specified.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
@@ -24,13 +33,19 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
+Builds the app for production to the `build` folder.  
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The build is minified and the filenames include hashes. Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**To serve locally:**
+
+```bash
+npm install -g serve
+serve -s build
+```
+
+For more information see the [deployment documentation](https://facebook.github.io/create-react-app/docs/deployment).
 
 ### `npm run eject`
 

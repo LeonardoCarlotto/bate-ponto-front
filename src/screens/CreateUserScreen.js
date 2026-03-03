@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
 import { API_URL } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function CreateUserScreen({ onBack }) {
   const [name, setName] = useState("");
@@ -22,6 +23,7 @@ export default function CreateUserScreen({ onBack }) {
   const [active, setActive] = useState(true);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { handleUnauthorized } = useAuth();
 
   const handleBack = () => {
     navigate(-1);
@@ -50,13 +52,18 @@ export default function CreateUserScreen({ onBack }) {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Erro ao criar usu√°rio");
+      if (response.status === 401 || response.status === 403) {
+        handleUnauthorized();
+        throw new Error("Unauthorized");
+      }
+
+      if (!response.ok) throw new Error("Erro ao criar usu·rio");
 
       alert(t("message.userCreateSuccess"));
       onBack();
     } catch (err) {
       console.error(err);
-      alert("Falha ao criar usu√°rio");
+      alert("Falha ao criar usu·rio");
     }
   };
 

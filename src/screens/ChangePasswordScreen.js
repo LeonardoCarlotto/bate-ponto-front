@@ -9,18 +9,20 @@ import {
 import { useNavigate } from "react-router-dom";
 import { changeMyPassword } from "../services/api";
 import { useTranslation } from "../i18n";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function ChangePasswordScreen() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { handleUnauthorized } = useAuth();
 
   const handleSubmit = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      await changeMyPassword(token, currentPassword, newPassword);
+      await changeMyPassword(token, currentPassword, newPassword, handleUnauthorized);
       alert(t("message.passwordChanged"));
       navigate(-1);
     } catch (err) {

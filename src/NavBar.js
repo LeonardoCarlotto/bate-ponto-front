@@ -14,9 +14,11 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useTranslation } from "./i18n";
+import { useAuth } from "./contexts/AuthContext";
 
 export default function NavBar({ onLogout }) {
   const { t } = useTranslation();
+  const { handleUnauthorized } = useAuth();
   const [userName, setUserName] = useState("");
   const [userType, setUserType] = useState(""); // ADMIN ou EMPLOYEE
   const [anchorEl, setAnchorEl] = useState(null);
@@ -30,6 +32,10 @@ export default function NavBar({ onLogout }) {
         const response = await fetch(`${API_URL}/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (response.status === 401 || response.status === 403) {
+          handleUnauthorized();
+          return;
+        }
         if (!response.ok) throw new Error("Erro ao buscar Colaborador");
         const data = await response.json();
         setUserName(data.name);
@@ -40,7 +46,7 @@ export default function NavBar({ onLogout }) {
       }
     }
     fetchUser();
-  }, []);
+  }, [handleUnauthorized]);
 
   const handleMenuClose = () => setAnchorEl(null);
 

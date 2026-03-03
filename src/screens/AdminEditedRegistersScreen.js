@@ -16,12 +16,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
 import { API_URL } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function AdminEditedRegistersScreen({ onBack }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
    const navigate = useNavigate();
   const { t } = useTranslation();
+  const { handleUnauthorized } = useAuth();
 
   const handleBack = () => {
     navigate(-1);
@@ -43,6 +45,11 @@ export default function AdminEditedRegistersScreen({ onBack }) {
           }
         );
 
+        if (response.status === 401 || response.status === 403) {
+          handleUnauthorized();
+          throw new Error("Unauthorized");
+        }
+
         if (!response.ok) throw new Error(t("message.errorFetchingRecords"));
 
         const data = await response.json();
@@ -55,7 +62,7 @@ export default function AdminEditedRegistersScreen({ onBack }) {
     }
 
     fetchEditedRegisters();
-  }, [t]); // include t to satisfy eslint rules
+  }, [t, handleUnauthorized]); // include t and handleUnauthorized to satisfy eslint rules
 
   return (
     <Container maxWidth="lg" sx={{ mt: 10 }}>

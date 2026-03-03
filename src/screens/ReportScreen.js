@@ -8,24 +8,26 @@ import {
   MenuItem,
 } from "@mui/material";
 import { reportPdf } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 const ReportScreen = () => {
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState("");
   const [error, setError] = useState("");
+  const { handleUnauthorized } = useAuth();
   const token = localStorage.getItem("token");
 
   const handleDownload = async () => {
     if (!mes || !ano) {
-      setError("Por favor, informe mÃªs e ano");
+      setError("Por favor, informe mês e ano");
       return;
     }
     setError("");
     try {
-      await reportPdf(token, mes, ano);
+      await reportPdf(token, mes, ano, handleUnauthorized);
     } catch (err) {
       console.error(err);
-      setError("Erro ao gerar o relatÃ³rio");
+      setError("Erro ao gerar o relatório");
     }
   };
 
