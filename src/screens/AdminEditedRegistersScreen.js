@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
+import { API_URL } from "../services/api";
 
 export default function AdminEditedRegistersScreen({ onBack }) {
   const [records, setRecords] = useState([]);
@@ -32,7 +33,7 @@ export default function AdminEditedRegistersScreen({ onBack }) {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          "http://localhost:8080/registers/edited/all",
+          `${API_URL}/registers/edited/all`,
           {
             method: "GET",
             headers: {

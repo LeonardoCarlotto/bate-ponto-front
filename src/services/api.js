@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:8080";
+// base URL for backend, configurable via environment variable
+export const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 
 export async function registerPoint(token) {
   const response = await fetch(`${API_URL}/registers`, {
@@ -45,7 +47,7 @@ export async function login(email, password) {
 
 export const updateRegister = async (token, id, payload) => {
   const response = await fetch(
-    `http://localhost:8080/registers/${id}/edit`,
+    `${API_URL}/registers/${id}/edit`,
     {
       method: "PUT",
       headers: {
@@ -64,7 +66,7 @@ export const updateRegister = async (token, id, payload) => {
 };
 
 export const createManualRegister = async (token, payload) => {
-  const response = await fetch("http://localhost:8080/registers/manual", {
+  const response = await fetch(`${API_URL}/registers/manual`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -81,7 +83,7 @@ export const createManualRegister = async (token, payload) => {
 };
 
 export const reportPdf = async (token, mes, ano) => {
-  const response = await fetch(`http://localhost:8080/registers/user/pdf?mes=${mes}&ano=${ano}`, {
+  const response = await fetch(`${API_URL}/registers/user/pdf?mes=${mes}&ano=${ano}`, {
     method: 'GET',
     headers: {
       Authorization: 'Bearer ' + token,

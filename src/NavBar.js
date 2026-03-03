@@ -1,5 +1,6 @@
 // src/NavBar.js
 import { useState, useEffect } from "react";
+import { API_URL } from "./services/api";
 import {
   AppBar,
   Toolbar,
@@ -26,7 +27,7 @@ export default function NavBar({ onLogout }) {
     async function fetchUser() {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:8080/user/me", {
+        const response = await fetch(`${API_URL}/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) throw new Error("Erro ao buscar Colaborador");

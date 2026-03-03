@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
+import { API_URL } from "../services/api";
 
 export default function CreateUserScreen({ onBack }) {
   const [name, setName] = useState("");
@@ -40,7 +41,7 @@ export default function CreateUserScreen({ onBack }) {
         active,
       };
 
-      const response = await fetch("http://localhost:8080/user", {
+      const response = await fetch(`${API_URL}/user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
