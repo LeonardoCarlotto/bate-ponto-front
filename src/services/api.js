@@ -206,3 +206,19 @@ export async function changeUserPassword(token, targetUserId, newPassword, onUna
   }
   return await response;
 }
+
+export async function updateUserPhoto(token, userId, urlPhoto, onUnauthorized) {
+  const response = await fetchWithAuth(`${API_URL}/user/${userId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ urlPhoto }),
+  }, onUnauthorized);
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(err || "Erro ao atualizar foto do usuário");
+  }
+  return await response.json();
+}

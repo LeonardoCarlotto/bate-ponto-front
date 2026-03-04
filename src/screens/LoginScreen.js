@@ -41,7 +41,7 @@ function LoginScreen({ onLogin }) {
         <TextField
           fullWidth
           type="password"
-          label="Senha"
+          label="Alterar senha"
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

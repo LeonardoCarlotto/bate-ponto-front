@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllUsers, changeUserPassword, getRegistersForUser } from "../services/api";
 import { useTranslation } from "../i18n";
 import { useAuth } from "../contexts/AuthContext";
+import UserAvatar from "../components/UserAvatar";
 
 export default function UserListScreen() {
   const [users, setUsers] = useState([]);
@@ -159,6 +160,7 @@ export default function UserListScreen() {
             <TableHead>
               <TableRow>
                 <TableCell>{t("table.id")}</TableCell>
+                <TableCell></TableCell>
                 <TableCell>{t("table.name")}</TableCell>
                 <TableCell>{t("table.email")}</TableCell>
                 <TableCell>{t("table.type")}</TableCell>
@@ -170,6 +172,9 @@ export default function UserListScreen() {
               {users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>{user.id}</TableCell>
+                  <TableCell>
+                    <UserAvatar name={user.name} urlPhoto={user.urlPhoto} size={36} />
+                  </TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{

@@ -8,6 +8,8 @@ import {
   FormControlLabel,
   Checkbox,
   Box,
+  Avatar,
+  Input,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
@@ -21,12 +23,24 @@ export default function CreateUserScreen({ onBack }) {
   const [type, setType] = useState("EMPLOYEE");
   const [role, setRole] = useState("EMPLOYEE");
   const [active, setActive] = useState(true);
+  const [photoPreview, setPhotoPreview] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleUnauthorized } = useAuth();
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async () => {
@@ -42,6 +56,10 @@ export default function CreateUserScreen({ onBack }) {
         role,
         active,
       };
+
+      if (photoPreview) {
+        payload.urlPhoto = photoPreview;
+      }
 
       const response = await fetch(`${API_URL}/user`, {
         method: "POST",
@@ -102,6 +120,27 @@ export default function CreateUserScreen({ onBack }) {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+
+      <Box sx={{ mt: 3, mb: 2 }}>
+        <Typography variant="subtitle2" gutterBottom>
+          Foto do Usuário
+        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Avatar
+            src={photoPreview}
+            alt={name}
+            sx={{ width: 80, height: 80 }}
+          >
+            {name?.slice(0, 2).toUpperCase()}
+          </Avatar>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            sx={{ flex: 1 }}
+          />
+        </Box>
+      </Box>
 
       <TextField
         select
