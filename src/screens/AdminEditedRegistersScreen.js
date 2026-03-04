@@ -46,9 +46,13 @@ export default function AdminEditedRegistersScreen({ onBack }) {
           }
         );
 
-        if (response.status === 401 || response.status === 403) {
+        if (response.status === 401) {
           handleUnauthorized();
-          throw new Error("Unauthorized");
+          throw new Error("Token inválido ou expirado");
+        }
+
+        if (response.status === 403) {
+          throw new Error("Você não tem permissão para acessar registros editados");
         }
 
         if (!response.ok) throw new Error(t("message.errorFetchingRecords"));

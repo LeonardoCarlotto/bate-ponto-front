@@ -18,6 +18,8 @@ import {
   DialogActions,
   TextField,
   IconButton,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -39,6 +41,7 @@ export default function DashboardScreen() {
   const { handleUnauthorized } = useAuth();
   const [records, setRecords] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [loading, setLoading] = useState(false);
 
   const [isHolding, setIsHolding] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
@@ -58,6 +61,7 @@ export default function DashboardScreen() {
      BUSCAR REGISTROS
   =============================== */
   const fetchRegisters = useCallback(async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -83,6 +87,8 @@ export default function DashboardScreen() {
       setRecords(mapped);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   }, [handleUnauthorized]);
 
@@ -95,16 +101,34 @@ export default function DashboardScreen() {
   /* ===============================
      REGISTRAR PONTO
   =============================== */
+  // produces a local ISO?like string without timezone offset so the
+  // backend?s LocalDateTime parser doesn?t shift the instant.
+  const toLocalIso = (date) => {
+    const pad = (n) => String(n).padStart(2, "0");
+    const y = date.getFullYear();
+    const m = pad(date.getMonth() + 1);
+    const d = pad(date.getDate());
+    const hh = pad(date.getHours());
+    const mm = pad(date.getMinutes());
+    const ss = pad(date.getSeconds());
+    return `${y}-${m}-${d}T${hh}:${mm}:${ss}`;
+  };
+
   const addRecord = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      await registerPoint(token, handleUnauthorized);
+      // send the current front-end time to backend so it stores the
+      // exact moment the user registered the point.
+      const iso = toLocalIso(currentTime);
+      await registerPoint(token, iso, handleUnauthorized);
       await fetchRegisters();
     } catch (error) {
       console.error(error);
     } finally {
       setHoldProgress(100);
+      setLoading(false);
     }
   };
 
@@ -198,6 +222,7 @@ export default function DashboardScreen() {
   };
 
   const handleSaveEdit = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token || !selectedRecord) return;
@@ -211,10 +236,13 @@ export default function DashboardScreen() {
       fetchRegisters();
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSaveDayEdit = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -247,6 +275,8 @@ export default function DashboardScreen() {
       fetchRegisters();
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -355,12 +385,13 @@ export default function DashboardScreen() {
       <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
         <Button
           variant="contained"
-          startIcon={<AccessTimeIcon />}
-          onMouseDown={startHolding}
-          onMouseUp={stopHolding}
-          onMouseLeave={stopHolding}
-          onTouchStart={startHolding}
-          onTouchEnd={stopHolding}
+          startIcon={loading ? <CircularProgress size={20} color="inherit"/> : <AccessTimeIcon />}
+          onMouseDown={loading ? null : startHolding}
+          onMouseUp={loading ? null : stopHolding}
+          onMouseLeave={loading ? null : stopHolding}
+          onTouchStart={loading ? null : startHolding}
+          onTouchEnd={loading ? null : stopHolding}
+          disabled={loading}
           sx={{
             position: "relative",
             width: 280,
@@ -403,8 +434,15 @@ export default function DashboardScreen() {
           <TextField label="ObservaÃÂ§ÃÂ£o" fullWidth margin="normal" multiline rows={3} value={observation} onChange={e => setObservation(e.target.value)} />
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" color="error" onClick={() => setOpenEdit(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleSaveEdit}>Salvar</Button>
+          <Button variant="contained" color="error" onClick={() => setOpenEdit(false)} disabled={loading}>Cancelar</Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveEdit}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            Salvar
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -425,10 +463,23 @@ export default function DashboardScreen() {
           <Button startIcon={<AddIcon />} variant="outlined" onClick={handleAddTurno} fullWidth>Adicionar Turno</Button>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" color="error" onClick={() => setOpenDayEdit(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleSaveDayEdit}>Salvar</Button>
+          <Button variant="contained" color="error" onClick={() => setOpenDayEdit(false)} disabled={loading}>Cancelar</Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveDayEdit}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            Salvar
+          </Button>
         </DialogActions>
       </Dialog>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Container>
   );
 }

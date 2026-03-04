@@ -6,6 +6,7 @@ import {
   Typography,
   Paper,
   MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import { reportPdf } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -14,6 +15,7 @@ const ReportScreen = () => {
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { handleUnauthorized } = useAuth();
   const token = localStorage.getItem("token");
 
@@ -23,11 +25,14 @@ const ReportScreen = () => {
       return;
     }
     setError("");
+    setLoading(true);
     try {
       await reportPdf(token, mes, ano, handleUnauthorized);
     } catch (err) {
       console.error(err);
       setError("Erro ao gerar o relatório");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,6 +93,8 @@ const ReportScreen = () => {
           color="primary"
           style={{ marginTop: "2rem" }}
           onClick={handleDownload}
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
         >
           Gerar PDF
         </Button>

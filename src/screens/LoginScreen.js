@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, TextField, Button, Typography, Paper } from "@mui/material";
+import { Container, TextField, Button, Typography, Paper, CircularProgress } from "@mui/material";
 import { login } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -7,9 +7,12 @@ function LoginScreen({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
    const navigate = useNavigate();
 
   const handleLogin = async () => {
+    setLoading(true);
+    setError("");
     try {
       const data = await login(email, password);
 
@@ -20,6 +23,8 @@ function LoginScreen({ onLogin }) {
       onLogin(); // avisa App que logou
     } catch (err) {
       setError("Email ou senha inválidos");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,6 +63,8 @@ function LoginScreen({ onLogin }) {
           variant="contained"
           style={{ marginTop: "1rem" }}
           onClick={handleLogin}
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
         >
           Entrar
         </Button>

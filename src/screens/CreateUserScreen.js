@@ -10,6 +10,7 @@ import {
   Box,
   Avatar,
   Input,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
@@ -24,6 +25,7 @@ export default function CreateUserScreen({ onBack }) {
   const [role, setRole] = useState("EMPLOYEE");
   const [active, setActive] = useState(true);
   const [photoPreview, setPhotoPreview] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleUnauthorized } = useAuth();
@@ -44,6 +46,7 @@ export default function CreateUserScreen({ onBack }) {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -70,12 +73,16 @@ export default function CreateUserScreen({ onBack }) {
         body: JSON.stringify(payload),
       });
 
-      if (response.status === 401 || response.status === 403) {
+      if (response.status === 401) {
         handleUnauthorized();
-        throw new Error("Unauthorized");
+        throw new Error("Token inválido ou expirado");
       }
 
-      if (!response.ok) throw new Error("Erro ao criar usuÃ¡rio");
+      if (response.status === 403) {
+        throw new Error("Você não tem permissão para criar usuários");
+      }
+
+      if (!response.ok) throw new Error("Erro ao criar usuário");
 
       alert(t("message.userCreateSuccess"));
       if (onBack && typeof onBack === "function") {
@@ -86,6 +93,8 @@ export default function CreateUserScreen({ onBack }) {
     } catch (err) {
       console.error(err);
       alert("Falha ao criar usuÃ¡Â¡rio");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -177,10 +186,15 @@ export default function CreateUserScreen({ onBack }) {
       />
 
       <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-        <Button variant="outlined" onClick={handleBack}>
+        <Button variant="outlined" onClick={handleBack} disabled={loading}>
           {t("button.back")}
         </Button>
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+        >
           {t("button.createUser")}
         </Button>
       </Box>

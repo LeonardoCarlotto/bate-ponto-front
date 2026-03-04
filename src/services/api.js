@@ -5,28 +5,38 @@ export const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
  * Wrapper around fetch that handles 401/403 responses
  * @param {string} url - the request URL
  * @param {object} options - fetch options
- * @param {function} onUnauthorized - callback when 401/403 is received
+ * @param {function} onUnauthorized - callback when 401 is received (token expired/invalid)
  */
 async function fetchWithAuth(url, options = {}, onUnauthorized) {
   const response = await fetch(url, options);
 
-  // Handle unauthorized: token expired, invalid, or missing
-  if (response.status === 401 || response.status === 403) {
+  // 401: token invalid or expired ? logout
+  if (response.status === 401) {
     if (onUnauthorized && typeof onUnauthorized === "function") {
       onUnauthorized();
     }
-    throw new Error(`Unauthorized (${response.status})`);
+    throw new Error("Token invï¿½lido ou expirado");
+  }
+
+  // 403: forbidden ? user is authenticated but lacks permission ? don't logout
+  if (response.status === 403) {
+    throw new Error("Acesso negado: vocï¿½ nï¿½o tem permissï¿½o para esta aï¿½ï¿½o");
   }
 
   return response;
 }
 
-export async function registerPoint(token, onUnauthorized) {
+export async function registerPoint(token, dateTime, onUnauthorized) {
+  // dateTime should be an ISO-8601 string representing the point instant
+  const body = dateTime ? { dataTime: dateTime } : {};
+
   const response = await fetchWithAuth(`${API_URL}/registers`, {
     method: "POST",
     headers: {
+      "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
-    }
+    },
+    body: JSON.stringify(body),
   }, onUnauthorized);
 
   if (!response.ok) throw new Error("Erro ao registrar ponto");
@@ -55,7 +65,7 @@ export async function getRegistersForUser(token, userId, onUnauthorized) {
     }
   }, onUnauthorized);
 
-  if (!response.ok) throw new Error("Erro ao buscar registros do usuário");
+  if (!response.ok) throw new Error("Erro ao buscar registros do usuï¿½rio");
 
   return await response.json();
 }
@@ -149,7 +159,7 @@ export const reportPdfForUser = async (token, userId, mes, ano, onUnauthorized) 
   }, onUnauthorized);
 
   if (!response.ok) {
-    throw new Error('Erro ao baixar o PDF do usuário');
+    throw new Error('Erro ao baixar o PDF do usuï¿½rio');
   }
 
   const blob = await response.blob();
@@ -208,8 +218,8 @@ export async function changeUserPassword(token, targetUserId, newPassword, onUna
 }
 
 export async function updateUserPhoto(token, userId, urlPhoto, onUnauthorized) {
-  const response = await fetchWithAuth(`${API_URL}/user/${userId}`, {
-    method: "PUT",
+  const response = await fetchWithAuth(`${API_URL}/user/photo/change`, {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -218,7 +228,24 @@ export async function updateUserPhoto(token, userId, urlPhoto, onUnauthorized) {
   }, onUnauthorized);
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(err || "Erro ao atualizar foto do usuário");
+    throw new Error(err || "Erro ao atualizar foto do usuï¿½rio");
+  }
+  return await response;
+}
+
+export async function updateUserProfile(token, payload, onUnauthorized) {
+  // payload can contain: name, email, urlPhoto
+  const response = await fetchWithAuth(`${API_URL}/user/profile`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  }, onUnauthorized);
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(err || "Erro ao atualizar perfil");
   }
   return await response.json();
 }

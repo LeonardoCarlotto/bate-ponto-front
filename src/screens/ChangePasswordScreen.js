@@ -5,6 +5,7 @@ import {
   TextField,
   Button,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { changeMyPassword } from "../services/api";
@@ -14,11 +15,13 @@ import { useAuth } from "../contexts/AuthContext";
 export default function ChangePasswordScreen() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleUnauthorized } = useAuth();
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -28,6 +31,8 @@ export default function ChangePasswordScreen() {
     } catch (err) {
       console.error(err);
       alert(err.message || t("message.errorChangingPassword") || "Erro ao alterar senha");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,10 +61,15 @@ export default function ChangePasswordScreen() {
       />
 
       <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-        <Button variant="outlined" onClick={() => navigate(-1)}>
+        <Button variant="outlined" onClick={() => navigate(-1)} disabled={loading}>
           {t("button.back")}
         </Button>
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+        >
           {t("button.submit")}
         </Button>
       </Box>
