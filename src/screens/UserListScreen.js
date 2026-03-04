@@ -36,7 +36,6 @@ export default function UserListScreen() {
   const [registersDialog, setRegistersDialog] = useState(false);
   const [userRegisters, setUserRegisters] = useState([]);
   const [loadingRegisters, setLoadingRegisters] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleUnauthorized } = useAuth();
@@ -111,7 +110,6 @@ export default function UserListScreen() {
   };
 
   const handleChange = async () => {
-    setActionLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token || !selectedUser) return;
@@ -121,13 +119,10 @@ export default function UserListScreen() {
     } catch (err) {
       console.error(err);
       alert(err.message || t("message.errorChangingPassword") || "Erro ao alterar senha");
-    } finally {
-      setActionLoading(false);
     }
   };
 
   const handleReport = async () => {
-    setActionLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token || !selectedUser) return;
@@ -142,8 +137,6 @@ export default function UserListScreen() {
     } catch (err) {
       console.error(err);
       alert(err.message || "Erro ao baixar relatório");
-    } finally {
-      setActionLoading(false);
     }
   };
 
@@ -196,7 +189,6 @@ export default function UserListScreen() {
                       variant="outlined"
                       onClick={() => openDialog(user)}
                       sx={{ mr: 1 }}
-                      disabled={loading || actionLoading}
                     >
                       Alterar senha
                     </Button>
@@ -212,8 +204,6 @@ export default function UserListScreen() {
                       size="small"
                       variant="contained"
                       onClick={() => openReportDialog(user)}
-                      disabled={loading || actionLoading}
-                      startIcon={actionLoading ? <CircularProgress size={16} color="inherit" /> : null}
                     >
                       Relatório
                     </Button>
@@ -238,13 +228,8 @@ export default function UserListScreen() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeDialog} disabled={actionLoading}>{t("button.back")}</Button>
-          <Button
-            variant="contained"
-            onClick={handleChange}
-            disabled={actionLoading}
-            startIcon={actionLoading ? <CircularProgress size={16} color="inherit" /> : null}
-          >
+          <Button onClick={closeDialog}>{t("button.back")}</Button>
+          <Button variant="contained" onClick={handleChange}>
             {t("button.submit")}
           </Button>
         </DialogActions>
@@ -271,13 +256,8 @@ export default function UserListScreen() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeReportDialog} disabled={actionLoading}>{t("button.back")}</Button>
-          <Button
-            variant="contained"
-            onClick={handleReport}
-            disabled={actionLoading}
-            startIcon={actionLoading ? <CircularProgress size={16} color="inherit" /> : null}
-          >
+          <Button onClick={closeReportDialog}>{t("button.back")}</Button>
+          <Button variant="contained" onClick={handleReport}>
             Gerar PDF
           </Button>
         </DialogActions>

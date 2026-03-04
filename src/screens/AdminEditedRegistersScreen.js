@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
 import { API_URL } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import UserAvatar from "../components/UserAvatar";
 
 export default function AdminEditedRegistersScreen({ onBack }) {
   const [records, setRecords] = useState([]);
@@ -88,6 +89,7 @@ export default function AdminEditedRegistersScreen({ onBack }) {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell></TableCell>
                 <TableCell>{t("table.name")}</TableCell>
                 <TableCell>{t("table.email")}</TableCell>
                 <TableCell>{t("table.date") || "Data"}</TableCell>
@@ -100,6 +102,9 @@ export default function AdminEditedRegistersScreen({ onBack }) {
             <TableBody>
               {records.map((record) => (
                 <TableRow key={record.id}>
+                  <TableCell>
+                    <UserAvatar name={record.name} urlPhoto={record.urlPhoto} size={36} />
+                  </TableCell>
                   <TableCell>{record.userName}</TableCell>
                   <TableCell>{record.userEmail}</TableCell>
                   <TableCell>

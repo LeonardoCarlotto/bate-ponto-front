@@ -170,7 +170,9 @@ export default function DashboardScreen() {
   }, {});
 
   const dates = Object.keys(groupedRecords).sort(
-      (a, b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))
+    (a, b) =>
+      new Date(b.split("/").reverse().join("-")) -
+      new Date(a.split("/").reverse().join("-")),
   );
 
   const todayKey = new Date().toLocaleDateString();
@@ -190,7 +192,7 @@ export default function DashboardScreen() {
   const calcularHorasAteAgora = () => {
     const hoje = new Date().toLocaleDateString();
     const registrosHoje = records.filter(
-      (r) => r.datetime.toLocaleDateString() === hoje
+      (r) => r.datetime.toLocaleDateString() === hoje,
     );
 
     let totalMs = 0;
@@ -227,10 +229,15 @@ export default function DashboardScreen() {
       const token = localStorage.getItem("token");
       if (!token || !selectedRecord) return;
 
-      await updateRegister(token, selectedRecord.id, {
-        observation,
-        newRegistro: editTime,
-      }, handleUnauthorized);
+      await updateRegister(
+        token,
+        selectedRecord.id,
+        {
+          observation,
+          newRegistro: editTime,
+        },
+        handleUnauthorized,
+      );
       setOpenEdit(false);
       setSelectedRecord(null);
       fetchRegisters();
@@ -248,7 +255,7 @@ export default function DashboardScreen() {
       if (!token) return;
       const [day, month, year] = editingDate.split("/");
       const ordered = [...dayRecordsEdit].sort((a, b) =>
-        a.time.localeCompare(b.time)
+        a.time.localeCompare(b.time),
       );
 
       const promises = ordered
@@ -256,16 +263,25 @@ export default function DashboardScreen() {
         .map((r) => {
           const isoDateTime = `${year}-${month}-${day}T${r.time}:00`;
           if (r.id) {
-            return updateRegister(token, r.id, {
-              observation: "Edição manual do dia",
-              newRegistro: r.time,
-            }, handleUnauthorized);
+            return updateRegister(
+              token,
+              r.id,
+              {
+                observation: "Edição manual do dia",
+                newRegistro: r.time,
+              },
+              handleUnauthorized,
+            );
           } else {
-            return createManualRegister(token, {
-              dataTime: isoDateTime,
-              type: r.type,
-              observation: "Inserido manualmente",
-            }, handleUnauthorized);
+            return createManualRegister(
+              token,
+              {
+                dataTime: isoDateTime,
+                type: r.type,
+                observation: "Inserido manualmente",
+              },
+              handleUnauthorized,
+            );
           }
         });
       await Promise.all(promises);
@@ -285,7 +301,7 @@ export default function DashboardScreen() {
     const nextType = totalExistentes % 2 === 0 ? "ENTRADA" : "SAIDA";
     setDayRecordsEdit([
       ...dayRecordsEdit,
-      { id: null, time: "", type: nextType },
+      { id: null, time: "", type: nextType, isNew: true },
     ]);
   };
 
@@ -328,23 +344,32 @@ export default function DashboardScreen() {
                 totalMs += duration;
 
                 turnos.push(
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div
+                    key={i}
+                    style={{ display: "flex", alignItems: "center", gap: 6 }}
+                  >
                     <ArrowUpwardIcon color="success" fontSize="small" />
                     {formatTime(entrada.datetime)}
                     <ArrowDownwardIcon color="error" fontSize="small" />
                     {formatTime(saida.datetime)}
-                  </div>
+                  </div>,
                 );
-                totalTurnos.push(<div key={`dur-${i}`}>{formatDuration(duration)}</div>);
+                totalTurnos.push(
+                  <div key={`dur-${i}`}>{formatDuration(duration)}</div>,
+                );
               } else {
                 inconsistent = true;
                 if (entrada) {
                   turnos.push(
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div
+                      key={i}
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
                       <ArrowUpwardIcon color="success" fontSize="small" />
                       {formatTime(entrada.datetime)} -
-                      <AccessTimeIcon color="warning" fontSize="small" /> Aguardando
-                    </div>
+                      <AccessTimeIcon color="warning" fontSize="small" />{" "}
+                      Aguardando
+                    </div>,
                   );
                   totalTurnos.push(<div key={`dur-${i}`}> -h --min </div>);
                 }
@@ -356,9 +381,17 @@ export default function DashboardScreen() {
                 <TableCell>{date}</TableCell>
                 <TableCell>{turnos}</TableCell>
                 <TableCell>{totalTurnos}</TableCell>
-                <TableCell>{totalMs > 0 && !inconsistent ? formatDuration(totalMs) : "-h --min"}</TableCell>
                 <TableCell>
-                  {inconsistent ? <Chip label="Pendente" color="error" size="small" /> : <Chip label="OK" color="success" size="small" />}
+                  {totalMs > 0 && !inconsistent
+                    ? formatDuration(totalMs)
+                    : "-h --min"}
+                </TableCell>
+                <TableCell>
+                  {inconsistent ? (
+                    <Chip label="Pendente" color="error" size="small" />
+                  ) : (
+                    <Chip label="OK" color="success" size="small" />
+                  )}
                 </TableCell>
                 <TableCell>
                   <IconButton size="small" onClick={() => handleEditDay(date)}>
@@ -382,10 +415,22 @@ export default function DashboardScreen() {
         Horas trabalhadas hoje: {formatDuration(calcularHorasAteAgora())}
       </Typography>
 
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "2rem",
+        }}
+      >
         <Button
           variant="contained"
-          startIcon={loading ? <CircularProgress size={20} color="inherit"/> : <AccessTimeIcon />}
+          startIcon={
+            loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              <AccessTimeIcon />
+            )
+          }
           onMouseDown={loading ? null : startHolding}
           onMouseUp={loading ? null : stopHolding}
           onMouseLeave={loading ? null : stopHolding}
@@ -401,17 +446,22 @@ export default function DashboardScreen() {
             fontWeight: 600,
           }}
         >
-          {isHolding ? `Confirmando ${Math.floor(holdProgress)}%` : "Registrar Ponto"}
+          {isHolding
+            ? `Confirmando ${Math.floor(holdProgress)}%`
+            : "Registrar Ponto"}
           {isHolding && (
-            <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              height: 6,
-              width: `${holdProgress}%`,
-              background: "linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.8))",
-              transition: "width 0.05s linear"
-            }} />
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                height: 6,
+                width: `${holdProgress}%`,
+                background:
+                  "linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.8))",
+                transition: "width 0.05s linear",
+              }}
+            />
           )}
         </Button>
       </div>
@@ -430,52 +480,125 @@ export default function DashboardScreen() {
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
         <DialogTitle>Editar Registro</DialogTitle>
         <DialogContent>
-          <TextField label="Novo HorÃÂ¡rio" type="time" fullWidth margin="normal" value={editTime} onChange={e => setEditTime(e.target.value)} />
-          <TextField label="ObservaÃÂ§ÃÂ£o" fullWidth margin="normal" multiline rows={3} value={observation} onChange={e => setObservation(e.target.value)} />
+          <TextField
+            label="Novo HorÃÂ¡rio"
+            type="time"
+            fullWidth
+            margin="normal"
+            value={editTime}
+            onChange={(e) => setEditTime(e.target.value)}
+          />
+          <TextField
+            label="ObservaÃÂ§ÃÂ£o"
+            fullWidth
+            margin="normal"
+            multiline
+            rows={3}
+            value={observation}
+            onChange={(e) => setObservation(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" color="error" onClick={() => setOpenEdit(false)} disabled={loading}>Cancelar</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => setOpenEdit(false)}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
           <Button
             variant="contained"
             onClick={handleSaveEdit}
             disabled={loading}
-            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+            startIcon={
+              loading ? <CircularProgress size={16} color="inherit" /> : null
+            }
           >
             Salvar
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openDayEdit} onClose={() => setOpenDayEdit(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openDayEdit}
+        onClose={() => setOpenDayEdit(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Editar Dia {editingDate}</DialogTitle>
         <DialogContent>
           {dayRecordsEdit.map((item, index) => (
-            <div key={index} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-              {item.type === "ENTRADA" ? <ArrowUpwardIcon color="success" /> : <ArrowDownwardIcon color="error" />}
-              <TextField type="time" size="small" value={item.time} onChange={e => {
-                const updated = [...dayRecordsEdit];
-                updated[index].time = e.target.value;
-                setDayRecordsEdit(updated);
-              }} InputLabelProps={{ shrink: true }} />
-              <IconButton color="error" onClick={() => handleRemoveTurno(index)}><DeleteIcon /></IconButton>
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 14,
+              }}
+            >
+              {item.type === "ENTRADA" ? (
+                <ArrowUpwardIcon color="success" />
+              ) : (
+                <ArrowDownwardIcon color="error" />
+              )}
+
+              <TextField
+                type="time"
+                size="small"
+                value={item.time}
+                onChange={(e) => {
+                  const updated = [...dayRecordsEdit];
+                  updated[index].time = e.target.value;
+                  setDayRecordsEdit(updated);
+                }}
+                InputLabelProps={{ shrink: true }}
+              />
+
+              {item.isNew && (
+                <IconButton
+                  color="error"
+                  onClick={() => handleRemoveTurno(index)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
             </div>
           ))}
-          <Button startIcon={<AddIcon />} variant="outlined" onClick={handleAddTurno} fullWidth>Adicionar Turno</Button>
+
+          <Button
+            startIcon={<AddIcon />}
+            variant="outlined"
+            onClick={handleAddTurno}
+            fullWidth
+          >
+            Adicionar Turno
+          </Button>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" color="error" onClick={() => setOpenDayEdit(false)} disabled={loading}>Cancelar</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => setOpenDayEdit(false)}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
           <Button
             variant="contained"
             onClick={handleSaveDayEdit}
             disabled={loading}
-            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+            startIcon={
+              loading ? <CircularProgress size={16} color="inherit" /> : null
+            }
           >
             Salvar
           </Button>
         </DialogActions>
       </Dialog>
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}
       >
         <CircularProgress color="inherit" />

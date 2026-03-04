@@ -46,6 +46,7 @@ export default function NavBar({ onLogout }) {
         setUserType(data.type);
         setUserPhoto(data.urlPhoto || "");
       } catch (error) {
+        handleUnauthorized();
         console.error(error);
         setUserName("User");
       }
@@ -65,7 +66,7 @@ export default function NavBar({ onLogout }) {
       <Toolbar>
         <Typography variant="h6">
           <a href="/" style={{ color: "inherit", textDecoration: "none" }}>
-            Sistema de ponto
+            Registro de Ponto
           </a>
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
