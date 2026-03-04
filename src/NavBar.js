@@ -28,7 +28,7 @@ export default function NavBar({ onLogout }) {
 
   useEffect(() => {
     async function fetchUser() {
-      const timeout = 30000;
+      const timeout = 15000;
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), timeout);
       try {

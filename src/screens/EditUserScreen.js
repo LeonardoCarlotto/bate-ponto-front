@@ -31,7 +31,7 @@ export default function EditUserScreen() {
   // Fetch current user data
   useEffect(() => {
     const fetchUserData = async () => {
-      const timeout = 30000;
+      const timeout = 15000;
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), timeout);
       try {
