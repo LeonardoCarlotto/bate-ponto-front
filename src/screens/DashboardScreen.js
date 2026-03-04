@@ -225,7 +225,7 @@ export default function DashboardScreen() {
           const isoDateTime = `${year}-${month}-${day}T${r.time}:00`;
           if (r.id) {
             return updateRegister(token, r.id, {
-              observation: "Edi��o manual do dia",
+              observation: "Edição manual do dia",
               newRegistro: r.time,
             }, handleUnauthorized);
           } else {
@@ -395,8 +395,8 @@ export default function DashboardScreen() {
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
         <DialogTitle>Editar Registro</DialogTitle>
         <DialogContent>
-          <TextField label="Novo Horário" type="time" fullWidth margin="normal" value={editTime} onChange={e => setEditTime(e.target.value)} />
-          <TextField label="Observação" fullWidth margin="normal" multiline rows={3} value={observation} onChange={e => setObservation(e.target.value)} />
+          <TextField label="Novo HorÃ¡rio" type="time" fullWidth margin="normal" value={editTime} onChange={e => setEditTime(e.target.value)} />
+          <TextField label="ObservaÃ§Ã£o" fullWidth margin="normal" multiline rows={3} value={observation} onChange={e => setObservation(e.target.value)} />
         </DialogContent>
         <DialogActions>
           <Button variant="contained" color="error" onClick={() => setOpenEdit(false)}>Cancelar</Button>

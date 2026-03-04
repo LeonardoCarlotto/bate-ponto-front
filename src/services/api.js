@@ -59,7 +59,7 @@ export async function login(email, password) {
     })
   });
 
-  if (!response.ok) throw new Error("Credenciais inv·lidas");
+  if (!response.ok) throw new Error("Credenciais inv√°lidas");
 
   return await response.json();
 }
@@ -134,7 +134,7 @@ export async function getAllUsers(token, onUnauthorized) {
       Authorization: `Bearer ${token}`,
     },
   }, onUnauthorized);
-  if (!response.ok) throw new Error("Erro ao buscar usu·rios");
+  if (!response.ok) throw new Error("Erro ao buscar usu√°rios");
   return await response.json();
 }
 
@@ -165,7 +165,7 @@ export async function changeUserPassword(token, targetUserId, newPassword, onUna
   }, onUnauthorized);
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(err || "Erro ao alterar senha do usu·rio");
+    throw new Error(err || "Erro ao alterar senha do usu√°rio");
   }
   return await response;
 }

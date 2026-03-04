@@ -86,7 +86,7 @@ export default function AdminEditedRegistersScreen({ onBack }) {
                 <TableCell>{t("table.date") || "Data"}</TableCell>
                 <TableCell>{t("table.time") || "Hora"}</TableCell>
                 <TableCell>{t("table.type")}</TableCell>
-                <TableCell>{t("table.observation") || "Observação"}</TableCell>
+                <TableCell>{t("table.observation") || "ObservaÃ§Ã£o"}</TableCell>
               </TableRow>
             </TableHead>
 

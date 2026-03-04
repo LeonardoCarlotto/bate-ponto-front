@@ -36,5 +36,7 @@
   "table.date": "Date",
   "table.time": "Time",
   "table.observation": "Observation",
+  "table.type.employee": "Employee",
+  "table.type.admin": "Administrator",
   "screen.adminEdited.title": "Edited records"
 } 

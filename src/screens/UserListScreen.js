@@ -40,7 +40,7 @@ export default function UserListScreen() {
       setUsers(data);
     } catch (err) {
       console.error(err);
-      alert("Falha ao buscar usu·rios");
+      alert("Falha ao buscar usu√°rios");
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,6 @@ export default function UserListScreen() {
                 <TableCell>{t("table.name")}</TableCell>
                 <TableCell>{t("table.email")}</TableCell>
                 <TableCell>{t("table.type")}</TableCell>
-                <TableCell>{t("table.role")}</TableCell>
                 <TableCell>{t("table.active")}</TableCell>
                 <TableCell>{t("table.actions")}</TableCell>
               </TableRow>
@@ -111,8 +110,11 @@ export default function UserListScreen() {
                   <TableCell>{user.id}</TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.type}</TableCell>
-                  <TableCell>{user.role}</TableCell>
+                  <TableCell>{
+                    user.type === "EMPLOYEE"
+                      ? t("table.type.employee")
+                      : t("table.type.admin")
+                  }</TableCell>
                   <TableCell>{user.active ? t("table.yes") : t("table.no")}</TableCell>
                   <TableCell>
                     <Button

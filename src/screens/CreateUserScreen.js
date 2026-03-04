@@ -57,13 +57,17 @@ export default function CreateUserScreen({ onBack }) {
         throw new Error("Unauthorized");
       }
 
-      if (!response.ok) throw new Error("Erro ao criar usuário");
+      if (!response.ok) throw new Error("Erro ao criar usuÃ¡rio");
 
       alert(t("message.userCreateSuccess"));
-      onBack();
+      if (onBack && typeof onBack === "function") {
+        onBack();
+      } else {
+        navigate(-1);
+      }
     } catch (err) {
       console.error(err);
-      alert("Falha ao criar usuário");
+      alert("Falha ao criar usuÃ¡Â¡rio");
     }
   };
 
@@ -107,8 +111,8 @@ export default function CreateUserScreen({ onBack }) {
         value={type}
         onChange={(e) => setType(e.target.value)}
       >
-        <MenuItem value="ADMIN">ADMIN</MenuItem>
-        <MenuItem value="EMPLOYEE">EMPLOYEE</MenuItem>
+        <MenuItem value="ADMIN">{t("table.type.admin")}</MenuItem>
+        <MenuItem value="EMPLOYEE">{t("table.type.employee")}</MenuItem>
       </TextField>
 
       <TextField
@@ -119,8 +123,8 @@ export default function CreateUserScreen({ onBack }) {
         value={role}
         onChange={(e) => setRole(e.target.value)}
       >
-        <MenuItem value="ADMIN">ADMIN</MenuItem>
-        <MenuItem value="EMPLOYEE">EMPLOYEE</MenuItem>
+        <MenuItem value="ADMIN">{t("table.type.admin")}</MenuItem>
+        <MenuItem value="EMPLOYEE">{t("table.type.employee")}</MenuItem>
       </TextField>
 
       <FormControlLabel

@@ -15,7 +15,7 @@
 
   "message.passwordChanged": "Senha alterada com sucesso",
   "message.errorChangingPassword": "Erro ao alterar senha",
-  "message.userCreateSuccess": "Usuário criado com sucesso!",
+  "message.userCreateSuccess": "usuário criado com sucesso!",
   "message.errorCreatingUser": "Falha ao criar usuário",
 
   "screen.changePassword.title": "Alterar senha",
@@ -32,9 +32,11 @@
   "table.no": "Não",
   "label.type": "Tipo",
   "label.role": "Role",
-  "label.userActive": "Usuário ativo",
+  "label.userActive": "usuário ativo",
   "table.date": "Data",
   "table.time": "Hora",
   "table.observation": "Observação",
+  "table.type.employee": "Colaborador",
+  "table.type.admin": "Administrador",
   "screen.adminEdited.title": "Registros editados"
 } 
