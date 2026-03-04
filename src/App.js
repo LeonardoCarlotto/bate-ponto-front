@@ -5,10 +5,12 @@ import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import AppRoutes from "./appRoutes";
 import PrivateLayout from "./components/PrivateLayout";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
 
 function AppContent() {
   const { isAuthenticated, handleLogin, handleLogout } = useAuth();
-
   return (
     <Router>
       <Routes>
@@ -52,9 +54,12 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+    </ThemeProvider>
   );
 }
 
