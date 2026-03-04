@@ -12,6 +12,7 @@ import {
   Button,
   Chip,
   CircularProgress,
+  Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../i18n";
@@ -75,7 +76,9 @@ export default function AdminEditedRegistersScreen({ onBack }) {
       </Button>
 
       {loading ? (
-        <CircularProgress />
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "300px" }}>
+          <CircularProgress />
+        </Box>
       ) : (
         <TableContainer component={Paper}>
           <Table>

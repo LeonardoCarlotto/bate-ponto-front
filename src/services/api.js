@@ -47,6 +47,19 @@ export async function getUserRegisters(token, onUnauthorized) {
   return await response.json();
 }
 
+export async function getRegistersForUser(token, userId, onUnauthorized) {
+  const response = await fetchWithAuth(`${API_URL}/registers/user/${userId}`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  }, onUnauthorized);
+
+  if (!response.ok) throw new Error("Erro ao buscar registros do usuário");
+
+  return await response.json();
+}
+
 export async function login(email, password) {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
@@ -123,6 +136,30 @@ export const reportPdf = async (token, mes, ano, onUnauthorized) => {
   a.click();
 
   // Liberar URL depois do download
+  window.URL.revokeObjectURL(url);
+};
+
+// admin download for arbitrary user
+export const reportPdfForUser = async (token, userId, mes, ano, onUnauthorized) => {
+  const response = await fetchWithAuth(`${API_URL}/registers/user/${userId}/pdf?mes=${mes}&ano=${ano}`, {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + token,
+    },
+  }, onUnauthorized);
+
+  if (!response.ok) {
+    throw new Error('Erro ao baixar o PDF do usuário');
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relatorio_ponto_usuario_${userId}_${String(mes).padStart(2,'0')}_${ano}.pdf`;
+  a.click();
+
   window.URL.revokeObjectURL(url);
 };
 
