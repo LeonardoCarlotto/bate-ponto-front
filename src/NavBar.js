@@ -28,17 +28,21 @@ export default function NavBar({ onLogout }) {
 
   useEffect(() => {
     async function fetchUser() {
+      const timeout = 30000;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
         });
         if (response.status === 401) {
           handleUnauthorized();
           return;
         }
         if (response.status === 403) {
-          throw new Error("Acesso negado ao buscar dados do usuário");
+          throw new Error("Acesso negado ao buscar dados do usuï¿½rio");
         }
         if (!response.ok) throw new Error("Erro ao buscar Colaborador");
         const data = await response.json();
@@ -49,6 +53,8 @@ export default function NavBar({ onLogout }) {
         handleUnauthorized();
         console.error(error);
         setUserName("User");
+      } finally {
+        clearTimeout(id);
       }
     }
     fetchUser();

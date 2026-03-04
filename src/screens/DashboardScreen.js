@@ -332,6 +332,7 @@ export default function DashboardScreen() {
             const dayRecords = groupedRecords[date];
             let totalMs = 0;
             let inconsistent = false;
+            let errorRegister = false;
             const turnos = [];
             const totalTurnos = [];
 
@@ -342,6 +343,22 @@ export default function DashboardScreen() {
               if (entrada && saida && saida.type === "SAIDA") {
                 const duration = saida.datetime - entrada.datetime;
                 totalMs += duration;
+
+                for (let i = 1; i < dayRecords.length - 1; i += 2) {
+                  const saidaAnterior = dayRecords[i];
+                  const proximaEntrada = dayRecords[i + 1];
+
+                  if (
+                    saidaAnterior?.type === "SAIDA" &&
+                    proximaEntrada?.type === "ENTRADA"
+                  ) {
+                    const intervalo = proximaEntrada.datetime - saidaAnterior.datetime;
+
+                    if (intervalo < 3600000 || intervalo > 7200000) {
+                      errorRegister = true;
+                    }
+                  }
+                }
 
                 turnos.push(
                   <div
@@ -377,7 +394,12 @@ export default function DashboardScreen() {
             }
 
             return (
-              <TableRow key={date}>
+              <TableRow
+                key={date}
+                sx={{
+                  backgroundColor: errorRegister ? "#ffebee" : "inherit",
+                }}
+              >
                 <TableCell>{date}</TableCell>
                 <TableCell>{turnos}</TableCell>
                 <TableCell>{totalTurnos}</TableCell>
@@ -387,8 +409,10 @@ export default function DashboardScreen() {
                     : "-h --min"}
                 </TableCell>
                 <TableCell>
-                  {inconsistent ? (
-                    <Chip label="Pendente" color="error" size="small" />
+                  {errorRegister ? (
+                    <Chip label="Erro no registro" color="error" size="small" />
+                  ) : inconsistent ? (
+                    <Chip label="Pendente" color="warning" size="small" />
                   ) : (
                     <Chip label="OK" color="success" size="small" />
                   )}

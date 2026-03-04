@@ -31,12 +31,14 @@ export default function EditUserScreen() {
   // Fetch current user data
   useEffect(() => {
     const fetchUserData = async () => {
+      const timeout = 30000;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
-
         const response = await fetch(`${API_URL}/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
         });
 
         if (response.status === 401) {
@@ -51,8 +53,11 @@ export default function EditUserScreen() {
         setEmail(data.email || "");
         setPhotoPreview(data.urlPhoto || "");
       } catch (err) {
+        handleUnauthorized();
         console.error(err);
         setError("Erro ao carregar dados do usuário");
+      } finally {
+        clearTimeout(id);
       }
     };
 

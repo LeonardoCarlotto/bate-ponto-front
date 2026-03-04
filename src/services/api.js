@@ -8,22 +8,29 @@ export const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
  * @param {function} onUnauthorized - callback when 401 is received (token expired/invalid)
  */
 async function fetchWithAuth(url, options = {}, onUnauthorized) {
-  const response = await fetch(url, options);
-
+  const timeout = 30000;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
   // 401: token invalid or expired ? logout
   if (response.status === 401) {
     if (onUnauthorized && typeof onUnauthorized === "function") {
       onUnauthorized();
     }
-    throw new Error("Token inv�lido ou expirado");
+    throw new Error("Token inválido ou expirado");
   }
 
   // 403: forbidden ? user is authenticated but lacks permission ? don't logout
   if (response.status === 403) {
-    throw new Error("Acesso negado: voc� n�o tem permiss�o para esta a��o");
+    throw new Error("Acesso negado: você não tem permissão para esta ação");
   }
 
   return response;
+  } finally {
+    clearTimeout(id);
+  }
+  
 }
 
 export async function registerPoint(token, dateTime, onUnauthorized) {
