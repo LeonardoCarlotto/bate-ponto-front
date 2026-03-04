@@ -103,6 +103,8 @@ export default function DashboardScreen() {
       await fetchRegisters();
     } catch (error) {
       console.error(error);
+    } finally {
+      setHoldProgress(100);
     }
   };
 
@@ -110,18 +112,20 @@ export default function DashboardScreen() {
     setIsHolding(true);
     setHoldProgress(0);
     const startTime = Date.now();
+    const minDuration = 1000; // Mínimo 1 segundo antes de permitir registro
 
     progressInterval.current = setInterval(() => {
       const elapsed = Date.now() - startTime;
-      const progress = Math.min((elapsed / 600) * 100, 100);
-      setHoldProgress(progress);
+      const progress = (elapsed / minDuration) * 100;
+      setHoldProgress(Math.min(progress, 99));
     }, 50);
 
-    holdTimeout.current = setTimeout(() => {
+    holdTimeout.current = setTimeout(async () => {
       clearInterval(progressInterval.current);
-      setHoldProgress(100);
-      addRecord();
-    }, 1000);
+      await addRecord();
+      setIsHolding(false);
+      setHoldProgress(0);
+    }, minDuration);
   };
 
   const stopHolding = () => {
@@ -395,8 +399,8 @@ export default function DashboardScreen() {
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
         <DialogTitle>Editar Registro</DialogTitle>
         <DialogContent>
-          <TextField label="Novo HorÃ¡rio" type="time" fullWidth margin="normal" value={editTime} onChange={e => setEditTime(e.target.value)} />
-          <TextField label="ObservaÃ§Ã£o" fullWidth margin="normal" multiline rows={3} value={observation} onChange={e => setObservation(e.target.value)} />
+          <TextField label="Novo HorÃÂ¡rio" type="time" fullWidth margin="normal" value={editTime} onChange={e => setEditTime(e.target.value)} />
+          <TextField label="ObservaÃÂ§ÃÂ£o" fullWidth margin="normal" multiline rows={3} value={observation} onChange={e => setObservation(e.target.value)} />
         </DialogContent>
         <DialogActions>
           <Button variant="contained" color="error" onClick={() => setOpenEdit(false)}>Cancelar</Button>
