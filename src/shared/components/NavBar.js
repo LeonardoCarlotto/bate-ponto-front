@@ -1,6 +1,6 @@
 // src/NavBar.js
 import { useState, useEffect } from "react";
-import { API_URL } from "./services/api";
+import { API_URL } from "../../modules/ponto/services/api";
 import {
   AppBar,
   Toolbar,
@@ -12,9 +12,13 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useTranslation } from "./i18n";
-import { useAuth } from "./contexts/AuthContext";
-import UserAvatar from "./components/UserAvatar";
+import HomeIcon from "@mui/icons-material/Home";
+import { useTranslation } from "../i18n";
+import { useAuth } from "../../modules/ponto/contexts/AuthContext";
+import UserAvatar from "./UserAvatar";
+
+// Importando logo da empresa
+import Logo from "../assets/logo.png"; // coloque seu logo em src/assets/logo.png
 
 export default function NavBar({ onLogout }) {
   const { t } = useTranslation();
@@ -41,10 +45,8 @@ export default function NavBar({ onLogout }) {
           handleUnauthorized();
           return;
         }
-        if (response.status === 403) {
-          throw new Error("Acesso negado ao buscar dados do usu�rio");
-        }
-        if (!response.ok) throw new Error("Erro ao buscar Colaborador");
+        if (response.status === 403) throw new Error("Acesso negado");
+        if (!response.ok) throw new Error("Erro ao buscar usuário");
         const data = await response.json();
         setUserName(data.name);
         setUserType(data.type);
@@ -61,7 +63,6 @@ export default function NavBar({ onLogout }) {
   }, [handleUnauthorized]);
 
   const handleMenuClose = () => setAnchorEl(null);
-
   const goTo = (path) => {
     navigate(path);
     handleMenuClose();
@@ -69,25 +70,19 @@ export default function NavBar({ onLogout }) {
 
   return (
     <AppBar position="fixed">
-      <Toolbar>
-        <Typography variant="h6">
-          <a href="/" style={{ color: "inherit", textDecoration: "none" }}>
-            Registro de Ponto
-          </a>
-        </Typography>
-        <Box sx={{ flexGrow: 1 }} />
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        {/* Logo da empresa */}
+        <Box
+          component="img"
+          src={Logo}
+          alt="Logo da Empresa"
+          sx={{ height: 50, cursor: "pointer" }}
+          onClick={() => navigate("/")}
+        />
 
-        <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={(event) => setAnchorEl(event.currentTarget)}>
-          <UserAvatar name={userName} urlPhoto={userPhoto} size={40} />
-          <Typography variant="body2" sx={{ ml: 1 }}>
-            {userName || "Carregando..."}
-          </Typography>
-        </Box>
+        {/* Menu do usuário */}
 
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-          <MenuItem onClick={() => goTo("/")}>
-            {t("nav.home")}
-          </MenuItem>
           <MenuItem onClick={() => goTo("/edit-profile")}>
             Editar Perfil
           </MenuItem>
@@ -110,16 +105,29 @@ export default function NavBar({ onLogout }) {
           )}
         </Menu>
 
-        <Button
-          color="inherit"
-          startIcon={<LogoutIcon />}
-          onClick={onLogout}
-          sx={{ marginLeft: 2 }}
-        >
-          SAIR
-        </Button>
+        {/* Botões Home e Logout */}
+        <Box sx={{ display: "flex", gap: 3 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+            onClick={(event) => setAnchorEl(event.currentTarget)}
+          >
+            <UserAvatar name={userName} urlPhoto={userPhoto} size={40} />
+            <Typography variant="body2" sx={{ ml: 1 }}>
+              {userName || "Carregando..."}
+            </Typography>
+          </Box>
+          <Button
+            color="inherit"
+            startIcon={<HomeIcon />}
+            onClick={() => navigate("/")}
+          >
+            HOME
+          </Button>
+          <Button color="inherit" startIcon={<LogoutIcon />} onClick={onLogout}>
+            SAIR
+          </Button>
+        </Box>
       </Toolbar>
-
     </AppBar>
   );
 }

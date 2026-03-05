@@ -20,9 +20,9 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { getAllUsers, changeUserPassword, getRegistersForUser } from "../services/api";
-import { useTranslation } from "../i18n";
+import { useTranslation } from "../../../shared/i18n";
 import { useAuth } from "../contexts/AuthContext";
-import UserAvatar from "../components/UserAvatar";
+import UserAvatar from "../../../shared/components/UserAvatar";
 
 export default function UserListScreen() {
   const [users, setUsers] = useState([]);

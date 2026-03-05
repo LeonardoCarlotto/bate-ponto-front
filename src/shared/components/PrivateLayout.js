@@ -1,7 +1,7 @@
 // src/components/PrivateLayout.js
 import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import NavBar from "../NavBar";
+import NavBar from "./NavBar";
 
 export default function PrivateLayout({ children }) {
   const navigate = useNavigate();

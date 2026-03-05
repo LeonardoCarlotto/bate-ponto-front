@@ -15,10 +15,10 @@ import {
   Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "../i18n";
+import { useTranslation } from "../../../shared/i18n";
 import { API_URL } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
-import UserAvatar from "../components/UserAvatar";
+import UserAvatar from "../../../shared/components/UserAvatar";
 
 export default function AdminEditedRegistersScreen({ onBack }) {
   const [records, setRecords] = useState([]);
@@ -49,11 +49,11 @@ export default function AdminEditedRegistersScreen({ onBack }) {
 
         if (response.status === 401) {
           handleUnauthorized();
-          throw new Error("Token inválido ou expirado");
+          throw new Error("Token invï¿½lido ou expirado");
         }
 
         if (response.status === 403) {
-          throw new Error("Você não tem permissão para acessar registros editados");
+          throw new Error("Vocï¿½ nï¿½o tem permissï¿½o para acessar registros editados");
         }
 
         if (!response.ok) throw new Error(t("message.errorFetchingRecords"));

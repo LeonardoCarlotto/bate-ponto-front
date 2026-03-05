@@ -13,7 +13,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "../i18n";
+import { useTranslation } from "../../../shared/i18n";
 import { API_URL } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -75,14 +75,14 @@ export default function CreateUserScreen({ onBack }) {
 
       if (response.status === 401) {
         handleUnauthorized();
-        throw new Error("Token inválido ou expirado");
+        throw new Error("Token invï¿½lido ou expirado");
       }
 
       if (response.status === 403) {
-        throw new Error("Você não tem permissão para criar usuários");
+        throw new Error("Vocï¿½ nï¿½o tem permissï¿½o para criar usuï¿½rios");
       }
 
-      if (!response.ok) throw new Error("Erro ao criar usuário");
+      if (!response.ok) throw new Error("Erro ao criar usuï¿½rio");
 
       alert(t("message.userCreateSuccess"));
       if (onBack && typeof onBack === "function") {
@@ -132,7 +132,7 @@ export default function CreateUserScreen({ onBack }) {
 
       <Box sx={{ mt: 3, mb: 2 }}>
         <Typography variant="subtitle2" gutterBottom>
-          Foto do Usuário
+          Foto do Usuï¿½rio
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Avatar

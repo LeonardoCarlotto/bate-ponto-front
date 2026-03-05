@@ -16,7 +16,7 @@ const routes = [
     private: false,
   },
   {
-    path: "/",
+    path: "/ponto",
     element: <DashboardScreen />,
     private: true,
   },
