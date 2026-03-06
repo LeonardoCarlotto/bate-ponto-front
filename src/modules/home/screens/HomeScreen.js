@@ -2,17 +2,17 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, Card, CardActionArea, CardContent, Typography } from '@mui/material';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 
 const modules = [
   {
-    title: 'Registrar Ponto',
-    description: 'Marque suas entradas e saídas de forma rápida e segura.',
+    title: 'Configurações',
+    description: 'Acesse suas configurações pessoais, ponto e relatórios.',
     path: '/ponto',
-    icon: <AccessTimeIcon style={{ fontSize: 50, color: '#ff9900' }} />,
+    icon: <HomeRepairServiceIcon style={{ fontSize: 50, color: '#ff9900' }} />,
   },
   {
     title: 'Comercial',

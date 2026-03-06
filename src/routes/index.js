@@ -1,12 +1,16 @@
 // src/routes/index.js
-import pontoRoutes from "../modules/ponto/routes.js";
+import pontoRoutes from "../modules/configuracao/routes.js";
 import homeRoutes from "../modules/home/routes.js";
-// futuramente:
-// import comercialRoutes from "../modules/comercial/appRoutes";
+import comercialRoutes from "../modules/comercial/routes.js";
+import administrativoRoutes from "../modules/administrativo/routes.js";
+import produtosRoutes from "../modules/produtos/routes.js";
+import fornecedoresRoutes from "../modules/fornecedores/routes.js";
 
 export const routes = [
-  ...pontoRoutes,
   ...homeRoutes,
-  // ...comercialRoutes,
-  // ...rhRoutes,
+  ...pontoRoutes,
+  ...comercialRoutes,
+  ...administrativoRoutes,
+  ...produtosRoutes,
+  ...fornecedoresRoutes,
 ];

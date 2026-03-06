@@ -13,6 +13,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTranslation } from "../../../shared/i18n";
 import { API_URL } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -100,6 +101,13 @@ export default function CreateUserScreen({ onBack }) {
 
   return (
     <Container maxWidth="sm" sx={{ mt: "6rem" }}>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={handleBack}
+        sx={{ marginBottom: 2 }}
+      >
+        Voltar
+      </Button>
       <Typography variant="h5" gutterBottom>
         {t("button.createUser")}
       </Typography>
@@ -186,13 +194,11 @@ export default function CreateUserScreen({ onBack }) {
       />
 
       <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-        <Button variant="outlined" onClick={handleBack} disabled={loading}>
-          {t("button.back")}
-        </Button>
         <Button
           variant="contained"
           onClick={handleSubmit}
           disabled={loading}
+          fullWidth
           startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
         >
           {t("button.createUser")}

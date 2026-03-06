@@ -1,11 +1,11 @@
 import React from "react";
 
 import LoginScreen from "./screens/LoginScreen";
+import PontoHomeScreen from "./screens/PontoHomeScreen";
 import DashboardScreen from "./screens/DashboardScreen";
 import AdminEditedRegistersScreen from "./screens/AdminEditedRegistersScreen";
 import CreateUserScreen from "./screens/CreateUserScreen";
 import ReportScreen from "./screens/ReportScreen";
-import ChangePasswordScreen from "./screens/ChangePasswordScreen";
 import EditUserScreen from "./screens/EditUserScreen";
 import UserListScreen from "./screens/UserListScreen";
 
@@ -17,36 +17,36 @@ const routes = [
   },
   {
     path: "/ponto",
+    element: <PontoHomeScreen />,
+    private: true,
+  },
+  {
+    path: "/ponto/dashboard",
     element: <DashboardScreen />,
     private: true,
   },
   {
-    path: "/admin",
+    path: "/ponto/admin",
     element: <AdminEditedRegistersScreen />,
     private: true,
   },
   {
-    path: "/create-user",
+    path: "/ponto/create-user",
     element: <CreateUserScreen />,
     private: true,
   },
   {
-    path: "/users",
+    path: "/ponto/users",
     element: <UserListScreen />,
     private: true,
   },
   {
-    path: "/change-password",
-    element: <ChangePasswordScreen />,
-    private: true,
-  },
-  {
-    path: "/edit-profile",
+    path: "/ponto/edit-profile",
     element: <EditUserScreen />,
     private: true,
   },
   {
-    path: "/report",
+    path: "/ponto/report",
     element: <ReportScreen />,
     private: true,
   },

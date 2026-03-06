@@ -9,7 +9,7 @@ import {
 
 import { routes } from "./index";
 import PrivateLayout from "../shared/components/PrivateLayout";
-import { useAuth } from "../modules/ponto/contexts/AuthContext";
+import { useAuth } from "../modules/configuracao/contexts/AuthContext";
 
 function RouteRenderer() {
   const { isAuthenticated, handleLogin, handleLogout } = useAuth();

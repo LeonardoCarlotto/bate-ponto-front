@@ -1,6 +1,6 @@
 // src/NavBar.js
 import { useState, useEffect } from "react";
-import { API_URL } from "../../modules/ponto/services/api";
+import { API_URL } from "../../modules/configuracao/services/api";
 import {
   AppBar,
   Toolbar,
@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HomeIcon from "@mui/icons-material/Home";
 import { useTranslation } from "../i18n";
-import { useAuth } from "../../modules/ponto/contexts/AuthContext";
+import { useAuth } from "../../modules/configuracao/contexts/AuthContext";
 import UserAvatar from "./UserAvatar";
 
 // Importando logo da empresa
@@ -83,23 +83,23 @@ export default function NavBar({ onLogout }) {
         {/* Menu do usuário */}
 
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-          <MenuItem onClick={() => goTo("/edit-profile")}>
+          <MenuItem onClick={() => goTo("/ponto/edit-profile")}>
             Editar Perfil
           </MenuItem>
           {userType === "ADMIN" ? (
             <>
-              <MenuItem onClick={() => goTo("/admin")}>
+              <MenuItem onClick={() => goTo("/ponto/admin")}>
                 {t("nav.editedRecords")}
               </MenuItem>
-              <MenuItem onClick={() => goTo("/create-user")}>
+              <MenuItem onClick={() => goTo("/ponto/create-user")}>
                 {t("nav.createUser")}
               </MenuItem>
-              <MenuItem onClick={() => goTo("/users")}>
+              <MenuItem onClick={() => goTo("/ponto/users")}>
                 {t("nav.listUsers")}
               </MenuItem>
             </>
           ) : (
-            <MenuItem onClick={() => goTo("/report")}>
+            <MenuItem onClick={() => goTo("/ponto/report")}>
               {t("nav.report")}
             </MenuItem>
           )}
@@ -108,8 +108,7 @@ export default function NavBar({ onLogout }) {
         {/* Botões Home e Logout */}
         <Box sx={{ display: "flex", gap: 3 }}>
           <Box
-            sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-            onClick={(event) => setAnchorEl(event.currentTarget)}
+            sx={{ display: "flex", alignItems: "center" }}
           >
             <UserAvatar name={userName} urlPhoto={userPhoto} size={40} />
             <Typography variant="body2" sx={{ ml: 1 }}>

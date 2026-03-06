@@ -8,10 +8,13 @@ import {
   MenuItem,
   CircularProgress,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { reportPdf } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 
 const ReportScreen = () => {
+  const navigate = useNavigate();
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState("");
   const [error, setError] = useState("");
@@ -41,6 +44,13 @@ const ReportScreen = () => {
 
   return (
     <Container maxWidth="sm" style={{ marginTop: "10rem" }}>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate(-1)}
+        sx={{ marginBottom: 2 }}
+      >
+        Voltar
+      </Button>
       <Paper style={{ padding: "2rem" }}>
         <Typography variant="h5" align="center" gutterBottom>
           Gerar Relatorio Mensal
@@ -97,15 +107,6 @@ const ReportScreen = () => {
           startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
         >
           Gerar PDF
-        </Button>
-        <Button
-          fullWidth
-          variant="outlined"
-          color="primary"
-          style={{ marginTop: "2rem" }}
-          href="/"
-        >
-          Voltar
         </Button>
       </Paper>
     </Container>

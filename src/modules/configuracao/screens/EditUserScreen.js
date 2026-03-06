@@ -11,6 +11,7 @@ import {
   Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useAuth } from "../contexts/AuthContext";
 import { updateUserProfile, changeMyPassword, API_URL } from "../services/api";
 
@@ -139,6 +140,13 @@ export default function EditUserScreen() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: "8rem", mb: 4 }}>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate(-1)}
+        sx={{ marginBottom: 2 }}
+      >
+        Voltar
+      </Button>
       <Typography variant="h5" gutterBottom>
         Editar Perfil
       </Typography>
@@ -257,12 +265,7 @@ export default function EditUserScreen() {
         </Button>
       </Box>
 
-      {/* Voltar */}
-      <Box sx={{ mt: 3 }}>
-        <Button variant="outlined" fullWidth onClick={() => navigate(-1)}>
-          Voltar
-        </Button>
-      </Box>
+
     </Container>
   );
 }
