@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Card,
@@ -10,11 +10,11 @@ import {
   Alert,
   Grid,
   Box,
-} from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CancelIcon from '@mui/icons-material/Cancel';
-import { fornecedoresService } from '../services/api';
+} from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { fornecedoresService } from "../services/api";
 
 export default function CadastroFornecedorScreen() {
   const navigate = useNavigate();
@@ -24,16 +24,16 @@ export default function CadastroFornecedorScreen() {
   const [sucesso, setSucesso] = React.useState(false);
 
   const [formData, setFormData] = React.useState({
-    nome: '',
-    cnpj: '',
-    email: '',
-    telefone: '',
-    celular: '',
-    contato: '',
-    endereco: '',
-    cidade: '',
-    estado: '',
-    cep: '',
+    nome: "",
+    cnpj: "",
+    email: "",
+    telefone: "",
+    celular: "",
+    contato: "",
+    endereco: "",
+    cidade: "",
+    estado: "",
+    cep: "",
     ativo: true,
   });
 
@@ -42,20 +42,20 @@ export default function CadastroFornecedorScreen() {
       setCarregando(true);
       const fornecedor = await fornecedoresService.obter(fornecedorId);
       setFormData({
-        nome: fornecedor.nome || '',
-        cnpj: fornecedor.cnpj || '',
-        email: fornecedor.email || '',
-        telefone: fornecedor.telefone || '',
-        celular: fornecedor.celular || '',
-        contato: fornecedor.contato || '',
-        endereco: fornecedor.endereco || '',
-        cidade: fornecedor.cidade || '',
-        estado: fornecedor.estado || '',
-        cep: fornecedor.cep || '',
+        nome: fornecedor.nome || "",
+        cnpj: fornecedor.cnpj || "",
+        email: fornecedor.email || "",
+        telefone: fornecedor.telefone || "",
+        celular: fornecedor.celular || "",
+        contato: fornecedor.contato || "",
+        endereco: fornecedor.endereco || "",
+        cidade: fornecedor.cidade || "",
+        estado: fornecedor.estado || "",
+        cep: fornecedor.cep || "",
         ativo: fornecedor.ativo !== false,
       });
     } catch (error) {
-      setErro('Erro ao carregar dados do fornecedor: ' + error.message);
+      setErro("Erro ao carregar dados do fornecedor: " + error.message);
     } finally {
       setCarregando(false);
     }
@@ -71,26 +71,26 @@ export default function CadastroFornecedorScreen() {
     const { name, value, type, checked } = e.target;
     setFormData((prevState) => ({
       ...prevState,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
     setErro(null);
   };
 
   const validarFormulario = () => {
     if (!formData.nome.trim()) {
-      setErro('Nome é obrigatório');
+      setErro("Nome é obrigatório");
       return false;
     }
     if (!formData.cnpj.trim()) {
-      setErro('CNPJ é obrigatório');
+      setErro("CNPJ é obrigatório");
       return false;
     }
     if (!formData.email.trim()) {
-      setErro('Email é obrigatório');
+      setErro("Email é obrigatório");
       return false;
     }
-    if (!formData.email.includes('@')) {
-      setErro('Email inválido');
+    if (!formData.email.includes("@")) {
+      setErro("Email inválido");
       return false;
     }
     return true;
@@ -98,26 +98,26 @@ export default function CadastroFornecedorScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validarFormulario()) {
       return;
     }
 
     try {
       setCarregando(true);
-      
+
       if (fornecedorId) {
         await fornecedoresService.atualizar(fornecedorId, formData);
       } else {
         await fornecedoresService.criar(formData);
       }
-      
+
       setSucesso(true);
       setTimeout(() => {
-        navigate('/fornecedores/lista');
+        navigate("/fornecedores/lista");
       }, 1500);
     } catch (error) {
-      setErro('Erro ao salvar fornecedor: ' + error.message);
+      setErro("Erro ao salvar fornecedor: " + error.message);
     } finally {
       setCarregando(false);
     }
@@ -125,14 +125,14 @@ export default function CadastroFornecedorScreen() {
 
   if (carregando) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', padding: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", padding: 3 }}>
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4, mt: 2 }}>
+    <Container maxWidth="dm" sx={{ py: 4, mt: 2 }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate(-1)}
@@ -141,17 +141,15 @@ export default function CadastroFornecedorScreen() {
         Voltar
       </Button>
 
-      <Card sx={{
-        p: { xs: 2, sm: 4 },
-        borderRadius: 2,
-        boxShadow: 2,
-      }}>
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{ mb: 3, fontWeight: 600 }}
-        >
-          {fornecedorId ? 'Editar Fornecedor' : 'Novo Fornecedor'}
+      <Card
+        sx={{
+          p: { xs: 2, sm: 4 },
+          borderRadius: 2,
+          boxShadow: 2,
+        }}
+      >
+        <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
+          {fornecedorId ? "Editar Fornecedor" : "Novo Fornecedor"}
         </Typography>
 
         {erro && (
@@ -167,18 +165,21 @@ export default function CadastroFornecedorScreen() {
         )}
 
         {carregando && !formData.nome ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
             <CircularProgress />
           </Box>
         ) : (
           <form onSubmit={handleSubmit}>
+            <Grid item xs={12}>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, mb: 2, color: "#666" }}
+              >
+                INFORMAÇÕES DA EMPRESA
+              </Typography>
+            </Grid>
             <Grid container spacing={2.5}>
               {/* Informações Básicas */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: '#666' }}>
-                  INFORMAÇÕES DA EMPRESA
-                </Typography>
-              </Grid>
 
               <Grid item xs={12}>
                 <TextField
@@ -219,14 +220,17 @@ export default function CadastroFornecedorScreen() {
                   size="small"
                 />
               </Grid>
-
-              {/* Contato */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, mt: 2, color: '#666' }}>
-                  CONTATO
-                </Typography>
-              </Grid>
-
+            </Grid>
+            {/* Contato */}
+            <Grid item xs={12}>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, mb: 2, mt: 2, color: "#666" }}
+              >
+                CONTATO
+              </Typography>
+            </Grid>
+            <Grid container spacing={2.5}>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -266,14 +270,17 @@ export default function CadastroFornecedorScreen() {
                   size="small"
                 />
               </Grid>
-
-              {/* Endereço */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, mt: 2, color: '#666' }}>
-                  ENDEREÇO
-                </Typography>
-              </Grid>
-
+            </Grid>
+            {/* Endereço */}
+            <Grid item xs={12}>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, mb: 2, mt: 2, color: "#666" }}
+              >
+                ENDEREÇO
+              </Typography>
+            </Grid>
+            <Grid container spacing={2.5}>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -325,14 +332,10 @@ export default function CadastroFornecedorScreen() {
               </Grid>
 
               {/* Botões */}
-              <Grid item xs={12}>
-                <Box sx={{
-                  display: 'flex',
-                  gap: 2,
-                  mt: 3,
-                  pt: 2,
-                  borderTop: '1px solid #eee',
-                }}>
+            </Grid>
+            <Box sx={{ borderTop: "1px solid #eee", paddingTop: 2.5 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
                   <Button
                     type="submit"
                     variant="contained"
@@ -341,22 +344,23 @@ export default function CadastroFornecedorScreen() {
                     disabled={carregando}
                     fullWidth
                   >
-                    {carregando ? <CircularProgress size={20} /> : 'Salvar'}
+                    {carregando ? <CircularProgress size={20} /> : "Salvar"}
                   </Button>
-
+                </Grid>
+                <Grid item xs={12} sm={6}>
                   <Button
                     variant="outlined"
                     color="inherit"
                     startIcon={<CancelIcon />}
-                    onClick={() => navigate('/fornecedores/lista')}
+                    onClick={() => navigate("/fornecedores/lista")}
                     disabled={carregando}
                     fullWidth
                   >
                     Cancelar
                   </Button>
-                </Box>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
           </form>
         )}
       </Card>

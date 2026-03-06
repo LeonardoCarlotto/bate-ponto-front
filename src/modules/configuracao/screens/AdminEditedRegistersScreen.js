@@ -19,6 +19,7 @@ import { useTranslation } from "../../../shared/i18n";
 import { API_URL } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import UserAvatar from "../../../shared/components/UserAvatar";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export default function AdminEditedRegistersScreen({ onBack }) {
   const [records, setRecords] = useState([]);
@@ -26,10 +27,6 @@ export default function AdminEditedRegistersScreen({ onBack }) {
    const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleUnauthorized } = useAuth();
-
-  const handleBack = () => {
-    navigate(-1);
-  };
 
   useEffect(() => {
     async function fetchEditedRegisters() {
@@ -72,13 +69,18 @@ export default function AdminEditedRegistersScreen({ onBack }) {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 10 }}>
+      <Box sx={{ paddingX: 2 }}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{ marginBottom: 2, marginTop: 2 }}
+        >
+          Voltar
+        </Button>
+      </Box>
       <Typography variant="h5" gutterBottom>
         {t("screen.adminEdited.title")}
       </Typography>
-
-      <Button variant="outlined" onClick={handleBack} sx={{ mb: 2 }}>
-        {t("button.back")}
-      </Button>
 
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "300px" }}>

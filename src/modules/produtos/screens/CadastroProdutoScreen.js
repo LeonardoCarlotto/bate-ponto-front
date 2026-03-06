@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Card,
@@ -11,11 +11,11 @@ import {
   Grid,
   MenuItem,
   Box,
-} from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CancelIcon from '@mui/icons-material/Cancel';
-import { produtosService } from '../services/api';
+} from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { produtosService } from "../services/api";
 
 export default function CadastroProdutoScreen() {
   const navigate = useNavigate();
@@ -26,20 +26,21 @@ export default function CadastroProdutoScreen() {
   const [categorias, setCategorias] = React.useState([]);
 
   const [formData, setFormData] = React.useState({
-    nome: '',
-    descricao: '',
-    categoria: '',
-    preco: '',
-    estoque: '0',
-    status: 'ativo',
+    nome: "",
+    descricao: "",
+    categoria: "",
+    preco: "",
+    estoque: "0",
+    status: "ativo",
   });
 
   const carregarCategorias = useCallback(async () => {
     try {
       const cats = await produtosService.listarCategorias();
-      setCategorias(cats);
+      setCategorias(cats || []);
     } catch (error) {
-      console.error('Erro ao carregar categorias:', error);
+      console.error("Erro ao carregar categorias:", error);
+      setCategorias([]);
     }
   }, []);
 
@@ -48,15 +49,15 @@ export default function CadastroProdutoScreen() {
       setCarregando(true);
       const produto = await produtosService.obter(produtoId);
       setFormData({
-        nome: produto.nome || '',
-        descricao: produto.descricao || '',
-        categoria: produto.categoria || '',
-        preco: produto.preco?.toString() || '',
-        estoque: produto.estoque?.toString() || '0',
-        status: produto.status || 'ativo',
+        nome: produto.nome || "",
+        descricao: produto.descricao || "",
+        categoria: produto.categoria || "",
+        preco: produto.preco?.toString() || "",
+        estoque: produto.estoque?.toString() || "0",
+        status: produto.status || "ativo",
       });
     } catch (error) {
-      setErro('Erro ao carregar dados do produto: ' + error.message);
+      setErro("Erro ao carregar dados do produto: " + error.message);
     } finally {
       setCarregando(false);
     }
@@ -80,19 +81,19 @@ export default function CadastroProdutoScreen() {
 
   const validarFormulario = () => {
     if (!formData.nome.trim()) {
-      setErro('Nome é obrigatório');
+      setErro("Nome é obrigatório");
       return false;
     }
     if (!formData.categoria) {
-      setErro('Categoria é obrigatória');
+      setErro("Categoria é obrigatória");
       return false;
     }
     if (!formData.preco || parseFloat(formData.preco) <= 0) {
-      setErro('Preço deve ser maior que zero');
+      setErro("Preço deve ser maior que zero");
       return false;
     }
     if (parseFloat(formData.estoque) < 0) {
-      setErro('Estoque não pode ser negativo');
+      setErro("Estoque não pode ser negativo");
       return false;
     }
     return true;
@@ -100,7 +101,7 @@ export default function CadastroProdutoScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validarFormulario()) {
       return;
     }
@@ -112,85 +113,91 @@ export default function CadastroProdutoScreen() {
         preco: parseFloat(formData.preco),
         estoque: parseInt(formData.estoque, 10),
       };
-      
+
       if (produtoId) {
         await produtosService.atualizar(produtoId, dadosEnvio);
       } else {
         await produtosService.criar(dadosEnvio);
       }
-      
+
       setSucesso(true);
       setTimeout(() => {
-        navigate('/produtos/lista');
+        navigate("/produtos/lista");
       }, 1500);
     } catch (error) {
-      setErro('Erro ao salvar produto: ' + error.message);
+      setErro("Erro ao salvar produto: " + error.message);
     } finally {
       setCarregando(false);
     }
   };
 
-  if (carregando) {
+  if (carregando && produtoId && !formData.nome) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', padding: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4, mt: 2 }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
-      >
-        Voltar
-      </Button>
-
-      <Card sx={{
-        p: { xs: 2, sm: 4 },
-        borderRadius: 2,
-        boxShadow: 2,
-      }}>
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{ mb: 3, fontWeight: 600 }}
+    <Box>
+      <Box sx={{ paddingX: 2 }}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{ marginBottom: 2, marginTop: 2 }}
         >
-          {produtoId ? 'Editar Produto' : 'Novo Produto'}
-        </Typography>
+          Voltar
+        </Button>
+      </Box>
 
-        {erro && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {erro}
-          </Alert>
-        )}
+      <Container maxWidth="dm">
+        <Card
+          sx={{
+            p: { xs: 2, sm: 4 },
+            borderRadius: 2,
+            boxShadow: 2,
+          }}
+        >
+          <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
+            {produtoId ? "Editar Produto" : "Novo Produto"}
+          </Typography>
 
-        {sucesso && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Produto salvo com sucesso!
-          </Alert>
-        )}
+          {erro && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {erro}
+            </Alert>
+          )}
 
-        {carregando && !formData.nome ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
+          {sucesso && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Produto salvo com sucesso!
+            </Alert>
+          )}
+
           <form onSubmit={handleSubmit}>
+            <Grid item xs={12}>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, mb: 2, color: "#666" }}
+              >
+                INFORMAÇÕES DO PRODUTO
+              </Typography>
+            </Grid>
             <Grid container spacing={2.5}>
-              {/* Produção e Descrição */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: '#666' }}>
-                  INFORMAÇÕES DO PRODUTO
-                </Typography>
-              </Grid>
+              {/* INFORMAÇÕES DO PRODUTO */}
 
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Nome do Produto"
+                  label="Nome do Produto *"
                   name="nome"
                   value={formData.nome}
                   onChange={handleInputChange}
@@ -213,19 +220,23 @@ export default function CadastroProdutoScreen() {
                   size="small"
                 />
               </Grid>
-
-              {/* Classificação */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, mt: 2, color: '#666' }}>
-                  CLASSIFICAÇÃO
-                </Typography>
-              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, mb: 2, color: "#666" }}
+              >
+                CLASSIFICAÇÃO
+              </Typography>
+            </Grid>
+            <Grid container spacing={2.5}>
+              {/* CLASSIFICAÇÃO */}
 
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   select
-                  label="Categoria"
+                  label="Categoria *"
                   name="categoria"
                   value={formData.categoria}
                   onChange={handleInputChange}
@@ -233,11 +244,16 @@ export default function CadastroProdutoScreen() {
                   disabled={carregando}
                   size="small"
                 >
-                  {categorias.map((cat) => (
-                    <MenuItem key={cat.id} value={cat.nome}>
-                      {cat.nome}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="">Selecione uma categoria</MenuItem>
+                  {categorias.length > 0 ? (
+                    categorias.map((cat) => (
+                      <MenuItem key={cat.id} value={cat.nome}>
+                        {cat.nome}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>Nenhuma categoria disponível</MenuItem>
+                  )}
                 </TextField>
               </Grid>
 
@@ -258,9 +274,12 @@ export default function CadastroProdutoScreen() {
                 </TextField>
               </Grid>
 
-              {/* Preço e Estoque */}
+              {/* DISPONIBILIDADE */}
               <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, mt: 2, color: '#666' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 600, mb: 2, color: "#666" }}
+                >
                   DISPONIBILIDADE
                 </Typography>
               </Grid>
@@ -268,10 +287,10 @@ export default function CadastroProdutoScreen() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Preço"
+                  label="Preço *"
                   name="preco"
                   type="number"
-                  inputProps={{ step: '0.01', min: '0' }}
+                  inputProps={{ step: "0.01", min: "0" }}
                   value={formData.preco}
                   onChange={handleInputChange}
                   required
@@ -286,23 +305,18 @@ export default function CadastroProdutoScreen() {
                   label="Estoque"
                   name="estoque"
                   type="number"
-                  inputProps={{ min: '0' }}
+                  inputProps={{ min: "0" }}
                   value={formData.estoque}
                   onChange={handleInputChange}
                   disabled={carregando}
                   size="small"
                 />
               </Grid>
-
-              {/* Botões */}
-              <Grid item xs={12}>
-                <Box sx={{
-                  display: 'flex',
-                  gap: 2,
-                  mt: 3,
-                  pt: 2,
-                  borderTop: '1px solid #eee',
-                }}>
+            </Grid>
+            {/* AÇÕES */}
+            <Box sx={{ borderTop: "1px solid #eee", paddingTop: 2.5 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
                   <Button
                     type="submit"
                     variant="contained"
@@ -311,25 +325,27 @@ export default function CadastroProdutoScreen() {
                     disabled={carregando}
                     fullWidth
                   >
-                    {carregando ? <CircularProgress size={20} /> : 'Salvar'}
+                    {carregando ? "Salvando..." : "Salvar"}
                   </Button>
+                </Grid>
 
+                <Grid item xs={12} sm={6}>
                   <Button
                     variant="outlined"
                     color="inherit"
                     startIcon={<CancelIcon />}
-                    onClick={() => navigate('/produtos/lista')}
+                    onClick={() => navigate("/produtos/lista")}
                     disabled={carregando}
                     fullWidth
                   >
                     Cancelar
                   </Button>
-                </Box>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
           </form>
-        )}
-      </Card>
-    </Container>
+        </Card>
+      </Container>
+    </Box>
   );
 }

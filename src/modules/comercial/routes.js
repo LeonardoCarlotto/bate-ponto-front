@@ -2,7 +2,6 @@ import React from "react";
 
 import ComercialHomeScreen from "./screens/ComercialHomeScreen";
 import PedidosScreen from "./screens/PedidosScreen";
-import ProdutosComercialScreen from "./screens/ProdutosComercialScreen";
 import CadastroPedidoScreen from "./screens/CadastroPedidoScreen";
 
 const routes = [
@@ -19,11 +18,6 @@ const routes = [
   {
     path: "/comercial/pedidos/novo",
     element: <CadastroPedidoScreen />,
-    private: true,
-  },
-  {
-    path: "/comercial/produtos",
-    element: <ProdutosComercialScreen />,
     private: true,
   },
 ];

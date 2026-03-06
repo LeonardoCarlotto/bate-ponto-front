@@ -90,20 +90,20 @@ export default function CadastroClienteScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validarFormulario()) {
       return;
     }
 
     try {
       setCarregando(true);
-      
+
       if (clienteId) {
         await clientesService.atualizar(clienteId, formData);
       } else {
         await clientesService.criar(formData);
       }
-      
+
       setSucesso(true);
       setTimeout(() => {
         navigate('/administrativo/clientes');
@@ -115,67 +115,62 @@ export default function CadastroClienteScreen() {
     }
   };
 
-  if (carregando) {
+  if (carregando && !formData.nome) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', padding: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4, mt: 2 }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
-      >
-        Voltar
-      </Button>
-
-      <Card sx={{
-        p: { xs: 2, sm: 4 },
-        borderRadius: 2,
-        boxShadow: 2,
-      }}>
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{ mb: 3, fontWeight: 600 }}
+    <Box>
+      <Box sx={{ paddingX: 2 }}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{ marginBottom: 2, marginTop: 2 }}
         >
-          {clienteId ? 'Editar Cliente' : 'Novo Cliente'}
-        </Typography>
+          Voltar
+        </Button>
+      </Box>
 
-        {erro && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {erro}
-          </Alert>
-        )}
+      <Container maxWidth="dm">
+        <Card sx={{ p: { xs: 2, sm: 4 } }}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{ mb: 3, fontWeight: 600 }}
+          >
+            {clienteId ? 'Editar Cliente' : 'Novo Cliente'}
+          </Typography>
 
-        {sucesso && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Cliente salvo com sucesso!
-          </Alert>
-        )}
+          {erro && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {erro}
+            </Alert>
+          )}
 
-        {carregando && !formData.nome ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
+          {sucesso && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Cliente salvo com sucesso!
+            </Alert>
+          )}
+
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2.5}>
-              {/* Informações Básicas */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: '#666' }}>
-                  INFORMAÇÕES BÁSICAS
-                </Typography>
-              </Grid>
+            {/* INFORMAÇÕES BÁSICAS */}
+            <Typography
+              variant="subtitle2"
+              sx={{ color: '#666', marginBottom: 2, fontWeight: 600, marginTop: 1 }}
+            >
+              INFORMAÇÕES BÁSICAS
+            </Typography>
 
+            <Grid container spacing={2.5} sx={{ marginBottom: 3 }}>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Nome"
+                  label="Nome *"
                   name="nome"
                   value={formData.nome}
                   onChange={handleInputChange}
@@ -188,7 +183,7 @@ export default function CadastroClienteScreen() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="CPF/CNPJ"
+                  label="CPF/CNPJ *"
                   name="cpfCnpj"
                   value={formData.cpfCnpj}
                   onChange={handleInputChange}
@@ -212,18 +207,21 @@ export default function CadastroClienteScreen() {
                   size="small"
                 />
               </Grid>
+            </Grid>
 
-              {/* Contato */}
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, mt: 2, color: '#666' }}>
-                  CONTATO
-                </Typography>
-              </Grid>
+            {/* CONTATO */}
+            <Typography
+              variant="subtitle2"
+              sx={{ color: '#666', marginBottom: 2, fontWeight: 600, marginTop: 1 }}
+            >
+              CONTATO
+            </Typography>
 
+            <Grid container spacing={2.5} sx={{ marginBottom: 3 }}>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Email"
+                  label="Email *"
                   name="email"
                   type="email"
                   value={formData.email}
@@ -259,43 +257,41 @@ export default function CadastroClienteScreen() {
                   size="small"
                 />
               </Grid>
+            </Grid>
 
-              {/* Botões */}
-              <Grid item xs={12}>
-                <Box sx={{
-                  display: 'flex',
-                  gap: 2,
-                  mt: 3,
-                  pt: 2,
-                  borderTop: '1px solid #eee',
-                }}>
+            {/* AÇÕES */}
+            <Box sx={{ borderTop: '1px solid #eee', paddingTop: 2.5 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
                   <Button
+                    fullWidth
                     type="submit"
                     variant="contained"
                     color="primary"
                     startIcon={<SaveIcon />}
                     disabled={carregando}
-                    fullWidth
                   >
-                    {carregando ? <CircularProgress size={20} /> : 'Salvar'}
+                    {carregando ? 'Salvando...' : 'Salvar'}
                   </Button>
+                </Grid>
 
+                <Grid item xs={12} sm={6}>
                   <Button
+                    fullWidth
                     variant="outlined"
                     color="inherit"
                     startIcon={<CancelIcon />}
                     onClick={() => navigate('/administrativo/clientes')}
                     disabled={carregando}
-                    fullWidth
                   >
                     Cancelar
                   </Button>
-                </Box>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
           </form>
-        )}
-      </Card>
-    </Container>
+        </Card>
+      </Container>
+    </Box>
   );
 }

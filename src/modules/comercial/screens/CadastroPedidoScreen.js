@@ -154,17 +154,17 @@ export default function CadastroPedidoScreen() {
 
   return (
     <Box>
-      <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
-          Voltar
-        </Button>
-      </Box>
 
-      <Container maxWidth="sm">
+      <Container maxWidth="md">
+        <Box sx={{ paddingX: 2 }}>
+            <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(-1)}
+            sx={{ marginBottom: 2, marginTop: 2 }}
+            >
+            Voltar
+            </Button>
+        </Box>
         <Card sx={{ p: { xs: 2, sm: 4 } }}>
           {erro && (
             <Alert severity="error" sx={{ marginBottom: 2 }}>
@@ -238,17 +238,6 @@ export default function CadastroPedidoScreen() {
                   <MenuItem value="CANCELADO">Cancelado</MenuItem>
                   <MenuItem value="ENTREGUE">Entregue</MenuItem>
                 </TextField>
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Total"
-                  name="total"
-                  value={`R$ ${total.toFixed(2)}`}
-                  disabled
-                  size="small"
-                />
               </Grid>
 
               <Grid item xs={12}>
@@ -394,6 +383,17 @@ export default function CadastroPedidoScreen() {
                 </Grid>
               )}
             </Grid>
+
+            <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Total"
+                  name="total"
+                  value={`R$ ${total.toFixed(2)}`}
+                  disabled
+                  size="small"
+                />
+              </Grid>
 
             {/* AÇÕES */}
             <Box sx={{ borderTop: '1px solid #eee', paddingTop: 2.5 }}>

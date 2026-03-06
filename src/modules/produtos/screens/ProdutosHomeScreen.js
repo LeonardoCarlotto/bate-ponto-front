@@ -4,10 +4,13 @@ import { Box, Grid, Card, CardActionArea, CardContent, Typography, Button } from
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import BusinessIcon from '@mui/icons-material/Business';
-import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import BackpackIcon from '@mui/icons-material/Backpack';
 
 export default function ProdutosHomeScreen() {
   const navigate = useNavigate();
+  const [erro, setErro] = React.useState(null);
+  const [sucesso, setSucesso] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const opcoes = [
     {
@@ -20,7 +23,7 @@ export default function ProdutosHomeScreen() {
       title: 'Gerenciar Pacotes',
       description: 'Crie combos de produtos e serviços para venda.',
       path: '/produtos/pacotes/lista',
-      icon: <LocalOfferIcon style={{ fontSize: 50, color: '#FF5722' }} />,
+      icon: <BackpackIcon style={{ fontSize: 50, color: '#FF5722' }} />,
     },
     {
       title: 'Gerenciar Fornecedores',
