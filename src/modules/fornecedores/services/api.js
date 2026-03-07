@@ -3,7 +3,7 @@
  * Gerencia: Fornecedores
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const getHeaders = () => ({
   'Content-Type': 'application/json',

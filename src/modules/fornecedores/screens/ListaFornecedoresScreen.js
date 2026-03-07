@@ -19,9 +19,9 @@ import {
   DialogActions,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import BackButton from '../../../shared/components/BackButton';
 import { fornecedoresService } from '../services/api';
 
 export default function ListaFornecedoresScreen() {
@@ -82,13 +82,7 @@ export default function ListaFornecedoresScreen() {
 
   return (
     <Box sx={{ padding: 3 }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ marginBottom: 2 }}
-      >
-        Voltar
-      </Button>
+      <BackButton />
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
         <Typography variant="h5">Gerenciar Fornecedores</Typography>
         <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleNovoFornecedor}>

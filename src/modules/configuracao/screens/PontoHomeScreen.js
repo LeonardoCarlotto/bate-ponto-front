@@ -7,10 +7,9 @@ import {
   CardActionArea,
   CardContent,
   Typography,
-  Button,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import BackButton from "../../../shared/components/BackButton";
 import PersonIcon from "@mui/icons-material/Person";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import GroupIcon from "@mui/icons-material/Group";
@@ -91,13 +90,7 @@ export default function PontoHomeScreen() {
 
   return (
     <Box sx={{ padding: "30px 20px" }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ marginBottom: 2 }}
-      >
-        Voltar
-      </Button>
+      <BackButton />
       <Typography variant="h5" gutterBottom sx={{ marginBottom: 1 }}>
         Configurações
       </Typography>

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Grid, Card, CardActionArea, CardContent, Typography, Button } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Box, Grid, Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
+import BackButton from '../../../shared/components/BackButton';
 
 export default function AdministrativoHomeScreen() {
   const navigate = useNavigate();
@@ -18,13 +18,7 @@ export default function AdministrativoHomeScreen() {
 
   return (
     <Box sx={{ padding: '30px 20px' }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ marginBottom: 2 }}
-      >
-        Voltar
-      </Button>
+      <BackButton />
       <Typography variant="h5" gutterBottom sx={{ marginBottom: 1 }}>
         Módulo Administrativo
       </Typography>

@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { Container, TextField, Button, Typography, Paper, CircularProgress } from "@mui/material";
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  CircularProgress,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { login } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +18,8 @@ function LoginScreen({ onLogin }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setLoading(true);
@@ -28,6 +39,16 @@ function LoginScreen({ onLogin }) {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleLogin();
+    }
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <Container maxWidth="sm" style={{ marginTop: "10rem" }}>
       <Paper style={{ padding: "2rem" }}>
@@ -41,15 +62,30 @@ function LoginScreen({ onLogin }) {
           margin="normal"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyPress}
         />
 
         <TextField
           fullWidth
-          type="password"
+          type={showPassword ? "text" : "password"}
           label="Alterar senha"
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={handleKeyPress}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleClickShowPassword}
+                  edge="end"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
 
         {error && (

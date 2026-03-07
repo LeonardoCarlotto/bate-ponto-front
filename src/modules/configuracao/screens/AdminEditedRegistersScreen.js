@@ -9,22 +9,19 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
   Chip,
   CircularProgress,
   Box,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../../../shared/i18n";
 import { API_URL } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import UserAvatar from "../../../shared/components/UserAvatar";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import BackButton from "../../../shared/components/BackButton";
 
 export default function AdminEditedRegistersScreen({ onBack }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
-   const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleUnauthorized } = useAuth();
 
@@ -70,13 +67,7 @@ export default function AdminEditedRegistersScreen({ onBack }) {
   return (
     <Container maxWidth="lg" sx={{ mt: 10 }}>
       <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
-          Voltar
-        </Button>
+        <BackButton />
       </Box>
       <Typography variant="h5" gutterBottom>
         {t("screen.adminEdited.title")}

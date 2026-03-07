@@ -21,7 +21,7 @@ import {
   Checkbox,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import BackButton from '../../../../shared/components/BackButton';
 import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -158,10 +158,6 @@ export default function CadastroPacoteScreen() {
       setErro("Nome do pacote é obrigatório");
       return false;
     }
-    if (itens.length === 0) {
-      setErro("Adicione pelo menos um item ao pacote");
-      return false;
-    }
     return true;
   };
 
@@ -224,13 +220,7 @@ export default function CadastroPacoteScreen() {
   return (
     <Box>
       <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
-          Voltar
-        </Button>
+        <BackButton />
       </Box>
 
       <Container maxWidth="dm">

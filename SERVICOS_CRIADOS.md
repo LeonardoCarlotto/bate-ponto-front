@@ -168,7 +168,7 @@ A documentação completa de todos os endpoints necessários está em:
 
 ### 1. Arquivo `.env`
 ```env
-REACT_APP_API_URL=http://localhost:3001/api
+REACT_APP_API_URL=http://const API_BASE_URL = process.env.REACT_APP_API_URL;:3001/api
 ```
 
 ### 2. Headers Padrão

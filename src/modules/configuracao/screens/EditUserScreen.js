@@ -10,16 +10,17 @@ import {
   Alert,
   Grid,
   CircularProgress,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import BackButton from "../../../shared/components/BackButton";
 import { useAuth } from "../contexts/AuthContext";
 import { updateUserProfile, changeMyPassword, API_URL } from "../services/api";
 
 export default function EditUserScreen() {
-  const navigate = useNavigate();
   const { handleUnauthorized } = useAuth();
 
   const [name, setName] = useState("");
@@ -31,6 +32,21 @@ export default function EditUserScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleClickShowCurrentPassword = () => {
+    setShowCurrentPassword(!showCurrentPassword);
+  };
+
+  const handleClickShowNewPassword = () => {
+    setShowNewPassword(!showNewPassword);
+  };
+
+  const handleClickShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   // Fetch current user data
   useEffect(() => {
@@ -189,13 +205,7 @@ export default function EditUserScreen() {
   return (
     <Box>
       <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
-          Voltar
-        </Button>
+        <BackButton />
       </Box>
 
       <Container maxWidth="dm">
@@ -327,11 +337,24 @@ export default function EditUserScreen() {
               <TextField
                 fullWidth
                 label="Senha Atual *"
-                type="password"
+                type={showCurrentPassword ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 disabled={loading}
                 size="small"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleClickShowCurrentPassword}
+                        edge="end"
+                        tabIndex={-1}
+                      >
+                        {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
 
@@ -339,11 +362,24 @@ export default function EditUserScreen() {
               <TextField
                 fullWidth
                 label="Nova Senha *"
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={loading}
                 size="small"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleClickShowNewPassword}
+                        edge="end"
+                        tabIndex={-1}
+                      >
+                        {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
 
@@ -351,11 +387,24 @@ export default function EditUserScreen() {
               <TextField
                 fullWidth
                 label="Confirmar Senha *"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
                 size="small"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleClickShowConfirmPassword}
+                        edge="end"
+                        tabIndex={-1}
+                      >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
           </Grid>

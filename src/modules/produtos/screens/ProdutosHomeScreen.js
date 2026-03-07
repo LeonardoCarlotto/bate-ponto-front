@@ -1,16 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Grid, Card, CardActionArea, CardContent, Typography, Button } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Box, Grid, Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import BusinessIcon from '@mui/icons-material/Business';
 import BackpackIcon from '@mui/icons-material/Backpack';
+import BackButton from '../../../shared/components/BackButton';
 
 export default function ProdutosHomeScreen() {
   const navigate = useNavigate();
-  const [erro, setErro] = React.useState(null);
-  const [sucesso, setSucesso] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
 
   const opcoes = [
     {
@@ -35,13 +32,7 @@ export default function ProdutosHomeScreen() {
 
   return (
     <Box sx={{ padding: '30px 20px' }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ marginBottom: 2 }}
-      >
-        Voltar
-      </Button>
+      <BackButton />
       <Typography variant="h5" gutterBottom sx={{ marginBottom: 1 }}>
         Módulo Produtos
       </Typography>

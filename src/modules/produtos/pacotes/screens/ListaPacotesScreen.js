@@ -15,9 +15,9 @@ import {
   Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import BackButton from '../../../../shared/components/BackButton';
 import pacotesService from '../services/api';
 
 export default function ListaPacotesScreen() {
@@ -74,9 +74,7 @@ export default function ListaPacotesScreen() {
 
   return (
     <Box sx={{ padding: 3 }}>
-      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} sx={{ marginBottom: 2 }}>
-        Voltar
-      </Button>
+      <BackButton />
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
         <Typography variant="h5">Pacotes Disponíveis</Typography>

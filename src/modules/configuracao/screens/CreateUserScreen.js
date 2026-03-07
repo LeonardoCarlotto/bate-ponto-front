@@ -13,11 +13,13 @@ import {
   Alert,
   Grid,
   CircularProgress,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Cancel";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import BackButton from "../../../shared/components/BackButton";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useTranslation } from "../../../shared/i18n";
 import { API_URL } from "../services/api";
@@ -27,6 +29,7 @@ export default function CreateUserScreen({ onBack }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [type, setType] = useState("EMPLOYEE");
   const [role, setRole] = useState("EMPLOYEE");
   const [active, setActive] = useState(true);
@@ -38,9 +41,11 @@ export default function CreateUserScreen({ onBack }) {
   const { t } = useTranslation();
   const { handleUnauthorized } = useAuth();
 
-  const handleBack = () => {
-    navigate(-1);
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
+
+
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
@@ -173,13 +178,7 @@ export default function CreateUserScreen({ onBack }) {
   return (
     <Box>
       <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBack}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
-          Voltar
-        </Button>
+        <BackButton />
       </Box>
 
       <Container maxWidth="dm">
@@ -240,12 +239,25 @@ export default function CreateUserScreen({ onBack }) {
                 <TextField
                   fullWidth
                   label={`${t("label.newPassword")} *`}
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
                   size="small"
                   required
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                          tabIndex={-1}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
             </Grid>
@@ -367,16 +379,13 @@ export default function CreateUserScreen({ onBack }) {
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
-                  <Button
-                    fullWidth
+                  <BackButton
+                    label="Cancelar"
                     variant="outlined"
                     color="inherit"
-                    startIcon={<CancelIcon />}
-                    onClick={handleBack}
+                    fullWidth
                     disabled={loading}
-                  >
-                    Cancelar
-                  </Button>
+                  />
                 </Grid>
               </Grid>
             </Box>

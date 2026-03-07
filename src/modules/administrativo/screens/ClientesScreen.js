@@ -1,14 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Typography, Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import {
+  Typography,
+  Button,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import BackButton from '../../../shared/components/BackButton';
+import { clientesService } from '../services/api';
 
 export default function ClientesScreen() {
   const navigate = useNavigate();
-  const [clientes] = React.useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(null);
+
+  useEffect(() => {
+    carregarClientes();
+  }, []);
+
+  const carregarClientes = async () => {
+    try {
+      setLoading(true);
+      setErro(null);
+      const data = await clientesService.listar();
+      setClientes(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error);
+      setErro('Erro ao carregar clientes. Tente novamente mais tarde.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleNovoCliente = () => {
     navigate('/administrativo/clientes/cadastro');
@@ -18,20 +52,21 @@ export default function ClientesScreen() {
     navigate(`/administrativo/clientes/cadastro/${clienteId}`);
   };
 
-  const handleDeletar = (clienteId) => {
-    // Implementar lógica de deleção
-    console.log('Deletar cliente:', clienteId);
+  const handleDeletar = async (clienteId) => {
+    if (window.confirm('Tem certeza que deseja deletar este cliente?')) {
+      try {
+        await clientesService.deletar(clienteId);
+        carregarClientes();
+      } catch (error) {
+        console.error('Erro ao deletar cliente:', error);
+        alert('Erro ao deletar cliente');
+      }
+    }
   };
 
   return (
     <Box sx={{ padding: 3 }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ marginBottom: 2 }}
-      >
-        Voltar
-      </Button>
+      <BackButton />
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
         <Typography variant="h5">Gerenciar Clientes</Typography>
         <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleNovoCliente}>
@@ -39,7 +74,18 @@ export default function ClientesScreen() {
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
+      {erro && (
+        <Alert severity="error" sx={{ marginBottom: 2 }}>
+          {erro}
+        </Alert>
+      )}
+
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <TableContainer component={Paper}>
         <Table>
           <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
             <TableRow>
@@ -47,7 +93,6 @@ export default function ClientesScreen() {
               <TableCell>Nome</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Telefone</TableCell>
-              <TableCell>Endereço</TableCell>
               <TableCell>Ações</TableCell>
             </TableRow>
           </TableHead>
@@ -65,7 +110,6 @@ export default function ClientesScreen() {
                   <TableCell>{cliente.nome}</TableCell>
                   <TableCell>{cliente.email}</TableCell>
                   <TableCell>{cliente.telefone}</TableCell>
-                  <TableCell>{cliente.endereco}</TableCell>
                   <TableCell>
                     <Button size="small" color="primary" startIcon={<EditIcon />} onClick={() => handleEditar(cliente.id)}>
                       Editar
@@ -80,6 +124,7 @@ export default function ClientesScreen() {
           </TableBody>
         </Table>
       </TableContainer>
+      )}
     </Box>
   );
 }

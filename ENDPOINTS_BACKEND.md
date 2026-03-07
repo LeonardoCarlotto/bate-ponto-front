@@ -1350,7 +1350,7 @@ Todos os endpoints devem retornar os seguintes erros padrão:
 Adicione ao arquivo `.env` na raiz do projeto:
 
 ```env
-REACT_APP_API_URL=http://localhost:3001/api
+REACT_APP_API_URL=http://const API_BASE_URL = process.env.REACT_APP_API_URL;:3001/api
 ```
 
 ---

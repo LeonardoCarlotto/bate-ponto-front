@@ -12,7 +12,7 @@ import {
   Box,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import BackButton from '../../../shared/components/BackButton';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { clientesService } from '../services/api';
 
@@ -28,7 +28,6 @@ export default function CadastroClienteScreen() {
     cpfCnpj: '',
     email: '',
     telefone: '',
-    celular: '',
     dataAbertura: new Date().toISOString().split('T')[0],
     ativo: true,
   });
@@ -42,7 +41,6 @@ export default function CadastroClienteScreen() {
         cpfCnpj: cliente.cpfCnpj || '',
         email: cliente.email || '',
         telefone: cliente.telefone || '',
-        celular: cliente.celular || '',
         dataAbertura: cliente.dataAbertura || new Date().toISOString().split('T')[0],
         ativo: cliente.ativo !== false,
       });
@@ -126,13 +124,7 @@ export default function CadastroClienteScreen() {
   return (
     <Box>
       <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
-          Voltar
-        </Button>
+        <BackButton />
       </Box>
 
       <Container maxWidth="dm">
@@ -245,18 +237,6 @@ export default function CadastroClienteScreen() {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Celular"
-                  name="celular"
-                  value={formData.celular}
-                  onChange={handleInputChange}
-                  placeholder="(11) 99999-9999"
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
             </Grid>
 
             {/* AÇÕES */}

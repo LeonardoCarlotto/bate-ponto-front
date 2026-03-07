@@ -15,18 +15,14 @@ import {
   Container,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import BackButton from '../../../shared/components/BackButton';
 import { produtosService } from '../services/api';
 
 export default function ListaProdutosScreen() {
   const navigate = useNavigate();
-  const [produtos, setProdutos] = React.useState([
-    { id: 1, nome: 'Produto 1', categoria: 'Quadro', preco: 100.0, estoque: 50, status: 'Ativo' },
-    { id: 2, nome: 'Produto 2', categoria: 'Alboom', preco: 200.0, estoque: 30, status: 'Ativo' },
-    { id: 3, nome: 'Produto 3', categoria: 'Foto 15x21', preco: 15.0, estoque: 0, status: 'Inativo' },
-  ]);
+  const [produtos, setProdutos] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [erro, setErro] = React.useState(null);
 
@@ -71,13 +67,7 @@ export default function ListaProdutosScreen() {
   return (
     <Box>
       <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
-          Voltar
-        </Button>
+        <BackButton />
       </Box>
 
       <Container maxWidth="lg">
@@ -151,11 +141,11 @@ export default function ListaProdutosScreen() {
                           variant="body2"
                           sx={{
                             backgroundColor:
-                              produto.status === 'Ativo'
+                              produto.ativo
                                 ? '#e8f5e9'
                                 : '#ffebee',
                             color:
-                              produto.status === 'Ativo'
+                              produto.ativo
                                 ? '#2e7d32'
                                 : '#c62828',
                             padding: '4px 8px',
@@ -164,7 +154,7 @@ export default function ListaProdutosScreen() {
                             fontSize: '0.85rem',
                           }}
                         >
-                          {produto.status}
+                          {produto.ativo ? 'Ativo' : 'Inativo'}
                         </Typography>
                       </TableCell>
                       <TableCell align="center">

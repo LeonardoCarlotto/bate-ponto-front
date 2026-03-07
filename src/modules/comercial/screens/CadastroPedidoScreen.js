@@ -18,10 +18,10 @@ import {
   IconButton,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import BackButton from '../../../shared/components/BackButton';
 
 export default function CadastroPedidoScreen() {
   const navigate = useNavigate();
@@ -157,13 +157,7 @@ export default function CadastroPedidoScreen() {
 
       <Container maxWidth="md">
         <Box sx={{ paddingX: 2 }}>
-            <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(-1)}
-            sx={{ marginBottom: 2, marginTop: 2 }}
-            >
-            Voltar
-            </Button>
+            <BackButton />
         </Box>
         <Card sx={{ p: { xs: 2, sm: 4 } }}>
           {erro && (

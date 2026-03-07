@@ -9,19 +9,19 @@ In the project directory, you can run:
 ### `npm start`
 
 Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.  
+Open [http://const API_BASE_URL = process.env.REACT_APP_API_URL;:3000](http://const API_BASE_URL = process.env.REACT_APP_API_URL;:3000) to view it in your browser.  
 
 ### Environment Configuration
 
 Create a `.env` file in the project root based on `.env.example` to configure your backend API URL:
 
 ```bash
-REACT_APP_API_URL=http://localhost:8080
+REACT_APP_API_URL=http://const API_BASE_URL = process.env.REACT_APP_API_URL;:8080
 ```
 
 **For production**: Set `REACT_APP_API_URL` to your production backend URL (e.g., `https://api.yourdomain.com`).
 
-The frontend will use this URL for all API calls. Defaults to `http://localhost:8080` if not specified.
+The frontend will use this URL for all API calls. Defaults to `http://const API_BASE_URL = process.env.REACT_APP_API_URL;:8080` if not specified.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.

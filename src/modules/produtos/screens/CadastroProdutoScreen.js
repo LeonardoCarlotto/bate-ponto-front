@@ -11,6 +11,7 @@ import {
   Grid,
   MenuItem,
   Box,
+  Divider,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -20,6 +21,7 @@ import { produtosService } from "../services/api";
 export default function CadastroProdutoScreen() {
   const navigate = useNavigate();
   const { produtoId } = useParams();
+
   const [carregando, setCarregando] = React.useState(!!produtoId);
   const [erro, setErro] = React.useState(null);
   const [sucesso, setSucesso] = React.useState(false);
@@ -39,7 +41,7 @@ export default function CadastroProdutoScreen() {
       const cats = await produtosService.listarCategorias();
       setCategorias(cats || []);
     } catch (error) {
-      console.error("Erro ao carregar categorias:", error);
+      console.error(error);
       setCategorias([]);
     }
   }, []);
@@ -48,6 +50,7 @@ export default function CadastroProdutoScreen() {
     try {
       setCarregando(true);
       const produto = await produtosService.obter(produtoId);
+
       setFormData({
         nome: produto.nome || "",
         descricao: produto.descricao || "",
@@ -57,7 +60,7 @@ export default function CadastroProdutoScreen() {
         status: produto.status || "ativo",
       });
     } catch (error) {
-      setErro("Erro ao carregar dados do produto: " + error.message);
+      setErro("Erro ao carregar produto: " + error.message);
     } finally {
       setCarregando(false);
     }
@@ -65,17 +68,17 @@ export default function CadastroProdutoScreen() {
 
   React.useEffect(() => {
     carregarCategorias();
-    if (produtoId) {
-      carregarProduto();
-    }
-  }, [produtoId, carregarProduto, carregarCategorias]);
+    if (produtoId) carregarProduto();
+  }, [produtoId, carregarCategorias, carregarProduto]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
+
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
     }));
+
     setErro(null);
   };
 
@@ -84,30 +87,33 @@ export default function CadastroProdutoScreen() {
       setErro("Nome é obrigatório");
       return false;
     }
+
     if (!formData.categoria) {
       setErro("Categoria é obrigatória");
       return false;
     }
+
     if (!formData.preco || parseFloat(formData.preco) <= 0) {
       setErro("Preço deve ser maior que zero");
       return false;
     }
+
     if (parseFloat(formData.estoque) < 0) {
       setErro("Estoque não pode ser negativo");
       return false;
     }
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validarFormulario()) {
-      return;
-    }
+    if (!validarFormulario()) return;
 
     try {
       setCarregando(true);
+
       const dadosEnvio = {
         ...formData,
         preco: parseFloat(formData.preco),
@@ -121,11 +127,12 @@ export default function CadastroProdutoScreen() {
       }
 
       setSucesso(true);
+
       setTimeout(() => {
         navigate("/produtos/lista");
       }, 1500);
     } catch (error) {
-      setErro("Erro ao salvar produto: " + error.message);
+      setErro("Erro ao salvar: " + error.message);
     } finally {
       setCarregando(false);
     }
@@ -148,63 +155,59 @@ export default function CadastroProdutoScreen() {
 
   return (
     <Box>
-      <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
+
+      <Box sx={{ px: 2, mt: 2 }}>
+        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
           Voltar
         </Button>
       </Box>
 
-      <Container maxWidth="dm">
-        <Card
-          sx={{
-            p: { xs: 2, sm: 4 },
-            borderRadius: 2,
-            boxShadow: 2,
-          }}
-        >
-          <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
+      <Container maxWidth="md">
+
+        <Card sx={{ p: 4, mt: 2 }}>
+
+          <Typography variant="h5" fontWeight={600} mb={3}>
             {produtoId ? "Editar Produto" : "Novo Produto"}
           </Typography>
 
-          {erro && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {erro}
-            </Alert>
-          )}
-
-          {sucesso && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Produto salvo com sucesso!
-            </Alert>
-          )}
+          {erro && <Alert severity="error" sx={{ mb: 2 }}>{erro}</Alert>}
+          {sucesso && <Alert severity="success" sx={{ mb: 2 }}>Produto salvo com sucesso</Alert>}
 
           <form onSubmit={handleSubmit}>
-            <Grid item xs={12}>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, mb: 2, color: "#666" }}
-              >
-                INFORMAÇÕES DO PRODUTO
-              </Typography>
-            </Grid>
-            <Grid container spacing={2.5}>
-              {/* INFORMAÇÕES DO PRODUTO */}
 
-              <Grid item xs={12}>
+            {/* INFORMAÇÕES */}
+            <Typography variant="subtitle2" fontWeight={600} mb={2}>
+              Informações do Produto
+            </Typography>
+
+            <Grid container spacing={2}>
+
+              <Grid item xs={12} md={8}>
                 <TextField
                   fullWidth
-                  label="Nome do Produto *"
+                  label="Nome do Produto"
                   name="nome"
                   value={formData.nome}
                   onChange={handleInputChange}
-                  required
-                  disabled={carregando}
                   size="small"
+                  required
                 />
+              </Grid>
+
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  select
+                  label="Status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  size="small"
+                >
+                  <MenuItem value="ativo">Ativo</MenuItem>
+                  <MenuItem value="inativo">Inativo</MenuItem>
+                  <MenuItem value="descontinuado">Descontinuado</MenuItem>
+                </TextField>
               </Grid>
 
               <Grid item xs={12}>
@@ -216,134 +219,113 @@ export default function CadastroProdutoScreen() {
                   onChange={handleInputChange}
                   multiline
                   rows={3}
-                  disabled={carregando}
                   size="small"
                 />
               </Grid>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, mb: 2, color: "#666" }}
-              >
-                CLASSIFICAÇÃO
-              </Typography>
-            </Grid>
-            <Grid container spacing={2.5}>
-              {/* CLASSIFICAÇÃO */}
 
-              <Grid item xs={12} sm={6}>
+            </Grid>
+
+            <Divider sx={{ my: 4 }} />
+
+            {/* CLASSIFICAÇÃO */}
+            <Typography variant="subtitle2" fontWeight={600} mb={2}>
+              Classificação
+            </Typography>
+
+            <Grid container spacing={2}>
+
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   select
-                  label="Categoria *"
+                  label="Categoria"
                   name="categoria"
                   value={formData.categoria}
                   onChange={handleInputChange}
-                  required
-                  disabled={carregando}
                   size="small"
                 >
-                  <MenuItem value="">Selecione uma categoria</MenuItem>
-                  {categorias.length > 0 ? (
-                    categorias.map((cat) => (
-                      <MenuItem key={cat.id} value={cat.nome}>
-                        {cat.nome}
-                      </MenuItem>
-                    ))
-                  ) : (
-                    <MenuItem disabled>Nenhuma categoria disponível</MenuItem>
-                  )}
+                  <MenuItem value="">Selecione</MenuItem>
+
+                  {categorias.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.nome}>
+                      {cat.nome}
+                    </MenuItem>
+                  ))}
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+            </Grid>
+
+            <Divider sx={{ my: 4 }} />
+
+            {/* DISPONIBILIDADE */}
+            <Typography variant="subtitle2" fontWeight={600} mb={2}>
+              Disponibilidade
+            </Typography>
+
+            <Grid container spacing={2}>
+
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  select
-                  label="Status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  disabled={carregando}
-                  size="small"
-                >
-                  <MenuItem value="ativo">Ativo</MenuItem>
-                  <MenuItem value="inativo">Inativo</MenuItem>
-                  <MenuItem value="descontinuado">Descontinuado</MenuItem>
-                </TextField>
-              </Grid>
-
-              {/* DISPONIBILIDADE */}
-              <Grid item xs={12}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 600, mb: 2, color: "#666" }}
-                >
-                  DISPONIBILIDADE
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Preço *"
+                  label="Preço"
                   name="preco"
                   type="number"
-                  inputProps={{ step: "0.01", min: "0" }}
                   value={formData.preco}
                   onChange={handleInputChange}
-                  required
-                  disabled={carregando}
                   size="small"
+                  inputProps={{ step: "0.01", min: "0" }}
+                  required
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   label="Estoque"
                   name="estoque"
                   type="number"
-                  inputProps={{ min: "0" }}
                   value={formData.estoque}
                   onChange={handleInputChange}
-                  disabled={carregando}
                   size="small"
+                  inputProps={{ min: "0" }}
                 />
               </Grid>
-            </Grid>
-            {/* AÇÕES */}
-            <Box sx={{ borderTop: "1px solid #eee", paddingTop: 2.5 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    startIcon={<SaveIcon />}
-                    disabled={carregando}
-                    fullWidth
-                  >
-                    {carregando ? "Salvando..." : "Salvar"}
-                  </Button>
-                </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    variant="outlined"
-                    color="inherit"
-                    startIcon={<CancelIcon />}
-                    onClick={() => navigate("/produtos/lista")}
-                    disabled={carregando}
-                    fullWidth
-                  >
-                    Cancelar
-                  </Button>
-                </Grid>
+            </Grid>
+
+            <Divider sx={{ my: 4 }} />
+
+            {/* AÇÕES */}
+            <Grid container spacing={2}>
+
+              <Grid item xs={12} md={6}>
+                <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  disabled={carregando}
+                >
+                  {carregando ? "Salvando..." : "Salvar"}
+                </Button>
               </Grid>
-            </Box>
+
+              <Grid item xs={12} md={6}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<CancelIcon />}
+                  onClick={() => navigate("/produtos/lista")}
+                >
+                  Cancelar
+                </Button>
+              </Grid>
+
+            </Grid>
+
           </form>
+
         </Card>
       </Container>
     </Box>

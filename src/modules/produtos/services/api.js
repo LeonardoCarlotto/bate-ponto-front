@@ -3,7 +3,7 @@
  * Gerencia: Produtos Gerais
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const getHeaders = () => ({
   'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ export const produtosService = {
   // Listar categorias
   async listarCategorias() {
     try {
-      const response = await fetch(`${API_BASE_URL}/produtos/categorias`, {
+      const response = await fetch(`${API_BASE_URL}/categorias`, {
         method: 'GET',
         headers: getHeaders(),
       });

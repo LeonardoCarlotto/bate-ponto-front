@@ -12,8 +12,8 @@ import {
   Box,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CancelIcon from "@mui/icons-material/Cancel";
+import BackButton from '../../../shared/components/BackButton';
 import { fornecedoresService } from "../services/api";
 
 export default function CadastroFornecedorScreen() {
@@ -133,13 +133,7 @@ export default function CadastroFornecedorScreen() {
 
   return (
     <Container maxWidth="dm" sx={{ py: 4, mt: 2 }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
-      >
-        Voltar
-      </Button>
+      <BackButton />
 
       <Card
         sx={{

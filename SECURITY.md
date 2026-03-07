@@ -58,7 +58,7 @@ Run `npm audit fix --force` to force upgrade versions, but be aware:
 The frontend is now hardened with:
 
 - ? Environment variable for API_URL (`REACT_APP_API_URL`)
-- ? No hardcoded localhost in production code
+- ? No hardcoded const API_BASE_URL = process.env.REACT_APP_API_URL; in production code
 - ? HTTPS-ready (configure API_URL with https:// in production)
 - ? Token-based authentication (stored in localStorage)
 

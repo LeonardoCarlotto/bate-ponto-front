@@ -17,13 +17,15 @@ import {
   DialogActions,
   TextField,
   Box,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { getAllUsers, changeUserPassword, getRegistersForUser } from "../services/api";
 import { useTranslation } from "../../../shared/i18n";
 import { useAuth } from "../contexts/AuthContext";
 import UserAvatar from "../../../shared/components/UserAvatar";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import BackButton from "../../../shared/components/BackButton";
 
 export default function UserListScreen() {
   const [users, setUsers] = useState([]);
@@ -31,15 +33,19 @@ export default function UserListScreen() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [reportDialog, setReportDialog] = useState(false);
   const [reportMes, setReportMes] = useState("");
   const [reportAno, setReportAno] = useState("");
   const [registersDialog, setRegistersDialog] = useState(false);
   const [userRegisters, setUserRegisters] = useState([]);
   const [loadingRegisters, setLoadingRegisters] = useState(false);
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleUnauthorized } = useAuth();
+
+  const handleClickShowPassword = () => {
+    setShowNewPassword(!showNewPassword);
+  };
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -140,13 +146,7 @@ export default function UserListScreen() {
   return (
     <Container maxWidth="lg" sx={{ mt: 10 }}>
       <Box sx={{ paddingX: 2 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ marginBottom: 2, marginTop: 2 }}
-        >
-          Voltar
-        </Button>
+        <BackButton />
       </Box>
       <Typography variant="h5" gutterBottom>
         {t("screen.userList.title")}
@@ -222,11 +222,24 @@ export default function UserListScreen() {
         <DialogContent>
           <TextField
             label={t("label.newPassword")}
-            type="password"
+            type={showNewPassword ? "text" : "password"}
             fullWidth
             margin="normal"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                    tabIndex={-1}
+                  >
+                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         </DialogContent>
         <DialogActions>

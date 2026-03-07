@@ -1,6 +1,5 @@
 // src/screens/DashboardScreen.js
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -26,10 +25,10 @@ import {
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import BackButton from "../../../shared/components/BackButton";
 
 import {
   registerPoint,
@@ -40,7 +39,6 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 
 export default function DashboardScreen() {
-  const navigate = useNavigate();
   const { handleUnauthorized } = useAuth();
   const [records, setRecords] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -435,13 +433,7 @@ export default function DashboardScreen() {
 
   return (
     <Container maxWidth="md" sx={{ mt: "6rem" }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ marginBottom: 2 }}
-      >
-        Voltar
-      </Button>
+      <BackButton />
       <Typography variant="h4" align="center" gutterBottom>
         {currentTime.toLocaleDateString()} - {currentTime.toLocaleTimeString()}
       </Typography>
