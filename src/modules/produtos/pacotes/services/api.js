@@ -19,7 +19,7 @@ export const pacotesService = {
   // Listar todos os pacotes
   list: async () => {
     try {
-      const response = await api.get('/');
+      const response = await api.get('');
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -39,7 +39,7 @@ export const pacotesService = {
   // Criar um novo pacote
   create: async (pacoteData) => {
     try {
-      const response = await api.post('/', pacoteData);
+      const response = await api.post('', pacoteData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

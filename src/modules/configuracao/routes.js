@@ -1,7 +1,7 @@
 import React from "react";
 
 import LoginScreen from "./screens/LoginScreen";
-import PontoHomeScreen from "./screens/PontoHomeScreen";
+import ConfiguracaoHomeScreen from "./screens/ConfiguracaoHomeScreen";
 import DashboardScreen from "./screens/DashboardScreen";
 import AdminEditedRegistersScreen from "./screens/AdminEditedRegistersScreen";
 import CreateUserScreen from "./screens/CreateUserScreen";
@@ -16,37 +16,37 @@ const routes = [
     private: false,
   },
   {
-    path: "/ponto",
-    element: <PontoHomeScreen />,
+    path: "/configuracao",
+    element: <ConfiguracaoHomeScreen />,
     private: true,
   },
   {
-    path: "/ponto/dashboard",
+    path: "/configuracao/dashboard",
     element: <DashboardScreen />,
     private: true,
   },
   {
-    path: "/ponto/admin",
+    path: "/configuracao/admin",
     element: <AdminEditedRegistersScreen />,
     private: true,
   },
   {
-    path: "/ponto/create-user",
+    path: "/configuracao/create-user",
     element: <CreateUserScreen />,
     private: true,
   },
   {
-    path: "/ponto/users",
+    path: "/configuracao/users",
     element: <UserListScreen />,
     private: true,
   },
   {
-    path: "/ponto/edit-profile",
+    path: "/configuracao/edit-profile",
     element: <EditUserScreen />,
     private: true,
   },
   {
-    path: "/ponto/report",
+    path: "/configuracao/report",
     element: <ReportScreen />,
     private: true,
   },

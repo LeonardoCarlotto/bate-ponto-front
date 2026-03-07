@@ -7,6 +7,7 @@ import {
   Paper,
   MenuItem,
   CircularProgress,
+  Box,
 } from "@mui/material";
 import { reportPdf } from "../services/api";
 import BackButton from "../../../shared/components/BackButton";
@@ -41,67 +42,73 @@ const ReportScreen = () => {
   const anos = Array.from({ length: 5 }, (_, i) => anoAtual - i);
 
   return (
-    <Container maxWidth="sm" style={{ marginTop: "10rem" }}>
-      <BackButton />
-      <Paper style={{ padding: "2rem" }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Gerar Relatorio Mensal
-        </Typography>
-
-        {error && (
-          <Typography
-            color="error"
-            align="center"
-            style={{ marginBottom: "1rem" }}
-          >
-            {error}
+    <Box>
+      <Box sx={{ paddingX: 2 }}>
+        <BackButton />
+      </Box>
+      <Container maxWidth="sm">
+        <Paper style={{ padding: "2rem" }}>
+          <Typography variant="h5" align="center" gutterBottom>
+            Gerar Relatorio Mensal
           </Typography>
-        )}
 
-        <TextField
-          select
-          fullWidth
-          label="Mes"
-          margin="normal"
-          value={mes}
-          onChange={(e) => setMes(e.target.value)}
-        >
-          {[...Array(12)].map((_, i) => (
-            <MenuItem key={i + 1} value={i + 1}>
-              {i + 1}
-            </MenuItem>
-          ))}
-        </TextField>
+          {error && (
+            <Typography
+              color="error"
+              align="center"
+              style={{ marginBottom: "1rem" }}
+            >
+              {error}
+            </Typography>
+          )}
 
-        <TextField
-          select
-          fullWidth
-          label="Ano"
-          margin="normal"
-          value={ano}
-          onChange={(e) => setAno(e.target.value)}
-          placeholder="2026"
-        >
-          {anos.map((a) => (
-            <MenuItem key={a} value={a}>
-              {a}
-            </MenuItem>
-          ))}
-        </TextField>
+          <TextField
+            select
+            fullWidth
+            label="Mes"
+            margin="normal"
+            value={mes}
+            onChange={(e) => setMes(e.target.value)}
+          >
+            {[...Array(12)].map((_, i) => (
+              <MenuItem key={i + 1} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </TextField>
 
-        <Button
-          fullWidth
-          variant="contained"
-          color="primary"
-          style={{ marginTop: "2rem" }}
-          onClick={handleDownload}
-          disabled={loading}
-          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
-        >
-          Gerar PDF
-        </Button>
-      </Paper>
-    </Container>
+          <TextField
+            select
+            fullWidth
+            label="Ano"
+            margin="normal"
+            value={ano}
+            onChange={(e) => setAno(e.target.value)}
+            placeholder="2026"
+          >
+            {anos.map((a) => (
+              <MenuItem key={a} value={a}>
+                {a}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            style={{ marginTop: "2rem" }}
+            onClick={handleDownload}
+            disabled={loading}
+            startIcon={
+              loading ? <CircularProgress size={20} color="inherit" /> : null
+            }
+          >
+            Gerar PDF
+          </Button>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

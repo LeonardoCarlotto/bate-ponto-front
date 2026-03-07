@@ -10,15 +10,17 @@ import {
   Alert,
   Grid,
   Box,
+  Divider,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
-import BackButton from '../../../shared/components/BackButton';
+import BackButton from "../../../shared/components/BackButton";
 import { fornecedoresService } from "../services/api";
 
 export default function CadastroFornecedorScreen() {
   const navigate = useNavigate();
   const { fornecedorId } = useParams();
+
   const [carregando, setCarregando] = React.useState(!!fornecedorId);
   const [erro, setErro] = React.useState(null);
   const [sucesso, setSucesso] = React.useState(false);
@@ -28,7 +30,6 @@ export default function CadastroFornecedorScreen() {
     cnpj: "",
     email: "",
     telefone: "",
-    celular: "",
     contato: "",
     endereco: "",
     cidade: "",
@@ -40,13 +41,14 @@ export default function CadastroFornecedorScreen() {
   const carregarFornecedor = useCallback(async () => {
     try {
       setCarregando(true);
+
       const fornecedor = await fornecedoresService.obter(fornecedorId);
+
       setFormData({
         nome: fornecedor.nome || "",
         cnpj: fornecedor.cnpj || "",
         email: fornecedor.email || "",
         telefone: fornecedor.telefone || "",
-        celular: fornecedor.celular || "",
         contato: fornecedor.contato || "",
         endereco: fornecedor.endereco || "",
         cidade: fornecedor.cidade || "",
@@ -55,7 +57,7 @@ export default function CadastroFornecedorScreen() {
         ativo: fornecedor.ativo !== false,
       });
     } catch (error) {
-      setErro("Erro ao carregar dados do fornecedor: " + error.message);
+      setErro("Erro ao carregar fornecedor: " + error.message);
     } finally {
       setCarregando(false);
     }
@@ -68,11 +70,13 @@ export default function CadastroFornecedorScreen() {
   }, [fornecedorId, carregarFornecedor]);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: type === "checkbox" ? checked : value,
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
     }));
+
     setErro(null);
   };
 
@@ -81,27 +85,29 @@ export default function CadastroFornecedorScreen() {
       setErro("Nome é obrigatório");
       return false;
     }
+
     if (!formData.cnpj.trim()) {
       setErro("CNPJ é obrigatório");
       return false;
     }
+
     if (!formData.email.trim()) {
       setErro("Email é obrigatório");
       return false;
     }
+
     if (!formData.email.includes("@")) {
       setErro("Email inválido");
       return false;
     }
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validarFormulario()) {
-      return;
-    }
+    if (!validarFormulario()) return;
 
     try {
       setCarregando(true);
@@ -113,6 +119,7 @@ export default function CadastroFornecedorScreen() {
       }
 
       setSucesso(true);
+
       setTimeout(() => {
         navigate("/fornecedores/lista");
       }, 1500);
@@ -123,241 +130,204 @@ export default function CadastroFornecedorScreen() {
     }
   };
 
-  if (carregando) {
+  if (carregando && fornecedorId && !formData.nome) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", padding: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}>
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Container maxWidth="dm" sx={{ py: 4, mt: 2 }}>
-      <BackButton />
+        <Box>
+      <Box sx={{ paddingX: 2 }}>
+        <BackButton />
+      </Box>
+    <Container maxWidth="md">
 
-      <Card
-        sx={{
-          p: { xs: 2, sm: 4 },
-          borderRadius: 2,
-          boxShadow: 2,
-        }}
-      >
-        <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
+      <Card sx={{ p: 4 }}>
+
+        <Typography variant="h5" fontWeight={600} mb={3}>
           {fornecedorId ? "Editar Fornecedor" : "Novo Fornecedor"}
         </Typography>
 
-        {erro && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {erro}
-          </Alert>
-        )}
+        {erro && <Alert severity="error" sx={{ mb: 2 }}>{erro}</Alert>}
+        {sucesso && <Alert severity="success" sx={{ mb: 2 }}>Fornecedor salvo com sucesso</Alert>}
 
-        {sucesso && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Fornecedor salvo com sucesso!
-          </Alert>
-        )}
+        <form onSubmit={handleSubmit}>
 
-        {carregando && !formData.nome ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <form onSubmit={handleSubmit}>
+          {/* EMPRESA */}
+          <Typography variant="subtitle2" fontWeight={600} mb={2}>
+            Informações da Empresa
+          </Typography>
+
+          <Grid container spacing={2}>
+
+            <Grid item xs={12} md={8}>
+              <TextField
+                fullWidth
+                label="Nome da Empresa"
+                name="nome"
+                value={formData.nome}
+                onChange={handleInputChange}
+                size="small"
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="CNPJ"
+                name="cnpj"
+                value={formData.cnpj}
+                onChange={handleInputChange}
+                placeholder="00.000.000/0000-00"
+                size="small"
+                required
+              />
+            </Grid>
+
             <Grid item xs={12}>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, mb: 2, color: "#666" }}
-              >
-                INFORMAÇÕES DA EMPRESA
-              </Typography>
+              <TextField
+                fullWidth
+                label="Contato"
+                name="contato"
+                value={formData.contato}
+                onChange={handleInputChange}
+                placeholder="Responsável"
+                size="small"
+              />
             </Grid>
-            <Grid container spacing={2.5}>
-              {/* Informações Básicas */}
 
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Nome da Empresa"
-                  name="nome"
-                  value={formData.nome}
-                  onChange={handleInputChange}
-                  required
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
+          </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="CNPJ"
-                  name="cnpj"
-                  value={formData.cnpj}
-                  onChange={handleInputChange}
-                  placeholder="12.345.678/0001-90"
-                  required
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
+          <Divider sx={{ my: 4 }} />
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Contato"
-                  name="contato"
-                  value={formData.contato}
-                  onChange={handleInputChange}
-                  placeholder="Nome do responsável"
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
-            </Grid>
-            {/* Contato */}
+          {/* CONTATO */}
+          <Typography variant="subtitle2" fontWeight={600} mb={2}>
+            Contato
+          </Typography>
+
+          <Grid container spacing={2}>
+
             <Grid item xs={12}>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, mb: 2, mt: 2, color: "#666" }}
-              >
-                CONTATO
-              </Typography>
+              <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                type="email"
+                size="small"
+                required
+              />
             </Grid>
-            <Grid container spacing={2.5}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Telefone"
-                  name="telefone"
-                  value={formData.telefone}
-                  onChange={handleInputChange}
-                  placeholder="(11) 3000-0000"
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Celular"
-                  name="celular"
-                  value={formData.celular}
-                  onChange={handleInputChange}
-                  placeholder="(11) 99999-9999"
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Telefone"
+                name="telefone"
+                value={formData.telefone}
+                onChange={handleInputChange}
+                placeholder="(11) 3000-0000"
+                size="small"
+              />
             </Grid>
-            {/* Endereço */}
+
+          </Grid>
+
+          <Divider sx={{ my: 4 }} />
+
+          {/* ENDEREÇO */}
+          <Typography variant="subtitle2" fontWeight={600} mb={2}>
+            Endereço
+          </Typography>
+
+          <Grid container spacing={2}>
+
             <Grid item xs={12}>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, mb: 2, mt: 2, color: "#666" }}
+              <TextField
+                fullWidth
+                label="Endereço"
+                name="endereco"
+                value={formData.endereco}
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Cidade"
+                name="cidade"
+                value={formData.cidade}
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={3}>
+              <TextField
+                fullWidth
+                label="Estado"
+                name="estado"
+                value={formData.estado}
+                onChange={handleInputChange}
+                placeholder="SP"
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={3}>
+              <TextField
+                fullWidth
+                label="CEP"
+                name="cep"
+                value={formData.cep}
+                onChange={handleInputChange}
+                placeholder="00000-000"
+                size="small"
+              />
+            </Grid>
+
+          </Grid>
+
+          <Divider sx={{ my: 4 }} />
+
+          {/* BOTÕES */}
+          <Grid container spacing={2}>
+
+            <Grid item xs={12} md={6}>
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                startIcon={<SaveIcon />}
+                disabled={carregando}
               >
-                ENDEREÇO
-              </Typography>
+                {carregando ? "Salvando..." : "Salvar"}
+              </Button>
             </Grid>
-            <Grid container spacing={2.5}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Endereço"
-                  name="endereco"
-                  value={formData.endereco}
-                  onChange={handleInputChange}
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Cidade"
-                  name="cidade"
-                  value={formData.cidade}
-                  onChange={handleInputChange}
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={3}>
-                <TextField
-                  fullWidth
-                  label="Estado"
-                  name="estado"
-                  value={formData.estado}
-                  onChange={handleInputChange}
-                  placeholder="SP"
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={3}>
-                <TextField
-                  fullWidth
-                  label="CEP"
-                  name="cep"
-                  value={formData.cep}
-                  onChange={handleInputChange}
-                  placeholder="01310-100"
-                  disabled={carregando}
-                  size="small"
-                />
-              </Grid>
-
-              {/* Botões */}
+            <Grid item xs={12} md={6}>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<CancelIcon />}
+                onClick={() => navigate("/fornecedores/lista")}
+              >
+                Cancelar
+              </Button>
             </Grid>
-            <Box sx={{ borderTop: "1px solid #eee", paddingTop: 2.5 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    startIcon={<SaveIcon />}
-                    disabled={carregando}
-                    fullWidth
-                  >
-                    {carregando ? <CircularProgress size={20} /> : "Salvar"}
-                  </Button>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    variant="outlined"
-                    color="inherit"
-                    startIcon={<CancelIcon />}
-                    onClick={() => navigate("/fornecedores/lista")}
-                    disabled={carregando}
-                    fullWidth
-                  >
-                    Cancelar
-                  </Button>
-                </Grid>
-              </Grid>
-            </Box>
-          </form>
-        )}
+
+          </Grid>
+
+        </form>
       </Card>
     </Container>
+    </Box>
   );
 }

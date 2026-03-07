@@ -127,7 +127,7 @@ export default function CadastroClienteScreen() {
         <BackButton />
       </Box>
 
-      <Container maxWidth="dm">
+      <Container maxWidth="md">
         <Card sx={{ p: { xs: 2, sm: 4 } }}>
           <Typography
             variant="h5"

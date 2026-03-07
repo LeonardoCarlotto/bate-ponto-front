@@ -83,23 +83,23 @@ export default function NavBar({ onLogout }) {
         {/* Menu do usuário */}
 
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-          <MenuItem onClick={() => goTo("/ponto/edit-profile")}>
+          <MenuItem onClick={() => goTo("/configuracao/edit-profile")}>
             Editar Perfil
           </MenuItem>
           {userType === "ADMIN" ? (
             <>
-              <MenuItem onClick={() => goTo("/ponto/admin")}>
+              <MenuItem onClick={() => goTo("/configuracao/admin")}>
                 {t("nav.editedRecords")}
               </MenuItem>
-              <MenuItem onClick={() => goTo("/ponto/create-user")}>
+              <MenuItem onClick={() => goTo("/configuracao/create-user")}>
                 {t("nav.createUser")}
               </MenuItem>
-              <MenuItem onClick={() => goTo("/ponto/users")}>
+              <MenuItem onClick={() => goTo("/configuracao/users")}>
                 {t("nav.listUsers")}
               </MenuItem>
             </>
           ) : (
-            <MenuItem onClick={() => goTo("/ponto/report")}>
+            <MenuItem onClick={() => goTo("/configuracao/report")}>
               {t("nav.report")}
             </MenuItem>
           )}

@@ -11,7 +11,7 @@ const modules = [
   {
     title: 'Configurações',
     description: 'Acesse suas configurações pessoais, ponto e relatórios.',
-    path: '/ponto',
+    path: '/configuracao',
     icon: <HomeRepairServiceIcon style={{ fontSize: 50, color: '#ff9900' }} />,
   },
   {

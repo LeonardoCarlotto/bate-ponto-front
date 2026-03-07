@@ -21,7 +21,11 @@ import {
   IconButton,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { getAllUsers, changeUserPassword, getRegistersForUser } from "../services/api";
+import {
+  getAllUsers,
+  changeUserPassword,
+  getRegistersForUser,
+} from "../services/api";
 import { useTranslation } from "../../../shared/i18n";
 import { useAuth } from "../contexts/AuthContext";
 import UserAvatar from "../../../shared/components/UserAvatar";
@@ -96,7 +100,11 @@ export default function UserListScreen() {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const data = await getRegistersForUser(token, user.id, handleUnauthorized);
+      const data = await getRegistersForUser(
+        token,
+        user.id,
+        handleUnauthorized,
+      );
       setUserRegisters(data);
     } catch (err) {
       console.error(err);
@@ -116,12 +124,21 @@ export default function UserListScreen() {
     try {
       const token = localStorage.getItem("token");
       if (!token || !selectedUser) return;
-      await changeUserPassword(token, selectedUser.id, newPassword, handleUnauthorized);
+      await changeUserPassword(
+        token,
+        selectedUser.id,
+        newPassword,
+        handleUnauthorized,
+      );
       alert(t("message.passwordChanged"));
       closeDialog();
     } catch (err) {
       console.error(err);
-      alert(err.message || t("message.errorChangingPassword") || "Erro ao alterar senha");
+      alert(
+        err.message ||
+          t("message.errorChangingPassword") ||
+          "Erro ao alterar senha",
+      );
     }
   };
 
@@ -135,7 +152,13 @@ export default function UserListScreen() {
       }
       // import the new API function dynamically to avoid circular
       const { reportPdfForUser } = await import("../services/api");
-      await reportPdfForUser(token, selectedUser.id, reportMes, reportAno, handleUnauthorized);
+      await reportPdfForUser(
+        token,
+        selectedUser.id,
+        reportMes,
+        reportAno,
+        handleUnauthorized,
+      );
       closeReportDialog();
     } catch (err) {
       console.error(err);
@@ -144,178 +167,207 @@ export default function UserListScreen() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 10 }}>
+    <Box>
       <Box sx={{ paddingX: 2 }}>
         <BackButton />
       </Box>
-      <Typography variant="h5" gutterBottom>
-        {t("screen.userList.title")}
-      </Typography>
+      <Container maxWidth="lg">
+        <Typography variant="h5" gutterBottom>
+          {t("screen.userList.title")}
+        </Typography>
 
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "300px" }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>{t("table.id")}</TableCell>
-                <TableCell></TableCell>
-                <TableCell>{t("table.name")}</TableCell>
-                <TableCell>{t("table.email")}</TableCell>
-                <TableCell>{t("table.type")}</TableCell>
-                <TableCell>{t("table.active")}</TableCell>
-                <TableCell>{t("table.actions")}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>
-                    <UserAvatar name={user.name} urlPhoto={user.urlPhoto} size={36} />
-                  </TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{
-                    user.type === "EMPLOYEE"
-                      ? t("table.type.employee")
-                      : t("table.type.admin")
-                  }</TableCell>
-                              <TableCell>{user.active ? t("table.yes") : t("table.no")}</TableCell>
-                  <TableCell>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => openDialog(user)}
-                      sx={{ mr: 1 }}
-                    >
-                      Alterar senha
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => openRegistersDialog(user)}
-                      sx={{ mr: 1 }}
-                    >
-                      Registros
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={() => openReportDialog(user)}
-                    >
-                      Relatório
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      <Dialog open={dialogOpen} onClose={closeDialog}>
-        <DialogTitle>{t("nav.changePassword")} de {selectedUser?.name}</DialogTitle>
-        <DialogContent>
-          <TextField
-            label={t("label.newPassword")}
-            type={showNewPassword ? "text" : "password"}
-            fullWidth
-            margin="normal"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleClickShowPassword}
-                    edge="end"
-                    tabIndex={-1}
-                  >
-                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
+        {loading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "300px",
             }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDialog}>{t("button.back")}</Button>
-          <Button variant="contained" onClick={handleChange}>
-            {t("button.submit")}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={reportDialog} onClose={closeReportDialog}>
-        <DialogTitle>Relatório de {selectedUser?.name}</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Mês"
-            type="number"
-            fullWidth
-            margin="normal"
-            value={reportMes}
-            onChange={(e) => setReportMes(e.target.value)}
-          />
-          <TextField
-            label="Ano"
-            type="number"
-            fullWidth
-            margin="normal"
-            value={reportAno}
-            onChange={(e) => setReportAno(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeReportDialog}>{t("button.back")}</Button>
-          <Button variant="contained" onClick={handleReport}>
-            Gerar PDF
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={registersDialog} onClose={closeRegistersDialog} maxWidth="md" fullWidth>
-        <DialogTitle>Registros de {selectedUser?.name}</DialogTitle>
-        <DialogContent>
-          {loadingRegisters ? (
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : userRegisters.length > 0 ? (
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Data</TableCell>
-                    <TableCell>Hora</TableCell>
-                    <TableCell>Tipo</TableCell>
-                    <TableCell>Observação</TableCell>
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t("table.id")}</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell>{t("table.name")}</TableCell>
+                  <TableCell>{t("table.email")}</TableCell>
+                  <TableCell>{t("table.type")}</TableCell>
+                  <TableCell>{t("table.active")}</TableCell>
+                  <TableCell>{t("table.actions")}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.id}</TableCell>
+                    <TableCell>
+                      <UserAvatar
+                        name={user.name}
+                        urlPhoto={user.urlPhoto}
+                        size={36}
+                      />
+                    </TableCell>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      {user.type === "EMPLOYEE"
+                        ? t("table.type.employee")
+                        : t("table.type.admin")}
+                    </TableCell>
+                    <TableCell>
+                      {user.active ? t("table.yes") : t("table.no")}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => openDialog(user)}
+                        sx={{ mr: 1 }}
+                      >
+                        Alterar senha
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => openRegistersDialog(user)}
+                        sx={{ mr: 1 }}
+                      >
+                        Registros
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => openReportDialog(user)}
+                      >
+                        Relatório
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {userRegisters.map((reg, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{reg.date || "-"}</TableCell>
-                      <TableCell>{reg.time || "-"}</TableCell>
-                      <TableCell>{reg.type || "-"}</TableCell>
-                      <TableCell>{reg.observation || "-"}</TableCell>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+
+        <Dialog open={dialogOpen} onClose={closeDialog}>
+          <DialogTitle>
+            {t("nav.changePassword")} de {selectedUser?.name}
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              label={t("label.newPassword")}
+              type={showNewPassword ? "text" : "password"}
+              fullWidth
+              margin="normal"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                      tabIndex={-1}
+                    >
+                      {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeDialog}>{t("button.back")}</Button>
+            <Button variant="contained" onClick={handleChange}>
+              {t("button.submit")}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={reportDialog} onClose={closeReportDialog}>
+          <DialogTitle>Relatório de {selectedUser?.name}</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Mês"
+              type="number"
+              fullWidth
+              margin="normal"
+              value={reportMes}
+              onChange={(e) => setReportMes(e.target.value)}
+            />
+            <TextField
+              label="Ano"
+              type="number"
+              fullWidth
+              margin="normal"
+              value={reportAno}
+              onChange={(e) => setReportAno(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeReportDialog}>{t("button.back")}</Button>
+            <Button variant="contained" onClick={handleReport}>
+              Gerar PDF
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={registersDialog}
+          onClose={closeRegistersDialog}
+          maxWidth="lg"
+          fullWidth
+        >
+          <DialogTitle>Registros de {selectedUser?.name}</DialogTitle>
+          <DialogContent>
+            {loadingRegisters ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  py: 4,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : userRegisters.length > 0 ? (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Data</TableCell>
+                      <TableCell>Hora</TableCell>
+                      <TableCell>Tipo</TableCell>
+                      <TableCell>Observação</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Typography>Nenhum registro encontrado</Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeRegistersDialog}>{t("button.back")}</Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+                  </TableHead>
+                  <TableBody>
+                    {userRegisters.map((reg, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>{reg.date || "-"}</TableCell>
+                        <TableCell>{reg.time || "-"}</TableCell>
+                        <TableCell>{reg.type || "-"}</TableCell>
+                        <TableCell>{reg.observation || "-"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Typography>Nenhum registro encontrado</Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeRegistersDialog}>{t("button.back")}</Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+    </Box>
   );
 }

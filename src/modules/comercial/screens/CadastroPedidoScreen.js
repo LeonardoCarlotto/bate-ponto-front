@@ -1,7 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Box,
   Card,
   Container,
   TextField,
@@ -16,98 +15,112 @@ import {
   TableHead,
   TableRow,
   IconButton,
-} from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import BackButton from '../../../shared/components/BackButton';
+  Box,
+} from "@mui/material";
+
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Cancel";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+
+import BackButton from "../../../shared/components/BackButton";
 
 export default function CadastroPedidoScreen() {
   const navigate = useNavigate();
+
   const [erro, setErro] = React.useState(null);
   const [sucesso, setSucesso] = React.useState(false);
 
   const [clientes] = React.useState([
-    { id: 1, nome: 'Cliente 1' },
-    { id: 2, nome: 'Cliente 2' },
-    { id: 3, nome: 'Cliente 3' },
+    { id: 1, nome: "Cliente 1" },
+    { id: 2, nome: "Cliente 2" },
+    { id: 3, nome: "Cliente 3" },
   ]);
 
   const [produtos] = React.useState([
-    { id: 1, nome: 'Produto 1', preco: 10.00 },
-    { id: 2, nome: 'Produto 2', preco: 20.00 },
-    { id: 3, nome: 'Produto 3', preco: 30.00 },
+    { id: 1, nome: "Produto 1", preco: 10 },
+    { id: 2, nome: "Produto 2", preco: 20 },
+    { id: 3, nome: "Produto 3", preco: 30 },
   ]);
 
   const [pacotes] = React.useState([
-    { id: 1, nome: 'Pacote Básico', descricao: 'Combo com 3 produtos', preco: 50.00 },
-    { id: 2, nome: 'Pacote Premium', descricao: 'Combo com 5 produtos + 2 serviços', preco: 150.00 },
+    { id: 1, nome: "Pacote Básico", preco: 50 },
+    { id: 2, nome: "Pacote Premium", preco: 150 },
   ]);
 
   const [formData, setFormData] = React.useState({
-    clienteId: '',
-    dataPedido: new Date().toISOString().split('T')[0],
-    status: 'PENDENTE',
-    observacoes: '',
+    clienteId: "",
+    dataPedido: new Date().toISOString().split("T")[0],
+    status: "PENDENTE",
+    observacoes: "",
   });
 
   const [itens, setItens] = React.useState([]);
+
   const [novoItem, setNovoItem] = React.useState({
-    tipo: 'produto',
-    itemId: '',
+    tipo: "produto",
+    itemId: "",
     quantidade: 1,
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
+
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
     }));
+
     setErro(null);
   };
 
   const handleNovoItemChange = (e) => {
     const { name, value } = e.target;
-    setNovoItem((prevState) => ({
-      ...prevState,
-      [name]: name === 'quantidade' ? parseInt(value) || 1 : value,
-      ...(name === 'tipo' && { itemId: '' }),
+
+    setNovoItem((prev) => ({
+      ...prev,
+      [name]: name === "quantidade" ? parseInt(value) || 1 : value,
+      ...(name === "tipo" && { itemId: "" }),
     }));
   };
 
   const adicionarItem = () => {
-    if (!novoItem.itemId || novoItem.quantidade <= 0) {
-      setErro(`Selecione um ${novoItem.tipo} e quantidade válida`);
+    if (!novoItem.itemId) {
+      setErro("Selecione um item");
       return;
     }
 
-    const lista = novoItem.tipo === 'produto' ? produtos : pacotes;
-    const item = lista.find((p) => p.id === parseInt(novoItem.itemId));
-    
-    if (!item) {
-      setErro(`${novoItem.tipo === 'produto' ? 'Produto' : 'Pacote'} não encontrado`);
+    const lista = novoItem.tipo === "produto" ? produtos : pacotes;
+
+    const selecionado = lista.find(
+      (item) => item.id === parseInt(novoItem.itemId),
+    );
+
+    if (!selecionado) {
+      setErro("Item não encontrado");
       return;
     }
 
-    const novoItemCompleto = {
+    const item = {
       id: Date.now(),
       tipo: novoItem.tipo,
-      itemId: parseInt(novoItem.itemId),
-      nome: item.nome,
+      nome: selecionado.nome,
       quantidade: novoItem.quantidade,
-      preco: item.preco,
-      subtotal: item.preco * novoItem.quantidade,
+      preco: selecionado.preco,
+      subtotal: selecionado.preco * novoItem.quantidade,
     };
 
-    setItens((prevState) => [...prevState, novoItemCompleto]);
-    setNovoItem({ tipo: 'produto', itemId: '', quantidade: 1 });
-    setErro(null);
+    setItens((prev) => [...prev, item]);
+
+    setNovoItem({
+      tipo: "produto",
+      itemId: "",
+      quantidade: 1,
+    });
   };
 
-  const removerItem = (itemId) => {
-    setItens((prevState) => prevState.filter((item) => item.id !== itemId));
+  const removerItem = (id) => {
+    setItens((prev) => prev.filter((i) => i.id !== id));
   };
 
   const calcularTotal = () => {
@@ -116,86 +129,86 @@ export default function CadastroPedidoScreen() {
 
   const validarFormulario = () => {
     if (!formData.clienteId) {
-      setErro('Cliente é obrigatório');
+      setErro("Cliente é obrigatório");
       return false;
     }
+
     if (itens.length === 0) {
-      setErro('Adicione pelo menos um pacote ou produto ao pedido');
+      setErro("Adicione pelo menos um item");
       return false;
     }
+
     return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!validarFormulario()) {
-      return;
-    }
+    if (!validarFormulario()) return;
 
     try {
-      console.log('Salvando pedido:', {
+      console.log({
         ...formData,
         itens,
         total: calcularTotal(),
       });
 
       setSucesso(true);
+
       setTimeout(() => {
-        navigate('/comercial/pedidos');
-      }, 1500);
-    } catch (error) {
-      setErro('Erro ao salvar pedido: ' + error.message);
+        navigate("/comercial/pedidos");
+      }, 1200);
+    } catch {
+      setErro("Erro ao salvar pedido");
     }
   };
 
   const total = calcularTotal();
-  const listaAtual = novoItem.tipo === 'produto' ? produtos : pacotes;
+  const listaAtual = novoItem.tipo === "produto" ? produtos : pacotes;
 
   return (
     <Box>
-
+      <Box sx={{ paddingX: 2 }}>
+        <BackButton />
+      </Box>
       <Container maxWidth="md">
-        <Box sx={{ paddingX: 2 }}>
-            <BackButton />
-        </Box>
         <Card sx={{ p: { xs: 2, sm: 4 } }}>
           {erro && (
-            <Alert severity="error" sx={{ marginBottom: 2 }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
               {erro}
             </Alert>
           )}
 
           {sucesso && (
-            <Alert severity="success" sx={{ marginBottom: 2 }}>
-              Pedido salvo com sucesso!
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Pedido salvo com sucesso
             </Alert>
           )}
 
           <form onSubmit={handleSubmit}>
-            {/* INFORMAÇÕES DO PEDIDO */}
-            <Typography
-              variant="subtitle2"
-              sx={{ color: '#666', marginBottom: 2, fontWeight: 600, marginTop: 1 }}
-            >
-              INFORMAÇÕES DO PEDIDO
+            <Typography variant="h5" fontWeight={600} mb={3}>
+              Novo Pedido
+            </Typography>
+            <Typography variant="subtitle2" fontWeight={600} mb={2}>
+              Informações do Pedido
             </Typography>
 
-            <Grid container spacing={2.5} sx={{ marginBottom: 3 }}>
+            <Grid container spacing={2} mb={3}>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
                   select
-                  label="Cliente *"
+                  label="Cliente"
                   name="clienteId"
                   value={formData.clienteId}
                   onChange={handleInputChange}
-                  required
                   size="small"
+                  required
                 >
                   <MenuItem value="">
-                    <em>Selecione um cliente</em>
+                    <em>Selecione</em>
                   </MenuItem>
+
                   {clientes.map((cliente) => (
                     <MenuItem key={cliente.id} value={cliente.id}>
                       {cliente.nome}
@@ -204,7 +217,7 @@ export default function CadastroPedidoScreen() {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   label="Data do Pedido"
@@ -217,7 +230,7 @@ export default function CadastroPedidoScreen() {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   select
@@ -239,28 +252,24 @@ export default function CadastroPedidoScreen() {
                   fullWidth
                   label="Observações"
                   name="observacoes"
-                  multiline
-                  rows={3}
                   value={formData.observacoes}
                   onChange={handleInputChange}
+                  multiline
+                  rows={3}
                   size="small"
                 />
               </Grid>
             </Grid>
 
-            {/* ITENS DO PEDIDO */}
-            <Typography
-              variant="subtitle2"
-              sx={{ color: '#666', marginBottom: 2, fontWeight: 600, marginTop: 1 }}
-            >
-              ITENS DO PEDIDO
+            <Typography variant="subtitle2" fontWeight={600} mb={2}>
+              Itens do Pedido
             </Typography>
 
-            <Grid container spacing={2.5} sx={{ marginBottom: 3 }}>
-              <Grid item xs={12} sm={5}>
+            <Grid container spacing={2} mb={3}>
+              <Grid item xs={12} md={3}>
                 <TextField
-                  fullWidth
                   select
+                  fullWidth
                   label="Tipo"
                   name="tipo"
                   value={novoItem.tipo}
@@ -272,19 +281,18 @@ export default function CadastroPedidoScreen() {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} md={5}>
                 <TextField
-                  fullWidth
                   select
-                  label={novoItem.tipo === 'produto' ? 'Produto' : 'Pacote'}
+                  fullWidth
+                  label="Item"
                   name="itemId"
                   value={novoItem.itemId}
                   onChange={handleNovoItemChange}
                   size="small"
                 >
-                  <MenuItem value="">
-                    <em>Selecione</em>
-                  </MenuItem>
+                  <MenuItem value="">Selecione</MenuItem>
+
                   {listaAtual.map((item) => (
                     <MenuItem key={item.id} value={item.id}>
                       {item.nome} - R$ {item.preco.toFixed(2)}
@@ -293,11 +301,11 @@ export default function CadastroPedidoScreen() {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} md={2}>
                 <TextField
                   fullWidth
-                  type="number"
                   label="Qtd"
+                  type="number"
                   name="quantidade"
                   value={novoItem.quantidade}
                   onChange={handleNovoItemChange}
@@ -306,117 +314,93 @@ export default function CadastroPedidoScreen() {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid item xs={12} md={2}>
                 <Button
                   fullWidth
                   variant="contained"
                   color="success"
                   startIcon={<AddIcon />}
                   onClick={adicionarItem}
-                  size="small"
-                  sx={{ height: 40 }}
                 >
-                  Adicionar Item
+                  Adicionar
                 </Button>
               </Grid>
-
-              {itens.length > 0 && (
-                <Grid item xs={12}>
-                  <Box sx={{ overflowX: 'auto' }}>
-                    <Table size="small">
-                      <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-                        <TableRow>
-                          <TableCell sx={{ fontSize: '0.85rem' }}>Tipo</TableCell>
-                          <TableCell sx={{ fontSize: '0.85rem' }}>Nome</TableCell>
-                          <TableCell align="right" sx={{ fontSize: '0.85rem' }}>
-                            Qtd
-                          </TableCell>
-                          <TableCell align="right" sx={{ fontSize: '0.85rem' }}>
-                            Preço
-                          </TableCell>
-                          <TableCell align="right" sx={{ fontSize: '0.85rem' }}>
-                            Subtotal
-                          </TableCell>
-                          <TableCell align="center" sx={{ fontSize: '0.85rem' }}>
-                            Ação
-                          </TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {itens.map((item) => (
-                          <TableRow key={item.id} sx={{ fontSize: '0.85rem' }}>
-                            <TableCell sx={{ fontSize: '0.85rem', textTransform: 'capitalize' }}>
-                              {item.tipo}
-                            </TableCell>
-                            <TableCell sx={{ fontSize: '0.85rem' }}>
-                              {item.nome}
-                            </TableCell>
-                            <TableCell align="right" sx={{ fontSize: '0.85rem' }}>
-                              {item.quantidade}
-                            </TableCell>
-                            <TableCell align="right" sx={{ fontSize: '0.85rem' }}>
-                              R$ {item.preco.toFixed(2)}
-                            </TableCell>
-                            <TableCell align="right" sx={{ fontSize: '0.85rem' }}>
-                              R$ {item.subtotal.toFixed(2)}
-                            </TableCell>
-                            <TableCell align="center">
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => removerItem(item.id)}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Box>
-                </Grid>
-              )}
             </Grid>
 
-            <Grid item xs={12}>
+            {itens.length > 0 && (
+              <Table size="small" sx={{ mb: 3 }}>
+                <TableHead sx={{ background: "#f5f5f5" }}>
+                  <TableRow>
+                    <TableCell>Tipo</TableCell>
+                    <TableCell>Nome</TableCell>
+                    <TableCell align="right">Qtd</TableCell>
+                    <TableCell align="right">Preço</TableCell>
+                    <TableCell align="right">Subtotal</TableCell>
+                    <TableCell align="center"></TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {itens.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.tipo}</TableCell>
+                      <TableCell>{item.nome}</TableCell>
+                      <TableCell align="right">{item.quantidade}</TableCell>
+                      <TableCell align="right">
+                        R$ {item.preco.toFixed(2)}
+                      </TableCell>
+                      <TableCell align="right">
+                        R$ {item.subtotal.toFixed(2)}
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          color="error"
+                          onClick={() => removerItem(item.id)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+
+            <Grid container mb={4}>
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="Total"
-                  name="total"
                   value={`R$ ${total.toFixed(2)}`}
                   disabled
                   size="small"
                 />
               </Grid>
+            </Grid>
 
-            {/* AÇÕES */}
-            <Box sx={{ borderTop: '1px solid #eee', paddingTop: 2.5 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    fullWidth
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    startIcon={<SaveIcon />}
-                  >
-                    Salvar
-                  </Button>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    color="inherit"
-                    startIcon={<CancelIcon />}
-                    onClick={() => navigate('/comercial/pedidos')}
-                  >
-                    Cancelar
-                  </Button>
-                </Grid>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                >
+                  Salvar
+                </Button>
               </Grid>
-            </Box>
+
+              <Grid item xs={12} md={6}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<CancelIcon />}
+                  onClick={() => navigate("/comercial/pedidos")}
+                >
+                  Cancelar
+                </Button>
+              </Grid>
+            </Grid>
           </form>
         </Card>
       </Container>

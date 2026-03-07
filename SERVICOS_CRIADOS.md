@@ -5,7 +5,7 @@
 Todos os serviços de API foram criados e estão prontos para integração com o backend.
 
 ### 1️⃣ **Módulo Ponto** 
-📁 `/src/modules/ponto/services/api.js`
+📁 `/src/modules/configuracao/services/api.js`
 
 **Serviços Implementados:**
 - ✅ `authService` - Login, logout, verificação de token
@@ -72,7 +72,7 @@ Todos os serviços de API foram criados e estão prontos para integração com o
 
 ### Exemplo 1: Registrar Ponto
 ```javascript
-import { registrosService } from '../modules/ponto/services/api';
+import { registrosService } from '../modules/configuracao/services/api';
 
 // Em um componente React
 const handleRegistrarPonto = async () => {
@@ -216,7 +216,7 @@ Todos os serviços seguem padrão:
 
 ### Fluxo de Login:
 ```javascript
-import { authService } from '../modules/ponto/services/api';
+import { authService } from '../modules/configuracao/services/api';
 
 const handleLogin = async (email, senha) => {
   try {

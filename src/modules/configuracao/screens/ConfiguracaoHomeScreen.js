@@ -18,7 +18,7 @@ import { API_URL } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
-export default function PontoHomeScreen() {
+export default function ConfiguracaoHomeScreen() {
   const navigate = useNavigate();
   const [userType, setUserType] = useState("");
   const { handleUnauthorized } = useAuth();
@@ -49,20 +49,20 @@ export default function PontoHomeScreen() {
     {
       title: "Meu Perfil",
       description: "Edite suas informações e altere sua senha.",
-      path: "/ponto/edit-profile",
+      path: "/configuracao/edit-profile",
       icon: <PersonIcon style={{ fontSize: 50, color: "#4CAF50" }} />,
     },
     {
       title: "Registrar Ponto",
       description: "Marque suas entradas e saídas.",
-      path: "/ponto/dashboard",
+      path: "/configuracao/dashboard",
       icon: <AccessTimeIcon style={{ fontSize: 50, color: "#ff9900" }} />,
     },
 
     {
       title: "Relatórios",
       description: "Visualize seus relatórios de ponto.",
-      path: "/ponto/report",
+      path: "/configuracao/report",
       icon: <AssignmentIcon style={{ fontSize: 50, color: "#9C27B0" }} />,
     },
   ];
@@ -71,26 +71,26 @@ export default function PontoHomeScreen() {
     {
       title: "Criar Usuário",
       description: "Cadastre um novo usuário.",
-      path: "/ponto/create-user",
+      path: "/configuracao/create-user",
       icon: <PersonAddIcon style={{ fontSize: 50, color: "#4CAF50" }} />,
     },
     {
       title: "Colaboradores",
       description: "Gerencie usuários e colaboradores.",
-      path: "/ponto/users",
+      path: "/configuracao/users",
       icon: <GroupIcon style={{ fontSize: 50, color: "#FF5722" }} />,
     },
     {
       title: "Pontos Editados",
       description: "Visualize registros editados.",
-      path: "/ponto/admin",
+      path: "/configuracao/admin",
       icon: <HistoryIcon style={{ fontSize: 50, color: "#607D8B" }} />,
     },
   ];
 
   return (
-    <Box sx={{ padding: "30px 20px" }}>
-      <BackButton />
+    <Box sx={{ paddingX: 2 }}>
+      <BackButton to="/"/>
       <Typography variant="h5" gutterBottom sx={{ marginBottom: 1 }}>
         Configurações
       </Typography>

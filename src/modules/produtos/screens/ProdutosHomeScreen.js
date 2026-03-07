@@ -31,8 +31,8 @@ export default function ProdutosHomeScreen() {
   ];
 
   return (
-    <Box sx={{ padding: '30px 20px' }}>
-      <BackButton />
+    <Box sx={{ paddingX: 2 }}>
+      <BackButton to="/"/>
       <Typography variant="h5" gutterBottom sx={{ marginBottom: 1 }}>
         Módulo Produtos
       </Typography>

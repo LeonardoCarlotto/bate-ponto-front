@@ -26,7 +26,7 @@ Ponto de entrada da aplicação que exibe um painel com acesso rápido a todos o
 Gerenciamento de ponto eletrônico para colaboradores.
 
 **Telas:**
-- `PontoHomeScreen.js` - Menu do módulo ponto
+- `ConfiguracaoHomeScreen.js` - Menu do módulo ponto
 - `LoginScreen.js` - Autenticação de usuários
 - `DashboardScreen.js` - Registro de ponto (entrada/saída)
 - `EditUserScreen.js` - Edição de perfil
@@ -39,14 +39,14 @@ Gerenciamento de ponto eletrônico para colaboradores.
 **Rotas:**
 ```
 /login                    - LoginScreen
-/ponto                    - PontoHomeScreen (home do módulo)
-/ponto/dashboard          - DashboardScreen (registro de ponto)
-/ponto/edit-profile       - EditUserScreen
-/ponto/change-password    - ChangePasswordScreen
-/ponto/report             - ReportScreen
-/ponto/admin              - AdminEditedRegistersScreen (admin)
-/ponto/create-user        - CreateUserScreen (admin)
-/ponto/users              - UserListScreen (admin)
+/ponto                    - ConfiguracaoHomeScreen (home do módulo)
+/configuracao/dashboard          - DashboardScreen (registro de ponto)
+/configuracao/edit-profile       - EditUserScreen
+/configuracao/change-password    - ChangePasswordScreen
+/configuracao/report             - ReportScreen
+/configuracao/admin              - AdminEditedRegistersScreen (admin)
+/configuracao/create-user        - CreateUserScreen (admin)
+/configuracao/users              - UserListScreen (admin)
 ```
 
 ---
@@ -105,11 +105,11 @@ Login (/login)
     ↓
 Home (/)
     ├─ Ponto (/ponto)
-    │  ├─ Dashboard (/ponto/dashboard)
-    │  ├─ Meu Perfil (/ponto/edit-profile)
-    │  ├─ Mudar Senha (/ponto/change-password)
-    │  ├─ Relatórios (/ponto/report)
-    │  └─ Admin (/ponto/admin, /ponto/create-user, /ponto/users)
+    │  ├─ Dashboard (/configuracao/dashboard)
+    │  ├─ Meu Perfil (/configuracao/edit-profile)
+    │  ├─ Mudar Senha (/configuracao/change-password)
+    │  ├─ Relatórios (/configuracao/report)
+    │  └─ Admin (/configuracao/admin, /configuracao/create-user, /configuracao/users)
     │
     ├─ Comercial (/comercial)
     │  ├─ Pedidos (/comercial/pedidos)
@@ -146,7 +146,7 @@ Cada módulo segue a seguinte estrutura:
 As rotas são centralizadas em `/src/routes/index.js` e importam as rotas de cada módulo:
 
 ```javascript
-import pontoRoutes from "../modules/ponto/routes.js";
+import pontoRoutes from "../modules/configuracao/routes.js";
 import homeRoutes from "../modules/home/routes.js";
 import comercialRoutes from "../modules/comercial/routes.js";
 import administrativoRoutes from "../modules/administrativo/routes.js";

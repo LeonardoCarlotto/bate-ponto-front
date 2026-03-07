@@ -13,6 +13,7 @@ import {
   Paper,
   CircularProgress,
   Alert,
+  Container,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -65,8 +66,10 @@ export default function ClientesScreen() {
   };
 
   return (
-    <Box sx={{ padding: 3 }}>
+    <Box sx={{ paddingX: 2 }}>
       <BackButton />
+
+      <Container >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
         <Typography variant="h5">Gerenciar Clientes</Typography>
         <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleNovoCliente}>
@@ -125,6 +128,7 @@ export default function ClientesScreen() {
         </Table>
       </TableContainer>
       )}
+      </Container>
     </Box>
   );
 }

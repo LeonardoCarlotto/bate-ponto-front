@@ -373,7 +373,7 @@ Response (200):
 
 ### Relatório Geral (Admin)
 ```
-GET /relatorios/ponto/geral?dataInicio=2026-03-01&dataFim=2026-03-31&usuarioId={userId}
+GET /relatorios/configuracao/geral?dataInicio=2026-03-01&dataFim=2026-03-31&usuarioId={userId}
 Headers:
   Authorization: Bearer {token}
 
@@ -932,33 +932,11 @@ Response (200):
 [
   {
     "id": "contato_id",
-    "tipo": "email", // ou "telefone", "celular"
+    "tipo": "email", // ou "telefone"
     "valor": "contato@example.com",
     "principal": true
   }
 ]
-```
-
-### Adicionar Contato
-```
-POST /clientes/{clienteId}/contatos
-Headers:
-  Authorization: Bearer {token}
-Content-Type: application/json
-
-Body:
-{
-  "tipo": "celular",
-  "valor": "(11) 99999-9999",
-  "principal": false
-}
-
-Response (201):
-{
-  "id": "new_contato_id",
-  "tipo": "celular",
-  "valor": "(11) 99999-9999"
-}
 ```
 
 ### Remover Contato

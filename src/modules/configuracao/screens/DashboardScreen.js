@@ -20,6 +20,7 @@ import {
   IconButton,
   Backdrop,
   CircularProgress,
+  Box,
 } from "@mui/material";
 
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -353,7 +354,8 @@ export default function DashboardScreen() {
                     saidaAnterior?.type === "SAIDA" &&
                     proximaEntrada?.type === "ENTRADA"
                   ) {
-                    const intervalo = proximaEntrada.datetime - saidaAnterior.datetime;
+                    const intervalo =
+                      proximaEntrada.datetime - saidaAnterior.datetime;
 
                     if (intervalo < 3600000 || intervalo > 7200000) {
                       errorRegister = true;
@@ -432,203 +434,208 @@ export default function DashboardScreen() {
   );
 
   return (
-    <Container maxWidth="md" sx={{ mt: "6rem" }}>
-      <BackButton />
-      <Typography variant="h4" align="center" gutterBottom>
-        {currentTime.toLocaleDateString()} - {currentTime.toLocaleTimeString()}
-      </Typography>
-      <Typography variant="h6" align="center" sx={{ mb: 2 }}>
-        Horas trabalhadas hoje: {formatDuration(calcularHorasAteAgora())}
-      </Typography>
+    <Box>
+      <Box sx={{ paddingX: 2 }}>
+        <BackButton />
+      </Box>
+      <Container maxWidth="lg">
+        <Typography variant="h4" align="center" gutterBottom>
+          {currentTime.toLocaleDateString()} -{" "}
+          {currentTime.toLocaleTimeString()}
+        </Typography>
+        <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+          Horas trabalhadas hoje: {formatDuration(calcularHorasAteAgora())}
+        </Typography>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <Button
-          variant="contained"
-          startIcon={
-            loading ? (
-              <CircularProgress size={20} color="inherit" />
-            ) : (
-              <AccessTimeIcon />
-            )
-          }
-          onMouseDown={loading ? null : startHolding}
-          onMouseUp={loading ? null : stopHolding}
-          onMouseLeave={loading ? null : stopHolding}
-          onTouchStart={loading ? null : startHolding}
-          onTouchEnd={loading ? null : stopHolding}
-          disabled={loading}
-          sx={{
-            position: "relative",
-            width: 280,
-            height: 72,
-            borderRadius: "18px",
-            fontSize: "1.1rem",
-            fontWeight: 600,
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "2rem",
           }}
         >
-          {isHolding
-            ? `Confirmando ${Math.floor(holdProgress)}%`
-            : "Registrar Ponto"}
-          {isHolding && (
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                height: 6,
-                width: `${holdProgress}%`,
-                background:
-                  "linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.8))",
-                transition: "width 0.05s linear",
-              }}
-            />
-          )}
-        </Button>
-      </div>
-
-      {todayDates.length > 0 && (
-        <>
-          <Typography variant="h6">Registros de Hoje</Typography>
-          {renderTable(todayDates)}
-        </>
-      )}
-
-      <Typography variant="h6">Registros Anteriores</Typography>
-      {renderTable(pastDates)}
-
-      {/* Modais */}
-      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
-        <DialogTitle>Editar Registro</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Novo HorÃÂ¡rio"
-            type="time"
-            fullWidth
-            margin="normal"
-            value={editTime}
-            onChange={(e) => setEditTime(e.target.value)}
-          />
-          <TextField
-            label="ObservaÃÂ§ÃÂ£o"
-            fullWidth
-            margin="normal"
-            multiline
-            rows={3}
-            value={observation}
-            onChange={(e) => setObservation(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
           <Button
             variant="contained"
-            color="error"
-            onClick={() => setOpenEdit(false)}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleSaveEdit}
-            disabled={loading}
             startIcon={
-              loading ? <CircularProgress size={16} color="inherit" /> : null
-            }
-          >
-            Salvar
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={openDayEdit}
-        onClose={() => setOpenDayEdit(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Editar Dia {editingDate}</DialogTitle>
-        <DialogContent>
-          {dayRecordsEdit.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 14,
-              }}
-            >
-              {item.type === "ENTRADA" ? (
-                <ArrowUpwardIcon color="success" />
+              loading ? (
+                <CircularProgress size={20} color="inherit" />
               ) : (
-                <ArrowDownwardIcon color="error" />
-              )}
-
-              <TextField
-                type="time"
-                size="small"
-                value={item.time}
-                onChange={(e) => {
-                  const updated = [...dayRecordsEdit];
-                  updated[index].time = e.target.value;
-                  setDayRecordsEdit(updated);
-                }}
-                InputLabelProps={{ shrink: true }}
-              />
-
-              {item.isNew && (
-                <IconButton
-                  color="error"
-                  onClick={() => handleRemoveTurno(index)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              )}
-            </div>
-          ))}
-
-          <Button
-            startIcon={<AddIcon />}
-            variant="outlined"
-            onClick={handleAddTurno}
-            fullWidth
-          >
-            Adicionar Turno
-          </Button>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => setOpenDayEdit(false)}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleSaveDayEdit}
-            disabled={loading}
-            startIcon={
-              loading ? <CircularProgress size={16} color="inherit" /> : null
+                <AccessTimeIcon />
+              )
             }
+            onMouseDown={loading ? null : startHolding}
+            onMouseUp={loading ? null : stopHolding}
+            onMouseLeave={loading ? null : stopHolding}
+            onTouchStart={loading ? null : startHolding}
+            onTouchEnd={loading ? null : stopHolding}
+            disabled={loading}
+            sx={{
+              position: "relative",
+              width: 280,
+              height: 72,
+              borderRadius: "18px",
+              fontSize: "1.1rem",
+              fontWeight: 600,
+            }}
           >
-            Salvar
+            {isHolding
+              ? `Confirmando ${Math.floor(holdProgress)}%`
+              : "Registrar Ponto"}
+            {isHolding && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  height: 6,
+                  width: `${holdProgress}%`,
+                  background:
+                    "linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.8))",
+                  transition: "width 0.05s linear",
+                }}
+              />
+            )}
           </Button>
-        </DialogActions>
-      </Dialog>
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loading}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    </Container>
+        </div>
+
+        {todayDates.length > 0 && (
+          <>
+            <Typography variant="h6">Registros de Hoje</Typography>
+            {renderTable(todayDates)}
+          </>
+        )}
+
+        <Typography variant="h6">Registros Anteriores</Typography>
+        {renderTable(pastDates)}
+
+        {/* Modais */}
+        <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
+          <DialogTitle>Editar Registro</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Novo HorÃÂ¡rio"
+              type="time"
+              fullWidth
+              margin="normal"
+              value={editTime}
+              onChange={(e) => setEditTime(e.target.value)}
+            />
+            <TextField
+              label="ObservaÃÂ§ÃÂ£o"
+              fullWidth
+              margin="normal"
+              multiline
+              rows={3}
+              value={observation}
+              onChange={(e) => setObservation(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => setOpenEdit(false)}
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSaveEdit}
+              disabled={loading}
+              startIcon={
+                loading ? <CircularProgress size={16} color="inherit" /> : null
+              }
+            >
+              Salvar
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={openDayEdit}
+          onClose={() => setOpenDayEdit(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Editar Dia {editingDate}</DialogTitle>
+          <DialogContent>
+            {dayRecordsEdit.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginBottom: 14,
+                }}
+              >
+                {item.type === "ENTRADA" ? (
+                  <ArrowUpwardIcon color="success" />
+                ) : (
+                  <ArrowDownwardIcon color="error" />
+                )}
+
+                <TextField
+                  type="time"
+                  size="small"
+                  value={item.time}
+                  onChange={(e) => {
+                    const updated = [...dayRecordsEdit];
+                    updated[index].time = e.target.value;
+                    setDayRecordsEdit(updated);
+                  }}
+                  InputLabelProps={{ shrink: true }}
+                />
+
+                {item.isNew && (
+                  <IconButton
+                    color="error"
+                    onClick={() => handleRemoveTurno(index)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
+              </div>
+            ))}
+
+            <Button
+              startIcon={<AddIcon />}
+              variant="outlined"
+              onClick={handleAddTurno}
+              fullWidth
+            >
+              Adicionar Turno
+            </Button>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => setOpenDayEdit(false)}
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSaveDayEdit}
+              disabled={loading}
+              startIcon={
+                loading ? <CircularProgress size={16} color="inherit" /> : null
+              }
+            >
+              Salvar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={loading}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      </Container>
+    </Box>
   );
 }

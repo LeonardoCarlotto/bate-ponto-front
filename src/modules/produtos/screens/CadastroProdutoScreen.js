@@ -14,7 +14,7 @@ import {
   Divider,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import BackButton from "../../../shared/components/BackButton";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { produtosService } from "../services/api";
 
@@ -156,13 +156,11 @@ export default function CadastroProdutoScreen() {
   return (
     <Box>
 
-      <Box sx={{ px: 2, mt: 2 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
-          Voltar
-        </Button>
+      <Box sx={{ paddingX: 2 }}>
+        <BackButton />
       </Box>
 
-      <Container maxWidth="md">
+      <Container maxWidth="md" >
 
         <Card sx={{ p: 4, mt: 2 }}>
 
