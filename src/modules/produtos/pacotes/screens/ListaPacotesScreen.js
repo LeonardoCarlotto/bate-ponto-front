@@ -14,22 +14,42 @@ import {
   CircularProgress,
   Alert,
   Container,
+  TextField,
+  InputAdornment,
+  Grid,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import BackButton from "../../../../shared/components/BackButton";
 import pacotesService from "../services/api";
 
 export default function ListaPacotesScreen() {
   const navigate = useNavigate();
   const [pacotes, setPacotes] = React.useState([]);
+  const [pacotesFiltrados, setPacotesFiltrados] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [erro, setErro] = React.useState(null);
+  const [termoBusca, setTermoBusca] = React.useState("");
 
   React.useEffect(() => {
     carregarPacotes();
   }, []);
+
+  React.useEffect(() => {
+    if (termoBusca.trim() === "") {
+      setPacotesFiltrados(pacotes);
+    } else {
+      const filtrados = pacotes.filter(pacote => 
+        pacote.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        pacote.descricao?.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        pacote.id.toString().includes(termoBusca.toLowerCase())
+      );
+      setPacotesFiltrados(filtrados);
+    }
+  }, [termoBusca, pacotes]);
 
   const carregarPacotes = async () => {
     setLoading(true);
@@ -37,6 +57,7 @@ export default function ListaPacotesScreen() {
     try {
       const data = await pacotesService.list();
       setPacotes(data || []);
+      setPacotesFiltrados(data || []);
     } catch (error) {
       setErro("Erro ao carregar pacotes");
       console.error("Erro ao carregar pacotes:", error);
@@ -51,6 +72,10 @@ export default function ListaPacotesScreen() {
 
   const handleEditar = (pacoteId) => {
     navigate(`/produtos/pacotes/cadastro/${pacoteId}`);
+  };
+
+  const handleVisualizar = (pacoteId) => {
+    navigate(`/produtos/pacotes/visualizar/${pacoteId}`);
   };
 
   const handleDeletar = async (pacoteId) => {
@@ -105,6 +130,25 @@ export default function ListaPacotesScreen() {
           </Button>
         </Box>
 
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              placeholder="Buscar por nome, descrição ou ID..."
+              value={termoBusca}
+              onChange={(e) => setTermoBusca(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              size="small"
+            />
+          </Grid>
+        </Grid>
+
         {erro && (
           <Alert severity="error" sx={{ marginBottom: 2 }}>
             {erro}
@@ -124,16 +168,16 @@ export default function ListaPacotesScreen() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {pacotes.length === 0 ? (
+              {pacotesFiltrados.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ padding: 3 }}>
                     <Typography color="textSecondary">
-                      Nenhum pacote cadastrado
+                      {termoBusca.trim() === "" ? "Nenhum pacote cadastrado" : "Nenhum pacote encontrado"}
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                pacotes.map((pacote) => (
+                pacotesFiltrados.map((pacote) => (
                   <TableRow key={pacote.id}>
                     <TableCell>{pacote.nome}</TableCell>
                     <TableCell
@@ -164,6 +208,14 @@ export default function ListaPacotesScreen() {
                       </span>
                     </TableCell>
                     <TableCell align="center">
+                      <Button
+                        size="small"
+                        color="info"
+                        startIcon={<VisibilityIcon />}
+                        onClick={() => handleVisualizar(pacote.id)}
+                      >
+                        Visualizar
+                      </Button>
                       <Button
                         size="small"
                         color="primary"

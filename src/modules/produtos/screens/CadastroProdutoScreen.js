@@ -12,10 +12,17 @@ import {
   MenuItem,
   Box,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import BackButton from "../../../shared/components/BackButton";
 import CancelIcon from "@mui/icons-material/Cancel";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import { produtosService } from "../services/api";
 
 export default function CadastroProdutoScreen() {
@@ -26,6 +33,13 @@ export default function CadastroProdutoScreen() {
   const [erro, setErro] = React.useState(null);
   const [sucesso, setSucesso] = React.useState(false);
   const [categorias, setCategorias] = React.useState([]);
+  const [openNovaCategoria, setOpenNovaCategoria] = React.useState(false);
+  const [novaCategoria, setNovaCategoria] = React.useState("");
+  const [novaCategoriaDescricao, setNovaCategoriaDescricao] = React.useState("");
+  const [criandoCategoria, setCriandoCategoria] = React.useState(false);
+  const [editandoCategoria, setEditandoCategoria] = React.useState(null);
+  const [openEditCategoria, setOpenEditCategoria] = React.useState(false);
+  const [categoriaEditando, setCategoriaEditando] = React.useState({ nome: "", descricao: "" });
 
   const [formData, setFormData] = React.useState({
     nome: "",
@@ -33,7 +47,7 @@ export default function CadastroProdutoScreen() {
     categoria: "",
     preco: "",
     estoque: "0",
-    status: "ativo",
+    status: true,
   });
 
   const carregarCategorias = useCallback(async () => {
@@ -46,6 +60,86 @@ export default function CadastroProdutoScreen() {
     }
   }, []);
 
+  const handleCriarCategoria = async () => {
+    if (!novaCategoria.trim()) {
+      setErro("Nome da categoria é obrigatório");
+      return;
+    }
+
+    try {
+      setCriandoCategoria(true);
+      const categoriaCriada = await produtosService.criarCategoria({
+        nome: novaCategoria.trim(),
+        descricao: novaCategoriaDescricao.trim()
+      });
+      
+      // Adicionar a nova categoria à lista
+      setCategorias(prev => [...prev, categoriaCriada]);
+      
+      // Selecionar a nova categoria no formulário
+      setFormData(prev => ({ ...prev, categoria: categoriaCriada.nome }));
+      
+      // Fechar diálogo e limpar campos
+      setOpenNovaCategoria(false);
+      setNovaCategoria("");
+      setNovaCategoriaDescricao("");
+      setErro(null);
+    } catch (error) {
+      setErro("Erro ao criar categoria: " + error.message);
+    } finally {
+      setCriandoCategoria(false);
+    }
+  };
+
+  const handleEditarCategoria = async () => {
+    if (!categoriaEditando.nome.trim()) {
+      setErro("Nome da categoria é obrigatório");
+      return;
+    }
+
+    try {
+      setCriandoCategoria(true);
+      const categoriaAtualizada = await produtosService.atualizarCategoria(
+        editandoCategoria.id,
+        {
+          nome: categoriaEditando.nome.trim(),
+          descricao: categoriaEditando.descricao.trim()
+        }
+      );
+      
+      // Atualizar a categoria na lista
+      setCategorias(prev => 
+        prev.map(cat => 
+          cat.id === editandoCategoria.id ? categoriaAtualizada : cat
+        )
+      );
+      
+      // Atualizar seleção se for a categoria atual do produto
+      if (formData.categoria === editandoCategoria.nome) {
+        setFormData(prev => ({ ...prev, categoria: categoriaAtualizada.nome }));
+      }
+      
+      // Fechar diálogo e limpar campos
+      setOpenEditCategoria(false);
+      setEditandoCategoria(null);
+      setCategoriaEditando({ nome: "", descricao: "" });
+      setErro(null);
+    } catch (error) {
+      setErro("Erro ao atualizar categoria: " + error.message);
+    } finally {
+      setCriandoCategoria(false);
+    }
+  };
+
+  const abrirEditCategoria = (categoria) => {
+    setEditandoCategoria(categoria);
+    setCategoriaEditando({
+      nome: categoria.nome,
+      descricao: categoria.descricao || ""
+    });
+    setOpenEditCategoria(true);
+  };
+
   const carregarProduto = useCallback(async () => {
     try {
       setCarregando(true);
@@ -57,7 +151,7 @@ export default function CadastroProdutoScreen() {
         categoria: produto.categoria || "",
         preco: produto.preco?.toString() || "",
         estoque: produto.estoque?.toString() || "0",
-        status: produto.status || "ativo",
+        status: produto.status !== undefined ? produto.status : true,
       });
     } catch (error) {
       setErro("Erro ao carregar produto: " + error.message);
@@ -202,9 +296,8 @@ export default function CadastroProdutoScreen() {
                   onChange={handleInputChange}
                   size="small"
                 >
-                  <MenuItem value="ativo">Ativo</MenuItem>
-                  <MenuItem value="inativo">Inativo</MenuItem>
-                  <MenuItem value="descontinuado">Descontinuado</MenuItem>
+                  <MenuItem value={true}>Ativo</MenuItem>
+                  <MenuItem value={false}>Inativo</MenuItem>
                 </TextField>
               </Grid>
 
@@ -232,23 +325,88 @@ export default function CadastroProdutoScreen() {
 
             <Grid container spacing={2}>
 
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={8}>
                 <TextField
                   fullWidth
                   select
-                  label="Categoria"
                   name="categoria"
                   value={formData.categoria}
                   onChange={handleInputChange}
                   size="small"
+                  required
+                  SelectProps={{
+                    displayEmpty: true,
+                    renderValue: (selected) => {
+                      if (!selected) {
+                        return <span style={{ color: '#9e9e9e' }}>Selecione uma categoria</span>;
+                      }
+                      return selected;
+                    },
+                    MenuProps: {
+                      PaperProps: {
+                        style: {
+                          maxHeight: 300,
+                        },
+                      },
+                    },
+                  }}
                 >
                   <MenuItem value="">Selecione</MenuItem>
 
                   {categorias.map((cat) => (
-                    <MenuItem key={cat.id} value={cat.nome}>
-                      {cat.nome}
+                    <MenuItem 
+                      key={cat.id} 
+                      value={cat.nome}
+                      sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Box sx={{ flex: 1 }}>{cat.nome}</Box>
+                      <Box 
+                        sx={{ 
+                          display: 'flex', 
+                          gap: 0.5,
+                          opacity: 0.6,
+                          '&:hover': { opacity: 1 }
+                        }}
+                      >
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            abrirEditCategoria(cat);
+                          }}
+                          sx={{ 
+                            p: 0.5,
+                            '&:hover': { 
+                              backgroundColor: 'primary.light', 
+                              color: 'primary.dark' 
+                            } 
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </MenuItem>
                   ))}
+                  
+                  <Divider />
+                  
+                  <MenuItem 
+                    onClick={() => setOpenNovaCategoria(true)}
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1,
+                      color: 'primary.main',
+                      fontWeight: 500
+                    }}
+                  >
+                    <AddIcon fontSize="small" />
+                    Adicionar Nova Categoria
+                  </MenuItem>
                 </TextField>
               </Grid>
 
@@ -325,6 +483,108 @@ export default function CadastroProdutoScreen() {
           </form>
 
         </Card>
+
+        {/* Diálogo para Nova Categoria */}
+        <Dialog 
+          open={openNovaCategoria} 
+          onClose={() => setOpenNovaCategoria(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Adicionar Nova Categoria</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Nome da Categoria"
+              fullWidth
+              variant="outlined"
+              value={novaCategoria}
+              onChange={(e) => setNovaCategoria(e.target.value)}
+              size="small"
+              sx={{ mt: 1 }}
+            />
+            <TextField
+              margin="dense"
+              label="Descrição (opcional)"
+              fullWidth
+              variant="outlined"
+              value={novaCategoriaDescricao}
+              onChange={(e) => setNovaCategoriaDescricao(e.target.value)}
+              size="small"
+              multiline
+              rows={2}
+              sx={{ mt: 2 }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button 
+              onClick={() => setOpenNovaCategoria(false)}
+              disabled={criandoCategoria}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleCriarCategoria}
+              variant="contained"
+              disabled={criandoCategoria || !novaCategoria.trim()}
+              startIcon={criandoCategoria ? <CircularProgress size={16} /> : <AddIcon />}
+            >
+              {criandoCategoria ? "Criando..." : "Criar"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Diálogo para Editar Categoria */}
+        <Dialog 
+          open={openEditCategoria} 
+          onClose={() => setOpenEditCategoria(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Editar Categoria</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Nome da Categoria"
+              fullWidth
+              variant="outlined"
+              value={categoriaEditando.nome}
+              onChange={(e) => setCategoriaEditando(prev => ({ ...prev, nome: e.target.value }))}
+              size="small"
+              sx={{ mt: 1 }}
+            />
+            <TextField
+              margin="dense"
+              label="Descrição (opcional)"
+              fullWidth
+              variant="outlined"
+              value={categoriaEditando.descricao}
+              onChange={(e) => setCategoriaEditando(prev => ({ ...prev, descricao: e.target.value }))}
+              size="small"
+              multiline
+              rows={2}
+              sx={{ mt: 2 }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button 
+              onClick={() => setOpenEditCategoria(false)}
+              disabled={criandoCategoria}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleEditarCategoria}
+              variant="contained"
+              disabled={criandoCategoria || !categoriaEditando.nome.trim()}
+              startIcon={criandoCategoria ? <CircularProgress size={16} /> : <EditIcon />}
+            >
+              {criandoCategoria ? "Atualizando..." : "Atualizar"}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </Box>
   );

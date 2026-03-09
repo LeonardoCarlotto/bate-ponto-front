@@ -18,30 +18,51 @@ import {
   DialogContentText,
   DialogActions,
   Container,
+  TextField,
+  InputAdornment,
+  Grid,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 import BackButton from "../../../shared/components/BackButton";
 import { fornecedoresService } from "../services/api";
 
 export default function ListaFornecedoresScreen() {
   const navigate = useNavigate();
   const [fornecedores, setFornecedores] = React.useState([]);
+  const [fornecedoresFiltrados, setFornecedoresFiltrados] = React.useState([]);
   const [carregando, setCarregando] = React.useState(true);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [fornecedorParaDeletar, setFornecedorParaDeletar] =
     React.useState(null);
+  const [termoBusca, setTermoBusca] = React.useState("");
 
   React.useEffect(() => {
     carregarFornecedores();
   }, []);
+
+  React.useEffect(() => {
+    if (termoBusca.trim() === "") {
+      setFornecedoresFiltrados(fornecedores);
+    } else {
+      const filtrados = fornecedores.filter(fornecedor => 
+        fornecedor.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        fornecedor.cnpj?.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        fornecedor.email?.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        fornecedor.telefone?.toLowerCase().includes(termoBusca.toLowerCase())
+      );
+      setFornecedoresFiltrados(filtrados);
+    }
+  }, [termoBusca, fornecedores]);
 
   const carregarFornecedores = async () => {
     try {
       setCarregando(true);
       const dados = await fornecedoresService.listar();
       setFornecedores(dados);
+      setFornecedoresFiltrados(dados);
     } catch (error) {
       console.error("Erro ao carregar fornecedores:", error);
     } finally {
@@ -108,6 +129,25 @@ export default function ListaFornecedoresScreen() {
             </Button>
           </Box>
 
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                placeholder="Buscar por nome, CNPJ, email ou telefone..."
+                value={termoBusca}
+                onChange={(e) => setTermoBusca(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                size="small"
+              />
+            </Grid>
+          </Grid>
+
           <TableContainer component={Paper}>
             <Table>
               <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
@@ -120,16 +160,16 @@ export default function ListaFornecedoresScreen() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {fornecedores.length === 0 ? (
+                {fornecedoresFiltrados.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ padding: 3 }}>
                       <Typography color="textSecondary">
-                        Nenhum fornecedor cadastrado
+                        {termoBusca.trim() === "" ? "Nenhum fornecedor cadastrado" : "Nenhum fornecedor encontrado"}
                       </Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  fornecedores.map((fornecedor) => (
+                  fornecedoresFiltrados.map((fornecedor) => (
                     <TableRow key={fornecedor.id} hover>
                       <TableCell>{fornecedor.nome}</TableCell>
                       <TableCell>{fornecedor.cnpj}</TableCell>

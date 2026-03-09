@@ -14,22 +14,42 @@ import {
   CircularProgress,
   Alert,
   Container,
+  TextField,
+  InputAdornment,
+  Grid,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
 import BackButton from '../../../shared/components/BackButton';
 import { clientesService } from '../services/api';
 
 export default function ClientesScreen() {
   const navigate = useNavigate();
   const [clientes, setClientes] = useState([]);
+  const [clientesFiltrados, setClientesFiltrados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [termoBusca, setTermoBusca] = useState('');
 
   useEffect(() => {
     carregarClientes();
   }, []);
+
+  useEffect(() => {
+    if (termoBusca.trim() === '') {
+      setClientesFiltrados(clientes);
+    } else {
+      const filtrados = clientes.filter(cliente => 
+        cliente.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        cliente.email?.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        cliente.telefone?.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        cliente.id.toString().includes(termoBusca.toLowerCase())
+      );
+      setClientesFiltrados(filtrados);
+    }
+  }, [termoBusca, clientes]);
 
   const carregarClientes = async () => {
     try {
@@ -37,6 +57,7 @@ export default function ClientesScreen() {
       setErro(null);
       const data = await clientesService.listar();
       setClientes(data || []);
+      setClientesFiltrados(data || []);
     } catch (error) {
       console.error('Erro ao carregar clientes:', error);
       setErro('Erro ao carregar clientes. Tente novamente mais tarde.');
@@ -77,6 +98,25 @@ export default function ClientesScreen() {
         </Button>
       </Box>
 
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            placeholder="Buscar por nome, email, telefone ou ID..."
+            value={termoBusca}
+            onChange={(e) => setTermoBusca(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            size="small"
+          />
+        </Grid>
+      </Grid>
+
       {erro && (
         <Alert severity="error" sx={{ marginBottom: 2 }}>
           {erro}
@@ -100,14 +140,16 @@ export default function ClientesScreen() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {clientes.length === 0 ? (
+            {clientesFiltrados.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ padding: 3 }}>
-                  <Typography color="textSecondary">Nenhum cliente cadastrado</Typography>
+                  <Typography color="textSecondary">
+                    {termoBusca.trim() === '' ? 'Nenhum cliente cadastrado' : 'Nenhum cliente encontrado'}
+                  </Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              clientes.map((cliente) => (
+              clientesFiltrados.map((cliente) => (
                 <TableRow key={cliente.id}>
                   <TableCell>{cliente.id}</TableCell>
                   <TableCell>{cliente.nome}</TableCell>

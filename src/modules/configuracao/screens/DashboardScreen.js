@@ -30,6 +30,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BackButton from "../../../shared/components/BackButton";
+import CoffeeIcon from '@mui/icons-material/Coffee';
 
 import {
   registerPoint,
@@ -323,6 +324,7 @@ export default function DashboardScreen() {
           <TableRow>
             <TableCell>Data</TableCell>
             <TableCell>Turnos</TableCell>
+            <TableCell>Intervalo</TableCell>
             <TableCell>Total por Turno</TableCell>
             <TableCell>Total do Dia</TableCell>
             <TableCell>Status</TableCell>
@@ -337,6 +339,7 @@ export default function DashboardScreen() {
             let errorRegister = false;
             const turnos = [];
             const totalTurnos = [];
+            const intervalos = [];
 
             for (let i = 0; i < dayRecords.length; i += 2) {
               const entrada = dayRecords[i];
@@ -346,23 +349,6 @@ export default function DashboardScreen() {
                 const duration = saida.datetime - entrada.datetime;
                 totalMs += duration;
 
-                for (let i = 1; i < dayRecords.length - 1; i += 2) {
-                  const saidaAnterior = dayRecords[i];
-                  const proximaEntrada = dayRecords[i + 1];
-
-                  if (
-                    saidaAnterior?.type === "SAIDA" &&
-                    proximaEntrada?.type === "ENTRADA"
-                  ) {
-                    const intervalo =
-                      proximaEntrada.datetime - saidaAnterior.datetime;
-
-                    if (intervalo < 3600000 || intervalo > 7200000) {
-                      errorRegister = true;
-                    }
-                  }
-                }
-
                 turnos.push(
                   <div
                     key={i}
@@ -371,7 +357,7 @@ export default function DashboardScreen() {
                     <ArrowUpwardIcon color="success" fontSize="small" />
                     {formatTime(entrada.datetime)}
                     <ArrowDownwardIcon color="error" fontSize="small" />
-                    {formatTime(saida.datetime)}
+                    {formatTime(saida.datetime)}  
                   </div>,
                 );
                 totalTurnos.push(
@@ -396,6 +382,24 @@ export default function DashboardScreen() {
               }
             }
 
+            // Calcular intervalos entre turnos
+            for (let i = 1; i < dayRecords.length - 1; i += 2) {
+              const saidaAnterior = dayRecords[i];
+              const proximaEntrada = dayRecords[i + 1];
+
+              if (
+                saidaAnterior?.type === "SAIDA" &&
+                proximaEntrada?.type === "ENTRADA"
+              ) {
+                const intervalo = proximaEntrada.datetime - saidaAnterior.datetime;
+                intervalos.push(formatDuration(intervalo));
+
+                if (intervalo < 3600000 || intervalo > 7200000) {
+                  errorRegister = true;
+                }
+              }
+            }
+
             return (
               <TableRow
                 key={date}
@@ -405,6 +409,7 @@ export default function DashboardScreen() {
               >
                 <TableCell>{date}</TableCell>
                 <TableCell>{turnos}</TableCell>
+                <TableCell><div style={{ display: "flex", alignItems: "center", gap: 4 }}> <CoffeeIcon fontSize="small" color="disabled"/> {intervalos.length > 0 ? intervalos.join(", ") : "-h --min"} </div></TableCell>
                 <TableCell>{totalTurnos}</TableCell>
                 <TableCell>
                   {totalMs > 0 && !inconsistent

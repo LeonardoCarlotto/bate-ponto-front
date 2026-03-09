@@ -13,22 +13,41 @@ import {
   Paper,
   Alert,
   Container,
+  TextField,
+  InputAdornment,
+  Grid,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 import BackButton from "../../../shared/components/BackButton";
 import { produtosService } from "../services/api";
 
 export default function ListaProdutosScreen() {
   const navigate = useNavigate();
   const [produtos, setProdutos] = React.useState([]);
+  const [produtosFiltrados, setProdutosFiltrados] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [erro, setErro] = React.useState(null);
+  const [termoBusca, setTermoBusca] = React.useState("");
 
   React.useEffect(() => {
     carregarProdutos();
   }, []);
+
+  React.useEffect(() => {
+    if (termoBusca.trim() === "") {
+      setProdutosFiltrados(produtos);
+    } else {
+      const filtrados = produtos.filter(produto => 
+        produto.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        produto.descricao?.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        produto.categoria?.toLowerCase().includes(termoBusca.toLowerCase())
+      );
+      setProdutosFiltrados(filtrados);
+    }
+  }, [termoBusca, produtos]);
 
   const carregarProdutos = async () => {
     setLoading(true);
@@ -36,6 +55,7 @@ export default function ListaProdutosScreen() {
     try {
       const data = await produtosService.listar();
       setProdutos(data || []);
+      setProdutosFiltrados(data || []);
     } catch (error) {
       setErro("Erro ao carregar produtos");
       console.error("Erro ao carregar produtos:", error);
@@ -90,6 +110,25 @@ export default function ListaProdutosScreen() {
           </Button>
         </Box>
 
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              placeholder="Buscar por nome, descrição ou categoria..."
+              value={termoBusca}
+              onChange={(e) => setTermoBusca(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              size="small"
+            />
+          </Grid>
+        </Grid>
+
         {erro && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {erro}
@@ -112,6 +151,7 @@ export default function ListaProdutosScreen() {
                 <TableRow>
                   <TableCell>ID</TableCell>
                   <TableCell>Nome</TableCell>
+                  <TableCell>Descrição</TableCell>
                   <TableCell>Categoria</TableCell>
                   <TableCell align="right">Preço</TableCell>
                   <TableCell align="center">Estoque</TableCell>
@@ -120,19 +160,20 @@ export default function ListaProdutosScreen() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {produtos.length === 0 ? (
+                {produtosFiltrados.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} align="center" sx={{ padding: 3 }}>
                       <Typography color="textSecondary">
-                        Nenhum produto cadastrado
+                        {termoBusca.trim() === "" ? "Nenhum produto cadastrado" : "Nenhum produto encontrado"}
                       </Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  produtos.map((produto) => (
+                  produtosFiltrados.map((produto) => (
                     <TableRow key={produto.id} hover>
                       <TableCell>{produto.id}</TableCell>
                       <TableCell>{produto.nome}</TableCell>
+                      <TableCell>{produto.descricao}</TableCell>
                       <TableCell>{produto.categoria}</TableCell>
                       <TableCell align="right">
                         R$ {produto.preco.toFixed(2)}

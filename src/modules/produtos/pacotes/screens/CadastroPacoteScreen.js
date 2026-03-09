@@ -20,15 +20,19 @@ import {
   FormControlLabel,
   Checkbox,
   Divider,
+  InputAdornment,
+  Autocomplete,
 } from "@mui/material";
 
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 
 import BackButton from "../../../../shared/components/BackButton";
 import pacotesService from "../services/api";
+import { produtosService } from "../../services/api";
 
 export default function CadastroPacoteScreen() {
   const navigate = useNavigate();
@@ -37,18 +41,11 @@ export default function CadastroPacoteScreen() {
   const [erro, setErro] = React.useState(null);
   const [sucesso, setSucesso] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [carregandoProdutos, setCarregandoProdutos] = React.useState(true);
 
-  const [produtos] = React.useState([
-    { id: 1, nome: "Produto 1", preco: 10 },
-    { id: 2, nome: "Produto 2", preco: 20 },
-    { id: 3, nome: "Produto 3", preco: 30 },
-  ]);
+  const [produtos, setProdutos] = React.useState([]);
 
-  const [servicos] = React.useState([
-    { id: 1, nome: "Serviço 1", preco: 50 },
-    { id: 2, nome: "Serviço 2", preco: 100 },
-    { id: 3, nome: "Serviço 3", preco: 150 },
-  ]);
+  const [servicoNome, setServicoNome] = React.useState("");
 
   const [formData, setFormData] = React.useState({
     nome: "",
@@ -61,9 +58,26 @@ export default function CadastroPacoteScreen() {
 
   const [novoItem, setNovoItem] = React.useState({
     tipo: "produto",
-    itemId: "",
+    produto: null,
     quantidade: 1,
   });
+
+  React.useEffect(() => {
+    carregarProdutosAtivos();
+  }, []);
+
+  const carregarProdutosAtivos = async () => {
+    try {
+      setCarregandoProdutos(true);
+      const data = await produtosService.listar({ status: true });
+      setProdutos(data || []);
+    } catch (error) {
+      console.error("Erro ao carregar produtos:", error);
+      setProdutos([]);
+    } finally {
+      setCarregandoProdutos(false);
+    }
+  };
 
   React.useEffect(() => {
     if (!pacoteId) return;
@@ -99,7 +113,7 @@ export default function CadastroPacoteScreen() {
 
     return itens.reduce(
       (total, item) => total + item.preco * item.quantidade,
-      0,
+      0
     );
   };
 
@@ -121,39 +135,65 @@ export default function CadastroPacoteScreen() {
       ...prev,
       [name]: name === "quantidade" ? parseInt(value) || 1 : value,
     }));
+
+    if (name === "tipo") {
+      setNovoItem({
+        tipo: value,
+        produto: null,
+        quantidade: 1,
+      });
+
+      setServicoNome("");
+    }
   };
 
   const adicionarItem = () => {
-    if (!novoItem.itemId) {
-      setErro("Selecione um item");
-      return;
+    if (novoItem.tipo === "produto") {
+      if (!novoItem.produto) {
+        setErro("Selecione um produto");
+        return;
+      }
+
+      const produto = novoItem.produto;
+
+      const item = {
+        id: `${Date.now()}`,
+        tipo: "produto",
+        itemId: produto.id,
+        nome: produto.nome,
+        preco: produto.preco,
+        quantidade: novoItem.quantidade,
+        subtotal: produto.preco * novoItem.quantidade,
+      };
+
+      setItens([...itens, item]);
+    } else {
+      if (!servicoNome.trim()) {
+        setErro("Digite o nome do serviço");
+        return;
+      }
+
+      const item = {
+        id: `${Date.now()}`,
+        tipo: "servico",
+        itemId: null,
+        nome: servicoNome,
+        preco: 0,
+        quantidade: novoItem.quantidade,
+        subtotal: 0,
+      };
+
+      setItens([...itens, item]);
     }
-
-    const lista = novoItem.tipo === "produto" ? produtos : servicos;
-
-    const selecionado = lista.find(
-      (i) => i.id.toString() === novoItem.itemId.toString(),
-    );
-
-    if (!selecionado) return;
-
-    const item = {
-      id: `${Date.now()}`,
-      tipo: novoItem.tipo,
-      itemId: novoItem.itemId,
-      nome: selecionado.nome,
-      preco: selecionado.preco,
-      quantidade: novoItem.quantidade,
-      subtotal: selecionado.preco * novoItem.quantidade,
-    };
-
-    setItens([...itens, item]);
 
     setNovoItem({
       tipo: "produto",
-      itemId: "",
+      produto: null,
       quantidade: 1,
     });
+
+    setServicoNome("");
+    setErro(null);
   };
 
   const removerItem = (id) => {
@@ -211,6 +251,7 @@ export default function CadastroPacoteScreen() {
       <Box sx={{ paddingX: 2 }}>
         <BackButton />
       </Box>
+
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Card sx={{ p: 4 }}>
           <Typography variant="h5" fontWeight={600} mb={3}>
@@ -222,6 +263,7 @@ export default function CadastroPacoteScreen() {
               {erro}
             </Alert>
           )}
+
           {sucesso && (
             <Alert severity="success" sx={{ mb: 2 }}>
               Pacote salvo com sucesso
@@ -229,7 +271,6 @@ export default function CadastroPacoteScreen() {
           )}
 
           <form onSubmit={handleSubmit}>
-            {/* INFORMAÇÕES */}
             <Typography variant="subtitle2" fontWeight={600} mb={2}>
               Informações do Pacote
             </Typography>
@@ -276,7 +317,6 @@ export default function CadastroPacoteScreen() {
 
             <Divider sx={{ my: 4 }} />
 
-            {/* ADICIONAR ITEM */}
             <Typography variant="subtitle2" fontWeight={600} mb={2}>
               Adicionar Itens
             </Typography>
@@ -298,25 +338,58 @@ export default function CadastroPacoteScreen() {
               </Grid>
 
               <Grid item xs={12} md={5}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Item"
-                  name="itemId"
-                  value={novoItem.itemId}
-                  onChange={handleNovoItemChange}
-                  size="small"
-                >
-                  <MenuItem value="">Selecione</MenuItem>
-
-                  {(novoItem.tipo === "produto" ? produtos : servicos).map(
-                    (item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.nome} - R$ {item.preco.toFixed(2)}
-                      </MenuItem>
-                    ),
-                  )}
-                </TextField>
+                {novoItem.tipo === "produto" ? (
+                  <Autocomplete
+                    options={produtos}
+                    loading={carregandoProdutos}
+                    value={novoItem.produto}
+                    onChange={(event, value) =>
+                      setNovoItem((prev) => ({
+                        ...prev,
+                        produto: value,
+                      }))
+                    }
+                    getOptionLabel={(option) =>
+                      `${option.nome} - R$ ${option.preco.toFixed(2)}`
+                    }
+                    isOptionEqualToValue={(o, v) => o.id === v.id}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Produto"
+                        size="small"
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: (
+                            <>
+                              <InputAdornment position="start">
+                                <SearchIcon />
+                              </InputAdornment>
+                              {params.InputProps.startAdornment}
+                            </>
+                          ),
+                          endAdornment: (
+                            <>
+                              {carregandoProdutos && (
+                                <CircularProgress size={18} />
+                              )}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                ) : (
+                  <TextField
+                    fullWidth
+                    label="Serviço"
+                    value={servicoNome}
+                    onChange={(e) => setServicoNome(e.target.value)}
+                    size="small"
+                    placeholder="Descreva o serviço..."
+                  />
+                )}
               </Grid>
 
               <Grid item xs={12} md={2}>
@@ -339,6 +412,7 @@ export default function CadastroPacoteScreen() {
                   color="success"
                   startIcon={<AddIcon />}
                   onClick={adicionarItem}
+                  disabled={carregandoProdutos}
                 >
                   Adicionar
                 </Button>
@@ -347,7 +421,6 @@ export default function CadastroPacoteScreen() {
 
             <Divider sx={{ my: 4 }} />
 
-            {/* TABELA */}
             {itens.length > 0 && (
               <Box sx={{ mb: 3 }}>
                 <Table size="small">
@@ -374,7 +447,37 @@ export default function CadastroPacoteScreen() {
                         <TableCell align="right">{item.quantidade}</TableCell>
 
                         <TableCell align="right">
-                          R$ {item.preco.toFixed(2)}
+                          {item.tipo === "produto" ? (
+                            <>R$ {item.preco.toFixed(2)}</>
+                          ) : (
+                            <TextField
+                              type="number"
+                              value={item.preco}
+                              onChange={(e) => {
+                                const novoPreco =
+                                  parseFloat(e.target.value) || 0;
+
+                                const itensAtualizados = itens.map((i) =>
+                                  i.id === item.id
+                                    ? {
+                                        ...i,
+                                        preco: novoPreco,
+                                        subtotal:
+                                          novoPreco * i.quantidade,
+                                      }
+                                    : i
+                                );
+
+                                setItens(itensAtualizados);
+                              }}
+                              size="small"
+                              inputProps={{
+                                min: 0,
+                                step: 0.01,
+                                style: { width: "100px" },
+                              }}
+                            />
+                          )}
                         </TableCell>
 
                         <TableCell align="right">
@@ -396,7 +499,6 @@ export default function CadastroPacoteScreen() {
               </Box>
             )}
 
-            {/* PREÇO */}
             <Grid container spacing={2} mb={4}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -423,7 +525,6 @@ export default function CadastroPacoteScreen() {
 
             <Divider sx={{ mb: 3 }} />
 
-            {/* AÇÕES */}
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <Button
@@ -442,7 +543,9 @@ export default function CadastroPacoteScreen() {
                   fullWidth
                   variant="outlined"
                   startIcon={<CancelIcon />}
-                  onClick={() => navigate("/produtos/pacotes/lista")}
+                  onClick={() =>
+                    navigate("/produtos/pacotes/lista")
+                  }
                 >
                   Cancelar
                 </Button>
