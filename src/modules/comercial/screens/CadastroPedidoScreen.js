@@ -16,6 +16,7 @@ import {
   TableRow,
   IconButton,
   Box,
+  CircularProgress,
 } from "@mui/material";
 
 import SaveIcon from "@mui/icons-material/Save";
@@ -24,29 +25,22 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 
 import BackButton from "../../../shared/components/BackButton";
+import { clientesService } from "../../administrativo/services/api";
+import { produtosService } from "../../produtos/services/api";
+import { pacotesService } from "../../produtos/pacotes/services/api";
+import { pedidosService } from "../services/api";
 
 export default function CadastroPedidoScreen() {
   const navigate = useNavigate();
 
   const [erro, setErro] = React.useState(null);
   const [sucesso, setSucesso] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [loadingData, setLoadingData] = React.useState(true);
 
-  const [clientes] = React.useState([
-    { id: 1, nome: "Cliente 1" },
-    { id: 2, nome: "Cliente 2" },
-    { id: 3, nome: "Cliente 3" },
-  ]);
-
-  const [produtos] = React.useState([
-    { id: 1, nome: "Produto 1", preco: 10 },
-    { id: 2, nome: "Produto 2", preco: 20 },
-    { id: 3, nome: "Produto 3", preco: 30 },
-  ]);
-
-  const [pacotes] = React.useState([
-    { id: 1, nome: "Pacote Básico", preco: 50 },
-    { id: 2, nome: "Pacote Premium", preco: 150 },
-  ]);
+  const [clientes, setClientes] = React.useState([]);
+  const [produtos, setProdutos] = React.useState([]);
+  const [pacotes, setPacotes] = React.useState([]);
 
   const [formData, setFormData] = React.useState({
     clienteId: "",
@@ -62,6 +56,33 @@ export default function CadastroPedidoScreen() {
     itemId: "",
     quantidade: 1,
   });
+
+  // Carregar dados da API
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoadingData(true);
+        setErro(null);
+
+        const [clientesData, produtosData, pacotesData] = await Promise.all([
+          clientesService.listar(),
+          produtosService.listar(),
+          pacotesService.list()
+        ]);
+
+        setClientes(clientesData || []);
+        setProdutos(produtosData || []);
+        setPacotes(pacotesData || []);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        setErro('Erro ao carregar dados. Tente recarregar a página.');
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -102,7 +123,7 @@ export default function CadastroPedidoScreen() {
     }
 
     const item = {
-      id: Date.now(),
+      id: parseInt(novoItem.itemId), // ID real do produto/pacote
       tipo: novoItem.tipo,
       nome: selecionado.nome,
       quantidade: novoItem.quantidade,
@@ -141,25 +162,47 @@ export default function CadastroPedidoScreen() {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validarFormulario()) return;
 
     try {
-      console.log({
+      setLoading(true);
+      setErro(null);
+
+      // Converter data para formato ISO local sem timezone
+      const dataComHora = new Date(formData.dataPedido + 'T00:00:00');
+      const ano = dataComHora.getFullYear();
+      const mes = String(dataComHora.getMonth() + 1).padStart(2, '0');
+      const dia = String(dataComHora.getDate()).padStart(2, '0');
+      const horas = String(dataComHora.getHours()).padStart(2, '0');
+      const minutos = String(dataComHora.getMinutes()).padStart(2, '0');
+      const segundos = String(dataComHora.getSeconds()).padStart(2, '0');
+      const formatoLocal = `${ano}-${mes}-${dia}T${horas}:${minutos}:${segundos}`;
+
+      const pedidoData = {
         ...formData,
+        dataPedido: formatoLocal, // Enviando formato ISO local sem timezone
         itens,
         total: calcularTotal(),
-      });
+      };
+
+      console.log('Dados do pedido a serem salvos:', pedidoData);
+
+      // Chamada real à API para criar o pedido
+      await pedidosService.criar(pedidoData);
 
       setSucesso(true);
 
       setTimeout(() => {
         navigate("/comercial/pedidos");
       }, 1200);
-    } catch {
-      setErro("Erro ao salvar pedido");
+    } catch (error) {
+      console.error('Erro ao salvar pedido:', error);
+      setErro("Erro ao salvar pedido. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -173,19 +216,28 @@ export default function CadastroPedidoScreen() {
       </Box>
       <Container maxWidth="md">
         <Card sx={{ p: { xs: 2, sm: 4 } }}>
-          {erro && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {erro}
-            </Alert>
-          )}
+          {loadingData ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
+              <CircularProgress size={40} />
+              <Typography variant="body1" sx={{ ml: 2 }}>
+                Carregando dados...
+              </Typography>
+            </Box>
+          ) : (
+            <>
+              {erro && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {erro}
+                </Alert>
+              )}
 
-          {sucesso && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Pedido salvo com sucesso
-            </Alert>
-          )}
+              {sucesso && (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  Pedido salvo com sucesso
+                </Alert>
+              )}
 
-          <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit}>
             <Typography variant="h5" fontWeight={600} mb={3}>
               Novo Pedido
             </Typography>
@@ -204,6 +256,11 @@ export default function CadastroPedidoScreen() {
                   onChange={handleInputChange}
                   size="small"
                   required
+                  sx={{
+                    '& .MuiOutlinedInput-input': {
+                      padding: '8.5px 100px'
+                    }
+                  }}
                 >
                   <MenuItem value="">
                     <em>Selecione</em>
@@ -239,6 +296,11 @@ export default function CadastroPedidoScreen() {
                   value={formData.status}
                   onChange={handleInputChange}
                   size="small"
+                  sx={{
+                    '& .MuiOutlinedInput-input': {
+                      padding: '8.5px 100px'
+                    }
+                  }}
                 >
                   <MenuItem value="PENDENTE">Pendente</MenuItem>
                   <MenuItem value="APROVADO">Aprovado</MenuItem>
@@ -275,6 +337,11 @@ export default function CadastroPedidoScreen() {
                   value={novoItem.tipo}
                   onChange={handleNovoItemChange}
                   size="small"
+                  sx={{
+                    '& .MuiOutlinedInput-input': {
+                      padding: '8.5px 100px'
+                    }
+                  }}
                 >
                   <MenuItem value="produto">Produto</MenuItem>
                   <MenuItem value="pacote">Pacote</MenuItem>
@@ -290,6 +357,11 @@ export default function CadastroPedidoScreen() {
                   value={novoItem.itemId}
                   onChange={handleNovoItemChange}
                   size="small"
+                  sx={{
+                    '& .MuiOutlinedInput-input': {
+                      padding: '8.5px 100px'
+                    }
+                  }}
                 >
                   <MenuItem value="">Selecione</MenuItem>
 
@@ -379,29 +451,33 @@ export default function CadastroPedidoScreen() {
             </Grid>
 
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <Button
-                  fullWidth
-                  type="submit"
-                  variant="contained"
-                  startIcon={<SaveIcon />}
-                >
-                  Salvar
-                </Button>
-              </Grid>
+                <Grid item xs={12} md={6}>
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                    disabled={loading}
+                  >
+                    {loading ? 'Salvando...' : 'Salvar'}
+                  </Button>
+                </Grid>
 
-              <Grid item xs={12} md={6}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<CancelIcon />}
-                  onClick={() => navigate("/comercial/pedidos")}
-                >
-                  Cancelar
-                </Button>
+                <Grid item xs={12} md={6}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<CancelIcon />}
+                    onClick={() => navigate("/comercial/pedidos")}
+                    disabled={loading}
+                  >
+                    Cancelar
+                  </Button>
+                </Grid>
               </Grid>
-            </Grid>
-          </form>
+            </form>
+            </>
+          )}
         </Card>
       </Container>
     </Box>

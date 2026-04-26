@@ -1,11 +1,12 @@
 // src/pages/Home.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid, Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import { Grid, Card, CardActionArea, CardContent, Typography, Box } from '@mui/material';
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const modules = [
   {
@@ -42,10 +43,124 @@ export default function Home() {
       <Typography variant="h4" align="center" gutterBottom>
         Painel de Módulos
       </Typography>
-      <Typography variant="subtitle1" align="center" gutterBottom>
-        Acesse rapidamente os módulos da empresa e organize seu trabalho.
-      </Typography>
+      {/* Atalhos Rápidos */}
+      <Box sx={{ mb: 6 }}>
+        <Typography variant="h5" align="center" sx={{ mb: 3 }}>
+          Acesso Rápido
+        </Typography>
+        <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 4 }}>
+          Funções mais utilizadas do sistema
+        </Typography>
+        
+        <Grid container spacing={3} justifyContent="center" sx={{ mb: 4 }}>
+          {/* Card Bater Ponto */}
+          <Grid item xs={12} sm={6} md={4}>
+            <Card 
+              sx={{ 
+                cursor: 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4
+                }
+              }}
+              onClick={() => navigate('/configuracao/dashboard')}
+            >
+              <CardActionArea>
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '30px 20px',
+                  }}
+                >
+                  <AccessTimeIcon sx={{ fontSize: 48, color: '#ff9900', mb: 2 }} />
+                  <Typography variant="h6" gutterBottom>
+                    Bater o Ponto
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">
+                    Registrar seu ponto de trabalho
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
 
+          {/* Card Criar Pedidos */}
+          <Grid item xs={12} sm={6} md={4}>
+            <Card 
+              sx={{ 
+                cursor: 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4
+                }
+              }}
+              onClick={() => navigate('/comercial/pedidos/novo')}
+            >
+              <CardActionArea>
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '30px 20px',
+                  }}
+                >
+                  <ShoppingCartIcon sx={{ fontSize: 48, color: '#2196F3', mb: 2 }} />
+                  <Typography variant="h6" gutterBottom>
+                    Criar Pedidos
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">
+                    Novo pedido de vendas
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+
+          {/* Card Criar Clientes */}
+          <Grid item xs={12} sm={6} md={4}>
+            <Card 
+              sx={{ 
+                cursor: 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4
+                }
+              }}
+              onClick={() => navigate('/administrativo/clientes/cadastro')}
+            >
+              <CardActionArea>
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '30px 20px',
+                  }}
+                >
+                  <PeopleIcon sx={{ fontSize: 48, color: '#4CAF50', mb: 2 }} />
+                  <Typography variant="h6" gutterBottom>
+                    Criar Clientes
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">
+                    Cadastrar novo cliente
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Typography variant="h5" align="center" gutterBottom>
+        Módulos do Sistema
+      </Typography>
+      
       <Grid container spacing={4} justifyContent="center" style={{ marginTop: 20 }}>
         {modules.map((mod) => (
           <Grid item xs={12} sm={6} md={3} key={mod.title}>

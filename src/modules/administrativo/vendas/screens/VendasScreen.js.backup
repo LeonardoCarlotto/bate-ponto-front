@@ -1,0 +1,392 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  Container,
+  Typography,
+  Alert,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Box,
+  CircularProgress,
+  Chip,
+  TextField,
+  InputAdornment,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Paper,
+} from "@mui/material";
+
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import SearchIcon from "@mui/icons-material/Search";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import BackButton from "../../../../shared/components/BackButton";
+import { clientesService } from "../../services/api";
+import { pedidosService } from "../../comercial/services/api";
+
+export default function VendasScreen() {
+  const navigate = useNavigate();
+  const [clientes, setClientes] = React.useState([]);
+  const [clientesFiltrados, setClientesFiltrados] = React.useState([]);
+  const [termoBusca, setTermoBusca] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
+  const [erro, setErro] = React.useState(null);
+  const [loadingPedidos, setLoadingPedidos] = React.useState({});
+
+  // Carregar dados
+  React.useEffect(() => {
+    const carregarDados = async () => {
+      try {
+        setLoading(true);
+        setErro(null);
+
+        console.log('Carregando dados para módulo de vendas...');
+        
+        const clientesData = await clientesService.listar();
+        console.log('Clientes carregados:', clientesData);
+
+        // Para cada cliente, carregar seus pedidos
+        const clientesComPedidos = await Promise.all(
+          clientesData.map(async (cliente) => {
+            try {
+              const pedidosDoCliente = await pedidosService.listar({ clienteId: cliente.id });
+              console.log(`Pedidos do cliente ${cliente.id}:`, pedidosDoCliente);
+              
+              // Calcular valor em aberto (pedidos não pagos/entregues)
+              const valorEmAberto = pedidosDoCliente
+                .filter(pedido => pedido.status !== 'ENTREGUE' && pedido.status !== 'CANCELADO')
+                .reduce((total, pedido) => total + (pedido.valor || 0), 0);
+
+              return {
+                ...cliente,
+                pedidos: pedidosDoCliente || [],
+                valorEmAberto,
+                totalPedidos: pedidosDoCliente.length,
+              };
+            } catch (error) {
+              console.error(`Erro ao carregar pedidos do cliente ${cliente.id}:`, error);
+              return {
+                ...cliente,
+                pedidos: [],
+                valorEmAberto: 0,
+                totalPedidos: 0,
+                erro: error.message,
+              };
+            }
+          })
+        );
+
+        setClientes(clientesComPedidos);
+        setClientesFiltrados(clientesComPedidos);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        setErro('Erro ao carregar dados. Tente recarregar a página.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarDados();
+  }, []);
+
+  // Filtro
+  React.useEffect(() => {
+    if (termoBusca.trim() === "") {
+      setClientesFiltrados(clientes);
+    } else {
+      const filtrados = clientes.filter(cliente => {
+        const searchTerm = termoBusca.toLowerCase();
+        
+        return (
+          cliente.nome?.toLowerCase().includes(searchTerm) ||
+          cliente.id?.toString().includes(searchTerm) ||
+          cliente.cpfCnpj?.toLowerCase().includes(searchTerm)
+        );
+      });
+      setClientesFiltrados(filtrados);
+    }
+  }, [termoBusca, clientes]);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'PENDENTE':
+        return 'warning';
+      case 'PREPARACAO':
+        return 'info';
+      case 'ENVIADO':
+        return 'primary';
+      case 'ENTREGUE':
+        return 'success';
+      case 'CANCELADO':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'PENDENTE':
+        return 'Pendente';
+      case 'PREPARACAO':
+        return 'Em Preparação';
+      case 'ENVIADO':
+        return 'Enviado';
+      case 'ENTREGUE':
+        return 'Entregue';
+      case 'CANCELADO':
+        return 'Cancelado';
+      default:
+        return status;
+    }
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value || 0);
+  };
+
+  const togglePedidosCliente = async (clienteId) => {
+    if (loadingPedidos[clienteId]) {
+      return; // Já está carregando
+    }
+
+    setLoadingPedidos(prev => ({ ...prev, [clienteId]: true }));
+
+    try {
+      const pedidosDoCliente = await pedidosService.listar({ clienteId });
+      
+      setClientes(prev => prev.map(cliente => {
+        if (cliente.id === clienteId) {
+          const valorEmAberto = pedidosDoCliente
+            .filter(pedido => pedido.status !== 'ENTREGUE' && pedido.status !== 'CANCELADO')
+            .reduce((total, pedido) => total + (pedido.valor || 0), 0);
+
+          return {
+            ...cliente,
+            pedidos: pedidosDoCliente || [],
+            valorEmAberto,
+            totalPedidos: pedidosDoCliente.length,
+          };
+        }
+        return cliente;
+      }));
+    } catch (error) {
+      console.error('Erro ao carregar pedidos do cliente:', error);
+      setErro('Erro ao carregar pedidos do cliente. Tente novamente.');
+    } finally {
+      setLoadingPedidos(prev => {
+        const { [clienteId]: _, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
+  return (
+    <Box>
+      <Box sx={{ paddingX: 2 }}>
+        <BackButton to="/administrativo" />
+      </Box>
+      <Container maxWidth="xl">
+        <Card sx={{ p: { xs: 2, sm: 4 }, mb: 3 }}>
+          <Typography variant="h4" fontWeight={600} mb={3}>
+            <MonetizationOnIcon sx={{ mr: 2, verticalAlign: 'middle' }} />
+            Contas a Receber
+          </Typography>
+          <Typography variant="body1" color="text.secondary" mb={3}>
+            Visualize todos os clientes e seus pedidos em aberto para controle de contas a receber.
+          </Typography>
+
+          {erro && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {erro}
+            </Alert>
+          )}
+
+          {/* Busca */}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                placeholder="Buscar por nome, ID ou CPF/CNPJ..."
+                value={termoBusca}
+                onChange={(e) => setTermoBusca(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                size="small"
+              />
+            </Grid>
+          </Grid>
+
+          {/* Lista de Clientes */}
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
+              <CircularProgress size={40} />
+              <Typography variant="body1" sx={{ ml: 2 }}>
+                Carregando dados...
+              </Typography>
+            </Box>
+          ) : (
+            <Grid container spacing={3}>
+              {clientesFiltrados.length === 0 ? (
+                <Grid item xs={12}>
+                  <Paper sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography color="text.secondary">
+                      {termoBusca.trim() === "" ? "Nenhum cliente encontrado" : "Nenhum cliente encontrado para esta busca"}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ) : (
+                clientesFiltrados.map((cliente) => (
+                  <Grid item xs={12} md={6} lg={4} key={cliente.id}>
+                    <Card>
+                      <Accordion>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          sx={{ 
+                            '& .MuiAccordionSummary-content': {
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              width: '100%'
+                            }
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                              {cliente.nome}
+                            </Typography>
+                            {cliente.erro && (
+                              <Chip 
+                                label="Erro ao carregar pedidos" 
+                                color="error" 
+                                size="small" 
+                                sx={{ ml: 2 }}
+                              />
+                            )}
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Typography variant="h6" color="primary" fontWeight="bold">
+                              {formatCurrency(cliente.valorEmAberto)}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              ({cliente.totalPedidos} pedidos)
+                            </Typography>
+                          </Box>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Box sx={{ p: 2 }}>
+                            {/* Informações do Cliente */}
+                            <Grid container spacing={2} sx={{ mb: 2 }}>
+                              <Grid item xs={12} md={6}>
+                                <Typography variant="body2" color="text.secondary">
+                                  <strong>ID:</strong> {cliente.id}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12} md={6}>
+                                <Typography variant="body2" color="text.secondary">
+                                  <strong>CPF/CNPJ:</strong> {cliente.cpfCnpj || 'Não informado'}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography variant="body2" color="text.secondary">
+                                  <strong>Email:</strong> {cliente.email || 'Não informado'}
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Typography variant="body2" color="text.secondary">
+                                  <strong>Telefone:</strong> {cliente.telefone || 'Não informado'}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+
+                            {/* Pedidos do Cliente */}
+                            <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>
+                              Pedidos do Cliente
+                            </Typography>
+                            
+                            {cliente.erro ? (
+                              <Alert severity="error" sx={{ mb: 2 }}>
+                                Erro ao carregar pedidos: {cliente.erro}
+                              </Alert>
+                            ) : cliente.pedidos.length === 0 ? (
+                              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                                <Typography color="text.secondary">
+                                  Nenhum pedido encontrado para este cliente
+                                </Typography>
+                              </Paper>
+                            ) : (
+                              <TableContainer component={Paper} size="small">
+                                <Table>
+                                  <TableHead>
+                                    <TableRow>
+                                      <TableCell><strong>ID</strong></TableCell>
+                                      <TableCell><strong>Data</strong></TableCell>
+                                      <TableCell><strong>Status</strong></TableCell>
+                                      <TableCell align="right"><strong>Valor</strong></TableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {cliente.pedidos.map((pedido) => (
+                                      <TableRow key={pedido.id}>
+                                        <TableCell>{pedido.id}</TableCell>
+                                        <TableCell>
+                                          {new Date(pedido.data).toLocaleDateString("pt-BR")}
+                                        </TableCell>
+                                        <TableCell>
+                                          <Chip 
+                                            label={getStatusLabel(pedido.status)} 
+                                            color={getStatusColor(pedido.status)} 
+                                            size="small" 
+                                          />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                          {formatCurrency(pedido.valor)}
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </TableContainer>
+                              </TableContainer>
+                            </Box>
+                            </Box>
+
+                            {/* Botão de recarregar */}
+                            <Box sx={{ mt: 2, textAlign: 'center' }}>
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                onClick={() => togglePedidosCliente(cliente.id)}
+                                disabled={loadingPedidos[cliente.id]}
+                                startIcon={loadingPedidos[cliente.id] ? <CircularProgress size={16} /> : null}
+                              >
+                                {loadingPedidos[cliente.id] ? 'Atualizando...' : 'Atualizar Pedidos'}
+                              </Button>
+                            </Box>
+                          </AccordionDetails>
+                        </Accordion>
+                      </Card>
+                    </Grid>
+                ))
+              )}
+            </Grid>
+          )}
+        </Card>
+      </Container>
+    </Box>
+  );
+}
