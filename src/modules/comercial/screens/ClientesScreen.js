@@ -67,11 +67,11 @@ export default function ClientesScreen() {
   };
 
   const handleNovoCliente = () => {
-    navigate('/administrativo/clientes/cadastro');
+    navigate('/comercial/clientes/cadastro');
   };
 
   const handleEditar = (clienteId) => {
-    navigate(`/administrativo/clientes/cadastro/${clienteId}`);
+    navigate(`/comercial/clientes/cadastro/${clienteId}`);
   };
 
   const handleDeletar = async (clienteId) => {

@@ -325,3 +325,168 @@ export const produtosComercialService = {
     }
   },
 };
+
+// ==================== CLIENTES ====================
+
+export const clientesService = {
+  // Listar todos os clientes
+  async listar(filtros = {}) {
+    try {
+      const queryString = new URLSearchParams(filtros).toString();
+      const response = await fetch(
+        `${API_BASE_URL}/clientes${queryString ? '?' + queryString : ''}`,
+        {
+          method: 'GET',
+          headers: getHeaders(),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Erro ao listar clientes');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao listar clientes:', error);
+      throw error;
+    }
+  },
+
+  // Obter cliente específico
+  async obter(id) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
+        method: 'GET',
+        headers: getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao obter cliente');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao obter cliente:', error);
+      throw error;
+    }
+  },
+
+  // Criar novo cliente
+  async criar(dados) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/clientes`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(dados),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao criar cliente');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao criar cliente:', error);
+      throw error;
+    }
+  },
+
+  // Atualizar cliente
+  async atualizar(id, dados) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(dados),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar cliente');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao atualizar cliente:', error);
+      throw error;
+    }
+  },
+
+  // Deletar cliente
+  async deletar(id) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao deletar cliente');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao deletar cliente:', error);
+      throw error;
+    }
+  },
+
+  // Buscar cliente por CPF/CNPJ
+  async buscarPorCpfCnpj(cpfCnpj) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/clientes/documento/${cpfCnpj}`,
+        {
+          method: 'GET',
+          headers: getHeaders(),
+        }
+      );
+
+      if (!response.ok) {
+        return null; // Cliente não encontrado
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao buscar cliente:', error);
+      return null;
+    }
+  },
+
+  // Buscar cliente por email
+  async buscarPorEmail(email) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/clientes/email/${email}`, {
+        method: 'GET',
+        headers: getHeaders(),
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao buscar cliente por email:', error);
+      return null;
+    }
+  },
+
+  // Buscar aniversariantes do dia
+  async buscarAniversariantesDoDia() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/clientes/aniversariantes-hoje`, {
+        method: 'GET',
+        headers: getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao buscar aniversariantes do dia');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao buscar aniversariantes do dia:', error);
+      throw error;
+    }
+  },
+};

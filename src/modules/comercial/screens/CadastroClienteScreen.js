@@ -29,6 +29,7 @@ export default function CadastroClienteScreen() {
     email: '',
     telefone: '',
     dataAbertura: new Date().toISOString().split('T')[0],
+    dataAniversario: '',
     ativo: true,
   });
 
@@ -42,6 +43,7 @@ export default function CadastroClienteScreen() {
         email: cliente.email || '',
         telefone: cliente.telefone || '',
         dataAbertura: cliente.dataAbertura || new Date().toISOString().split('T')[0],
+        dataAniversario: cliente.dataAniversario || '',
         ativo: cliente.ativo !== false,
       });
     } catch (error) {
@@ -104,7 +106,7 @@ export default function CadastroClienteScreen() {
 
       setSucesso(true);
       setTimeout(() => {
-        navigate('/administrativo/clientes');
+        navigate('/comercial/clientes');
       }, 1500);
     } catch (error) {
       setErro('Erro ao salvar cliente: ' + error.message);
@@ -199,6 +201,20 @@ export default function CadastroClienteScreen() {
                   size="small"
                 />
               </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Data de Aniversário"
+                  name="dataAniversario"
+                  type="date"
+                  value={formData.dataAniversario}
+                  onChange={handleInputChange}
+                  InputLabelProps={{ shrink: true }}
+                  disabled={carregando}
+                  size="small"
+                />
+              </Grid>
             </Grid>
 
             {/* CONTATO */}
@@ -261,7 +277,7 @@ export default function CadastroClienteScreen() {
                     variant="outlined"
                     color="inherit"
                     startIcon={<CancelIcon />}
-                    onClick={() => navigate('/administrativo/clientes')}
+                    onClick={() => navigate('/comercial/clientes')}
                     disabled={carregando}
                   >
                     Cancelar

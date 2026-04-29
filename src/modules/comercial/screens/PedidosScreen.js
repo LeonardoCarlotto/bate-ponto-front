@@ -17,6 +17,7 @@ import {
   Grid,
   CircularProgress,
   Alert,
+  Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -33,6 +34,32 @@ export default function PedidosScreen() {
   const [termoBusca, setTermoBusca] = React.useState("");
   const [loading, setLoading] = React.useState(true);
   const [erro, setErro] = React.useState(null);
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'preparacao':
+        return 'warning';
+      case 'entregue':
+        return 'success';
+      case 'cancelado':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'PREPARACAO':
+        return 'Em preparação';
+      case 'ENTREGUE':
+        return 'Entregue';
+      case 'CANCELADO':
+        return 'Cancelado';
+      default:
+        return status;
+    }
+  };
 
   React.useEffect(() => {
     const carregarPedidos = async () => {
@@ -186,7 +213,13 @@ export default function PedidosScreen() {
                       <TableCell>
                         {new Date(pedido.data).toLocaleDateString("pt-BR")}
                       </TableCell>
-                      <TableCell>{pedido.status}</TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={getStatusLabel(pedido.status)} 
+                          color={getStatusColor(pedido.status)} 
+                          size="small" 
+                        />
+                      </TableCell>
                       <TableCell>
                         R$ {parseFloat(pedido.valor || 0).toFixed(2)}
                       </TableCell>

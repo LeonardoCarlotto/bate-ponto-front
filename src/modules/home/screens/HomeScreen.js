@@ -4,9 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, Card, CardActionArea, CardContent, Typography, Box } from '@mui/material';
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import AniversariantesNotification from '../../../shared/components/AniversariantesNotification';
 
 const modules = [
   {
@@ -17,15 +20,15 @@ const modules = [
   },
   {
     title: 'Comercial',
-    description: 'Crie, visualize e gerencie pedidos dos clientes.',
+    description: 'Crie, visualize e gerencie pedidos e clientes.',
     path: '/comercial',
     icon: <ShoppingCartIcon style={{ fontSize: 50, color: '#2196F3' }} />,
   },
   {
-    title: 'Administrativo',
-    description: 'Gerencie clientes, contratos e informações internas.',
-    path: '/administrativo',
-    icon: <PeopleIcon style={{ fontSize: 50, color: '#4CAF50' }} />,
+    title: 'Financeiro',
+    description: 'Gerencie contas a receber, pagar e fluxo de caixa.',
+    path: '/financeiro',
+    icon: <AccountBalanceIcon style={{ fontSize: 50, color: '#00897B' }} />,
   },
   {
     title: 'Produtos',
@@ -40,6 +43,8 @@ export default function Home() {
 
   return (
     <div style={{ padding: '40px 20px' }}>
+      <AniversariantesNotification />
+      
       <Typography variant="h4" align="center" gutterBottom>
         Painel de Módulos
       </Typography>
@@ -109,7 +114,7 @@ export default function Home() {
                     padding: '30px 20px',
                   }}
                 >
-                  <ShoppingCartIcon sx={{ fontSize: 48, color: '#2196F3', mb: 2 }} />
+                  <AddShoppingCartIcon sx={{ fontSize: 48, color: '#2196F3', mb: 2 }} />
                   <Typography variant="h6" gutterBottom>
                     Criar Pedidos
                   </Typography>
@@ -132,7 +137,7 @@ export default function Home() {
                   boxShadow: 4
                 }
               }}
-              onClick={() => navigate('/administrativo/clientes/cadastro')}
+              onClick={() => navigate('/comercial/clientes/cadastro')}
             >
               <CardActionArea>
                 <CardContent

@@ -51,7 +51,7 @@ export default function CadastroPacoteScreen() {
     nome: "",
     descricao: "",
     ativo: true,
-    precoPersonalizado: "",
+    porcentagemDesconto: "",
   });
 
   const [itens, setItens] = React.useState([]);
@@ -92,7 +92,7 @@ export default function CadastroPacoteScreen() {
           nome: data.nome || "",
           descricao: data.descricao || "",
           ativo: data.ativo ?? true,
-          precoPersonalizado: data.precoPersonalizado || "",
+          porcentagemDesconto: data.porcentagemDesconto || "",
         });
 
         setItens(data.itens || []);
@@ -107,14 +107,19 @@ export default function CadastroPacoteScreen() {
   }, [pacoteId]);
 
   const calcularTotal = () => {
-    if (formData.precoPersonalizado) {
-      return parseFloat(formData.precoPersonalizado);
-    }
-
-    return itens.reduce(
+    const totalBase = itens.reduce(
       (total, item) => total + item.preco * item.quantidade,
       0
     );
+
+    // Se tiver porcentagem de desconto, calcula o preço personalizado
+    if (formData.porcentagemDesconto && formData.porcentagemDesconto !== "") {
+      const desconto = parseFloat(formData.porcentagemDesconto);
+      const valorDesconto = totalBase * (desconto / 100);
+      return totalBase - valorDesconto;
+    }
+
+    return totalBase;
   };
 
   const total = calcularTotal();
@@ -130,6 +135,9 @@ export default function CadastroPacoteScreen() {
 
   const handleNovoItemChange = (e) => {
     const { name, value } = e.target;
+
+    console.log('=== HANDLE NOVO ITEM CHANGE ===');
+    console.log('Campo:', name, 'Valor:', value);
 
     setNovoItem((prev) => ({
       ...prev,
@@ -148,6 +156,10 @@ export default function CadastroPacoteScreen() {
   };
 
   const adicionarItem = () => {
+    console.log('=== ADICIONAR ITEM ===');
+    console.log('novoItem:', novoItem);
+    console.log('Quantidade atual:', novoItem.quantidade);
+
     if (novoItem.tipo === "produto") {
       if (!novoItem.produto) {
         setErro("Selecione um produto");
@@ -165,6 +177,8 @@ export default function CadastroPacoteScreen() {
         quantidade: novoItem.quantidade,
         subtotal: produto.preco * novoItem.quantidade,
       };
+
+      console.log('Item criado:', item);
 
       setItens([...itens, item]);
     } else {
@@ -211,11 +225,25 @@ export default function CadastroPacoteScreen() {
     setLoading(true);
 
     try {
+      const totalBase = itens.reduce(
+        (total, item) => total + item.preco * item.quantidade,
+        0
+      );
+
+      // Calcular precoPersonalizado baseado na porcentagem de desconto
+      let precoPersonalizado = null;
+      if (formData.porcentagemDesconto && formData.porcentagemDesconto !== "") {
+        const desconto = parseFloat(formData.porcentagemDesconto);
+        const valorDesconto = totalBase * (desconto / 100);
+        precoPersonalizado = totalBase - valorDesconto;
+      }
+
       const data = {
         ...formData,
         preco: total,
-        precoPersonalizado: formData.precoPersonalizado
-          ? parseFloat(formData.precoPersonalizado)
+        precoPersonalizado: precoPersonalizado,
+        porcentagemDesconto: formData.porcentagemDesconto
+          ? parseFloat(formData.porcentagemDesconto)
           : null,
         itens,
       };
@@ -503,12 +531,15 @@ export default function CadastroPacoteScreen() {
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Preço Personalizado"
-                  name="precoPersonalizado"
+                  label="Porcentagem de Desconto"
+                  name="porcentagemDesconto"
                   type="number"
-                  value={formData.precoPersonalizado}
+                  value={formData.porcentagemDesconto}
                   onChange={handleInputChange}
                   size="small"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                  }}
                 />
               </Grid>
 

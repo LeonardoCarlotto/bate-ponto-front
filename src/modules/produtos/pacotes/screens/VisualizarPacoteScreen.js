@@ -19,6 +19,7 @@ import {
   FormControlLabel,
   Checkbox,
   Divider,
+  InputAdornment,
 } from "@mui/material";
 
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -331,10 +332,13 @@ export default function VisualizarPacoteScreen() {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Preço Personalizado"
-                value={pacote.precoPersonalizado || ""}
+                label="Porcentagem de Desconto"
+                value={pacote.porcentagemDesconto || ""}
                 size="small"
                 disabled
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                }}
               />
             </Grid>
 

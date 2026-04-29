@@ -25,10 +25,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 
 import BackButton from "../../../shared/components/BackButton";
-import { clientesService } from "../../administrativo/services/api";
+import { clientesService, pedidosService } from "../services/api";
 import { produtosService } from "../../produtos/services/api";
 import { pacotesService } from "../../produtos/pacotes/services/api";
-import { pedidosService } from "../services/api";
 
 export default function EditarPedidoScreen() {
   const navigate = useNavigate();
@@ -46,7 +45,7 @@ export default function EditarPedidoScreen() {
   const [formData, setFormData] = React.useState({
     clienteId: "",
     dataPedido: "",
-    status: "PENDENTE",
+    status: "PREPARACAO",
     descricao: "",
   });
 
@@ -65,8 +64,6 @@ export default function EditarPedidoScreen() {
         setLoadingData(true);
         setErro(null);
 
-        console.log('Carregando pedido ID:', pedidoId);
-
         const [pedidoData, clientesData, produtosData, pacotesData] = await Promise.all([
           pedidosService.obter(pedidoId),
           clientesService.listar(),
@@ -74,18 +71,12 @@ export default function EditarPedidoScreen() {
           pacotesService.list()
         ]);
 
-        console.log('Dados do pedido:', pedidoData);
-        console.log('Clientes:', clientesData);
-        console.log('Produtos:', produtosData);
-        console.log('Pacotes:', pacotesData);
-        console.log('Itens do pedido:', pedidoData?.itens);
-
         // Carregar dados do pedido
         if (pedidoData) {
           setFormData({
             clienteId: pedidoData.clienteId?.toString() || "",
             dataPedido: pedidoData.data?.split('T')[0] || "",
-            status: pedidoData.status || "PENDENTE",
+            status: pedidoData.status || "PREPARACAO",
             descricao: pedidoData.descricao || "",
           });
           // Mapear itens para o formato esperado pelo frontend
@@ -340,9 +331,7 @@ export default function EditarPedidoScreen() {
                         }
                       }}
                     >
-                      <MenuItem value="PENDENTE">Pendente</MenuItem>
-                      <MenuItem value="PREPARACAO">Em Preparação</MenuItem>
-                      <MenuItem value="ENVIADO">Enviado</MenuItem>
+                      <MenuItem value="PREPARACAO">Em preparação</MenuItem>
                       <MenuItem value="ENTREGUE">Entregue</MenuItem>
                       <MenuItem value="CANCELADO">Cancelado</MenuItem>
                     </TextField>

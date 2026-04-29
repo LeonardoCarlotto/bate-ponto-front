@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Grid, Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import PeopleIcon from '@mui/icons-material/People';
 import BackButton from '../../../shared/components/BackButton';
 
 export default function ComercialHomeScreen() {
@@ -16,10 +16,10 @@ export default function ComercialHomeScreen() {
       icon: <ShoppingCartIcon style={{ fontSize: 50, color: '#2196F3' }} />,
     },
     {
-      title: 'Gerenciar Vendas',
-      description: 'Controle dívidas de clientes e registre pagamentos.',
-      path: '/comercial/contas-receber',
-      icon: <AttachMoneyIcon style={{ fontSize: 50, color: '#4CAF50' }} />,
+      title: 'Gerenciar Clientes',
+      description: 'Cadastre, visualize e gerencie os clientes.',
+      path: '/comercial/clientes',
+      icon: <PeopleIcon style={{ fontSize: 50, color: '#4CAF50' }} />,
     },
   ];
 
@@ -30,7 +30,7 @@ export default function ComercialHomeScreen() {
         Módulo Comercial
       </Typography>
       <Typography variant="body2" color="textSecondary" gutterBottom sx={{ marginBottom: 3 }}>
-        Gerencie pedidos, contas a receber e produtos
+        Gerencie pedidos e clientes
       </Typography>
 
       <Grid container spacing={3}>

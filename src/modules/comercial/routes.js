@@ -5,9 +5,8 @@ import PedidosScreen from "./screens/PedidosScreen";
 import CadastroPedidoScreen from "./screens/CadastroPedidoScreen";
 import EditarPedidoScreen from "./screens/EditarPedidoScreen";
 import VisualizarPedidoScreen from "./screens/VisualizarPedidoScreen";
-import ContasReceberScreen from "./contas-receber/screens/ContasReceberScreen";
-import DetalhesClienteScreen from "./contas-receber/screens/DetalhesClienteScreen";
-import RegistrarPagamentoScreen from "./contas-receber/screens/RegistrarPagamentoScreen";
+import ClientesScreen from "./screens/ClientesScreen";
+import CadastroClienteScreen from "./screens/CadastroClienteScreen";
 
 const routes = [
   {
@@ -36,18 +35,18 @@ const routes = [
     private: true,
   },
   {
-    path: "/comercial/contas-receber",
-    element: <ContasReceberScreen />,
+    path: "/comercial/clientes",
+    element: <ClientesScreen />,
     private: true,
   },
   {
-    path: "/comercial/contas-receber/cliente/:clienteId",
-    element: <DetalhesClienteScreen />,
+    path: "/comercial/clientes/cadastro",
+    element: <CadastroClienteScreen />,
     private: true,
   },
   {
-    path: "/comercial/contas-receber/cliente/:clienteId/pagar",
-    element: <RegistrarPagamentoScreen />,
+    path: "/comercial/clientes/cadastro/:clienteId",
+    element: <CadastroClienteScreen />,
     private: true,
   },
 ];

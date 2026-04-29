@@ -41,9 +41,7 @@ export default function VisualizarPedidoScreen() {
         setLoading(true);
         setErro(null);
 
-        console.log('Carregando pedido ID:', pedidoId);
         const pedidoData = await pedidosService.obter(pedidoId);
-        console.log('Dados do pedido:', pedidoData);
 
         setPedido(pedidoData);
       } catch (error) {
@@ -73,12 +71,8 @@ export default function VisualizarPedidoScreen() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'PENDENTE':
-        return 'warning';
       case 'PREPARACAO':
-        return 'info';
-      case 'ENVIADO':
-        return 'primary';
+        return 'warning';
       case 'ENTREGUE':
         return 'success';
       case 'CANCELADO':
@@ -90,12 +84,8 @@ export default function VisualizarPedidoScreen() {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'PENDENTE':
-        return 'Pendente';
       case 'PREPARACAO':
-        return 'Em Preparação';
-      case 'ENVIADO':
-        return 'Enviado';
+        return 'Em preparação';
       case 'ENTREGUE':
         return 'Entregue';
       case 'CANCELADO':

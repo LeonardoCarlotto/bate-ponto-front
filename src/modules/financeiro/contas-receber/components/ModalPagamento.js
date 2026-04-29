@@ -36,9 +36,9 @@ export default function ModalPagamento({
   React.useEffect(() => {
     if (open && cliente) {
       setFormData({
-        valor: '',
+        valor: cliente.pedidoSelecionado ? cliente.valorPedido.toFixed(2) : '',
         formaPagamento: '',
-        descricao: '',
+        descricao: cliente.pedidoSelecionado ? `Pagamento pedido #${cliente.pedidoSelecionado.id}` : '',
         data: new Date().toISOString().split('T')[0],
       });
       setErro(null);
@@ -61,8 +61,10 @@ export default function ModalPagamento({
     }
 
     const valor = parseFloat(formData.valor);
-    if (valor <= 0 || valor > (cliente?.saldoDevedor || 0)) {
-      setErro(`Valor deve ser maior que 0 e menor ou igual ao saldo devedor (R$ ${(cliente?.saldoDevedor || 0).toFixed(2)})`);
+    const valorMaximo = cliente.pedidoSelecionado ? cliente.valorPedido : (cliente?.saldoDevedor || 0);
+    
+    if (valor <= 0 || valor > valorMaximo) {
+      setErro(`Valor deve ser maior que 0 e menor ou igual ao ${cliente.pedidoSelecionado ? 'valor do pedido' : 'saldo devedor'} (R$ ${valorMaximo.toFixed(2)})`);
       return;
     }
 
@@ -77,6 +79,10 @@ export default function ModalPagamento({
         formaPagamento: formData.formaPagamento,
         descricao: formData.descricao,
         data: formData.data,
+        ...(cliente.pedidoSelecionado && {
+          pedidoId: cliente.pedidoSelecionado.id,
+          tipoPagamento: 'pedido_individual'
+        })
       };
 
       // Enviar para endpoint (simulado por enquanto)
@@ -140,9 +146,20 @@ export default function ModalPagamento({
             <Typography variant="subtitle2" gutterBottom>
               Cliente: {cliente.clienteNome}
             </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Saldo Devedor: <strong>R$ {(cliente.saldoDevedor || 0).toFixed(2)}</strong>
-            </Typography>
+            {cliente.pedidoSelecionado ? (
+              <>
+                <Typography variant="body2" color="textSecondary">
+                  Pedido ID: <strong>#{cliente.pedidoSelecionado.id}</strong>
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Valor do Pedido: <strong>R$ {cliente.valorPedido.toFixed(2)}</strong>
+                </Typography>
+              </>
+            ) : (
+              <Typography variant="body2" color="textSecondary">
+                Saldo Devedor: <strong>R$ {(cliente.saldoDevedor || 0).toFixed(2)}</strong>
+              </Typography>
+            )}
           </Box>
 
           {erro && (

@@ -113,12 +113,12 @@ export default function ContasReceberScreen() {
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-      case 'preparação':
+      case 'preparacao':
         return 'warning';
-      case 'enviado':
-        return 'info';
       case 'entregue':
         return 'success';
+      case 'cancelado':
+        return 'error';
       default:
         return 'default';
     }
@@ -191,7 +191,7 @@ export default function ContasReceberScreen() {
                   <TableCell align="right">Total Pago</TableCell>
                   <TableCell align="right">Saldo Devedor</TableCell>
                   <TableCell>Pedidos em Aberto</TableCell>
-                  <TableCell>Ações</TableCell>
+
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -258,17 +258,6 @@ export default function ContasReceberScreen() {
                               variant="outlined"
                             />
                           </TableCell>
-                          <TableCell>
-                            <Button
-                              size="small"
-                              color="success"
-                              startIcon={<PaymentIcon />}
-                              onClick={() => handleRegistrarPagamento(cliente)}
-                              disabled={saldoDevedor <= 0}
-                            >
-                              Pagar
-                            </Button>
-                          </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell 
@@ -321,14 +310,28 @@ export default function ContasReceberScreen() {
                                             R$ {parseFloat(pedido.valor || 0).toFixed(2)}
                                           </TableCell>
                                           <TableCell align="center">
-                                            <Button
-                                              size="small"
-                                              color="info"
-                                              startIcon={<VisibilityIcon />}
-                                              onClick={() => navigate(`/comercial/pedidos/visualizar/${pedido.id}`)}
-                                            >
-                                              Visualizar
-                                            </Button>
+                                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                                              <Button
+                                                size="small"
+                                                color="info"
+                                                startIcon={<VisibilityIcon />}
+                                                onClick={() => navigate(`/comercial/pedidos/visualizar/${pedido.id}`)}
+                                              >
+                                                Visualizar
+                                              </Button>
+                                              <Button
+                                                size="small"
+                                                color="success"
+                                                startIcon={<PaymentIcon />}
+                                                onClick={() => handleRegistrarPagamento({
+                                                  ...cliente,
+                                                  pedidoSelecionado: pedido,
+                                                  valorPedido: parseFloat(pedido.valor || 0)
+                                                })}
+                                              >
+                                                Pagar
+                                              </Button>
+                                            </Box>
                                           </TableCell>
                                         </TableRow>
                                       ))

@@ -25,10 +25,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 
 import BackButton from "../../../shared/components/BackButton";
-import { clientesService } from "../../administrativo/services/api";
+import { clientesService, pedidosService } from "../services/api";
 import { produtosService } from "../../produtos/services/api";
 import { pacotesService } from "../../produtos/pacotes/services/api";
-import { pedidosService } from "../services/api";
 
 export default function CadastroPedidoScreen() {
   const navigate = useNavigate();
@@ -45,8 +44,10 @@ export default function CadastroPedidoScreen() {
   const [formData, setFormData] = React.useState({
     clienteId: "",
     dataPedido: new Date().toISOString().split("T")[0],
-    status: "PENDENTE",
+    status: "PREPARACAO",
     observacoes: "",
+    formaPagamento: "",
+    parcelas: 1,
   });
 
   const [itens, setItens] = React.useState([]);
@@ -154,8 +155,19 @@ export default function CadastroPedidoScreen() {
       return false;
     }
 
+    if (!formData.formaPagamento) {
+      setErro("Forma de pagamento é obrigatória");
+      return false;
+    }
+
     if (itens.length === 0) {
       setErro("Adicione pelo menos um item");
+      return false;
+    }
+
+    // Validar parcelas para todas as formas de pagamento
+    if (formData.parcelas < 1 || formData.parcelas > 12) {
+      setErro("Número de parcelas deve estar entre 1 e 12");
       return false;
     }
 
@@ -187,8 +199,6 @@ export default function CadastroPedidoScreen() {
         itens,
         total: calcularTotal(),
       };
-
-      console.log('Dados do pedido a serem salvos:', pedidoData);
 
       // Chamada real à API para criar o pedido
       await pedidosService.criar(pedidoData);
@@ -302,10 +312,9 @@ export default function CadastroPedidoScreen() {
                     }
                   }}
                 >
-                  <MenuItem value="PENDENTE">Pendente</MenuItem>
-                  <MenuItem value="APROVADO">Aprovado</MenuItem>
-                  <MenuItem value="CANCELADO">Cancelado</MenuItem>
+                  <MenuItem value="PREPARACAO">Em preparação</MenuItem>
                   <MenuItem value="ENTREGUE">Entregue</MenuItem>
+                  <MenuItem value="CANCELADO">Cancelado</MenuItem>
                 </TextField>
               </Grid>
 
@@ -437,6 +446,53 @@ export default function CadastroPedidoScreen() {
                 </TableBody>
               </Table>
             )}
+
+            <Typography variant="subtitle2" fontWeight={600} mb={2}>
+              Formas de Pagamento
+            </Typography>
+
+            <Grid container spacing={2} mb={3}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  select
+                  label="Forma de Pagamento"
+                  name="formaPagamento"
+                  value={formData.formaPagamento}
+                  onChange={handleInputChange}
+                  size="small"
+                  required
+                  sx={{
+                    '& .MuiOutlinedInput-input': {
+                      padding: '8.5px 100px'
+                    }
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>Selecione</em>
+                  </MenuItem>
+                  <MenuItem value="DINHEIRO">Dinheiro</MenuItem>
+                  <MenuItem value="PIX">PIX</MenuItem>
+                  <MenuItem value="CARTAO_CREDITO">Cartão de Crédito</MenuItem>
+                  <MenuItem value="CARTAO_DEBITO">Cartão de Débito</MenuItem>
+                  <MenuItem value="BOLETO">Boleto</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Parcelas"
+                  name="parcelas"
+                  type="number"
+                  value={formData.parcelas}
+                  onChange={handleInputChange}
+                  inputProps={{ min: 1, max: 12 }}
+                  size="small"
+                  helperText="Número de parcelas (máximo 12)"
+                />
+              </Grid>
+            </Grid>
 
             <Grid container mb={4}>
               <Grid item xs={12}>
