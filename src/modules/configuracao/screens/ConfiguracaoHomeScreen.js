@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate } from "react-router-dom";
 import {
   Box,
-  Grid,
   Card,
   CardActionArea,
   CardContent,
-  Typography,
+  Typography
 } from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import BackButton from "../../../shared/components/BackButton";
 import PersonIcon from "@mui/icons-material/Person";
@@ -50,20 +51,20 @@ export default function ConfiguracaoHomeScreen() {
       title: "Meu Perfil",
       description: "Edite suas informações e altere sua senha.",
       path: "/configuracao/edit-profile",
-      icon: <PersonIcon style={{ fontSize: 50, color: "#4CAF50" }} />,
+      icon: <PersonIcon sx={{ fontSize: 46, color: "success.main" }} />,
     },
     {
       title: "Registrar Ponto",
       description: "Marque suas entradas e saídas.",
       path: "/configuracao/dashboard",
-      icon: <AccessTimeIcon style={{ fontSize: 50, color: "#ff9900" }} />,
+      icon: <AccessTimeIcon sx={{ fontSize: 46, color: "secondary.main" }} />,
     },
 
     {
       title: "Relatórios",
       description: "Visualize seus relatórios de ponto.",
       path: "/configuracao/report",
-      icon: <AssignmentIcon style={{ fontSize: 50, color: "#9C27B0" }} />,
+      icon: <AssignmentIcon sx={{ fontSize: 46, color: "primary.main" }} />,
     },
   ];
 
@@ -72,19 +73,19 @@ export default function ConfiguracaoHomeScreen() {
       title: "Criar Usuário",
       description: "Cadastre um novo usuário.",
       path: "/configuracao/create-user",
-      icon: <PersonAddIcon style={{ fontSize: 50, color: "#4CAF50" }} />,
+      icon: <PersonAddIcon sx={{ fontSize: 46, color: "success.main" }} />,
     },
     {
       title: "Colaboradores",
       description: "Gerencie usuários e colaboradores.",
       path: "/configuracao/users",
-      icon: <GroupIcon style={{ fontSize: 50, color: "#FF5722" }} />,
+      icon: <GroupIcon sx={{ fontSize: 46, color: "secondary.main" }} />,
     },
     {
       title: "Pontos Editados",
       description: "Visualize registros editados.",
       path: "/configuracao/admin",
-      icon: <HistoryIcon style={{ fontSize: 50, color: "#607D8B" }} />,
+      icon: <HistoryIcon sx={{ fontSize: 46, color: "info.main" }} />,
     },
   ];
 

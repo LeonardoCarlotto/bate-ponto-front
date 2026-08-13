@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function BackButton({
   label = "Voltar",
-  variant = "text",
+  variant = "outlined",
   fullWidth = false,
   color = "primary",
   sx = {},
@@ -36,10 +36,12 @@ export default function BackButton({
       variant={variant}
       fullWidth={fullWidth}
       color={color}
+      size="small"
       disabled={disabled}
       sx={{
+        alignSelf: "flex-start",
         marginBottom: 2,
-        marginTop: 2,
+        marginTop: 1,
         ...sx,
       }}
     >

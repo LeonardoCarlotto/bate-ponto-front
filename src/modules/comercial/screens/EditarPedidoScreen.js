@@ -1,5 +1,7 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams } from "react-router-dom";
 import {
   Card,
   Container,
@@ -7,7 +9,6 @@ import {
   Button,
   Typography,
   Alert,
-  Grid,
   MenuItem,
   Table,
   TableBody,
@@ -18,8 +19,9 @@ import {
   Box,
   CircularProgress,
   InputAdornment,
-  Autocomplete,
+  Autocomplete
 } from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
 
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -371,11 +373,6 @@ export default function EditarPedidoScreen() {
                       value={formData.status}
                       onChange={handleInputChange}
                       size="small"
-                      sx={{
-                        '& .MuiOutlinedInput-input': {
-                          padding: '8.5px 100px'
-                        }
-                      }}
                     >
                       <MenuItem value="PREPARACAO">Em preparação</MenuItem>
                       <MenuItem value="ENTREGUE">Entregue</MenuItem>
@@ -411,11 +408,6 @@ export default function EditarPedidoScreen() {
                       value={novoItem.tipo}
                       onChange={handleNovoItemChange}
                       size="small"
-                      sx={{
-                        '& .MuiOutlinedInput-input': {
-                          padding: '8.5px 100px'
-                        }
-                      }}
                     >
                       <MenuItem value="produto">Produto</MenuItem>
                       <MenuItem value="pacote">Pacote</MenuItem>
@@ -549,11 +541,6 @@ export default function EditarPedidoScreen() {
                       onChange={handleInputChange}
                       size="small"
                       required
-                      sx={{
-                        '& .MuiOutlinedInput-input': {
-                          padding: '8.5px 100px'
-                        }
-                      }}
                     >
                       <MenuItem value="">
                         <em>Selecione</em>

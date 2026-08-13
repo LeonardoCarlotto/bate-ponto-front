@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid, Card, CardActionArea, CardContent, Typography, Box } from '@mui/material';
+import { Card, CardActionArea, CardContent, Typography, Box } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import BackButton from '../../../shared/components/BackButton';
 import {
   AttachMoney,
@@ -21,49 +22,49 @@ const FinanceiroHomeScreen = () => {
       title: 'Dashboard Financeiro',
       description: 'Visão geral das finanças',
       path: '/financeiro/dashboard',
-      color: '#8B5CF6'
+      color: '#1f4e5f'
     },
     {
       icon: AttachMoney,
       title: 'Contas a Receber',
       description: 'Gerencie as contas a receber dos clientes',
       path: '/financeiro/contas-receber',
-      color: '#10B981'
+      color: '#2f7d5c'
     },
     {
       icon: CreditCard,
       title: 'Contas a Pagar',
       description: 'Gerencie as contas a pagar e despesas',
       path: '/financeiro/contas-pagar',
-      color: '#EF4444'
+      color: '#b84444'
     },
     {
       icon: TrendingUp,
       title: 'Fluxo de Caixa',
       description: 'Acompanhe o fluxo de caixa da empresa',
       path: '/financeiro/fluxo-caixa',
-      color: '#3B82F6'
+      color: '#316ea8'
     },
     {
       icon: PieChart,
       title: 'Relatórios',
       description: 'Visualize relatórios financeiros',
       path: '/financeiro/relatorios',
-      color: '#8B5CF6'
+      color: '#1f4e5f'
     },
     {
       icon: Description,
       title: 'Boletos',
       description: 'Emissão e gestão de boletos',
       path: '/financeiro/boletos',
-      color: '#F59E0B'
+      color: '#b98218'
     },
     {
       icon: People,
       title: 'Centro de Custo',
       description: 'Gerencie centros de custo',
       path: '/financeiro/centro-custo',
-      color: '#06B6D4'
+      color: '#316ea8'
     }
   ];
 

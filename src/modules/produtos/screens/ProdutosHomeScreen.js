@@ -1,6 +1,13 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Grid, Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import {
+  useNavigate } from 'react-router-dom';
+import { Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  Typography
+} from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import BusinessIcon from '@mui/icons-material/Business';
 import BackpackIcon from '@mui/icons-material/Backpack';
@@ -14,19 +21,19 @@ export default function ProdutosHomeScreen() {
       title: 'Gerenciar Produtos',
       description: 'Cadastre, organize e controle produtos e serviços.',
       path: '/produtos/lista',
-      icon: <Inventory2Icon style={{ fontSize: 50, color: '#9C27B0' }} />,
+      icon: <Inventory2Icon sx={{ fontSize: 46, color: 'primary.main' }} />,
     },
     {
       title: 'Gerenciar Pacotes',
       description: 'Crie combos de produtos e serviços para venda.',
       path: '/produtos/pacotes/lista',
-      icon: <BackpackIcon style={{ fontSize: 50, color: '#FF5722' }} />,
+      icon: <BackpackIcon sx={{ fontSize: 46, color: 'secondary.main' }} />,
     },
     {
       title: 'Gerenciar Fornecedores',
       description: 'Cadastre e gerencie seus fornecedores.',
       path: '/fornecedores/lista',
-      icon: <BusinessIcon style={{ fontSize: 50, color: '#FF9800' }} />,
+      icon: <BusinessIcon sx={{ fontSize: 46, color: 'warning.main' }} />,
     },
   ];
 

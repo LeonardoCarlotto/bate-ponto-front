@@ -88,6 +88,7 @@ const AniversariantesNotification = () => {
           '& .MuiAlert-message': {
             width: '100%',
             padding: '4px 0',
+            color: '#e65100',
           },
           '& .MuiAlert-icon': {
             padding: '4px 0',
@@ -99,9 +100,6 @@ const AniversariantesNotification = () => {
           borderRadius: 2,
           backgroundColor: '#fff3e0',
           border: '1px solid #ffcc80',
-          '& .MuiAlert-message': {
-            color: '#e65100',
-          },
         }}
       >
         <AlertTitle sx={{ fontSize: '14px', mb: 0.5, color: '#e65100' }}>

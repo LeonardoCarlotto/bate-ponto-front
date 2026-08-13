@@ -1,5 +1,7 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams } from "react-router-dom";
 import {
   Typography,
   Button,
@@ -12,13 +14,13 @@ import {
   TableRow,
   Paper,
   Container,
-  Grid,
   CircularProgress,
   Alert,
   Chip,
   Card,
-  CardContent,
+  CardContent
 } from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
 import {
   Payment as PaymentIcon,
   Visibility as VisibilityIcon,

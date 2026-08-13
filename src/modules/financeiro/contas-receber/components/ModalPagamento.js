@@ -8,14 +8,14 @@ import {
   Button,
   Box,
   Typography,
-  Grid,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   CircularProgress,
-  Alert,
+  Alert
 } from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
 import { Payment as PaymentIcon } from "@mui/icons-material";
 import { contasReceberService } from "../services/api";
 import { parseDecimalInput, roundToCents } from "../../../../shared/utils/number";

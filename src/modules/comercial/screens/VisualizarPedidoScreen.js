@@ -1,11 +1,12 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams } from "react-router-dom";
 import {
   Card,
   Container,
   Typography,
   Alert,
-  Grid,
   Table,
   TableBody,
   TableCell,
@@ -16,8 +17,9 @@ import {
   CircularProgress,
   Button,
   Chip,
-  Paper,
+  Paper
 } from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
 
 import PrintIcon from "@mui/icons-material/Print";
 import EditIcon from "@mui/icons-material/Edit";

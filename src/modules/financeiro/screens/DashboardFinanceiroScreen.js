@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {
+  useNavigate } from 'react-router-dom';
 import {
   Container,
-  Grid,
   Card,
   CardContent,
   Typography,
@@ -11,8 +11,9 @@ import {
   Alert,
   Chip,
   IconButton,
-  Button,
+  Button
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import {
   TrendingUp,
   TrendingDown,
@@ -145,19 +146,6 @@ export default function DashboardFinanceiroScreen() {
       style: 'currency',
       currency: 'BRL',
     }).format(valor || 0);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PAGO':
-        return 'success';
-      case 'PENDENTE':
-        return 'warning';
-      case 'VENCIDO':
-        return 'error';
-      default:
-        return 'default';
-    }
   };
 
   if (loading) {

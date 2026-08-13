@@ -11,11 +11,11 @@ import {
   Avatar,
   Card,
   Alert,
-  Grid,
   CircularProgress,
   InputAdornment,
-  IconButton,
+  IconButton
 } from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
 import { useNavigate } from "react-router-dom";
 import SaveIcon from "@mui/icons-material/Save";
 import { Visibility, VisibilityOff } from "@mui/icons-material";

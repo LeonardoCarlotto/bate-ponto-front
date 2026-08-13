@@ -1,6 +1,13 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Grid, Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import {
+  useNavigate } from 'react-router-dom';
+import { Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  Typography
+} from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import BackButton from '../../../shared/components/BackButton';
@@ -13,13 +20,13 @@ export default function ComercialHomeScreen() {
       title: 'Gerenciar Pedidos',
       description: 'Crie, visualize e acompanhe os pedidos dos clientes.',
       path: '/comercial/pedidos',
-      icon: <ShoppingCartIcon style={{ fontSize: 50, color: '#2196F3' }} />,
+      icon: <ShoppingCartIcon sx={{ fontSize: 46, color: 'primary.main' }} />,
     },
     {
       title: 'Gerenciar Clientes',
       description: 'Cadastre, visualize e gerencie os clientes.',
       path: '/comercial/clientes',
-      icon: <PeopleIcon style={{ fontSize: 50, color: '#4CAF50' }} />,
+      icon: <PeopleIcon sx={{ fontSize: 46, color: 'success.main' }} />,
     },
   ];
 

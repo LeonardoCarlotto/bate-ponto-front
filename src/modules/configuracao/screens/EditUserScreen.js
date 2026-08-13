@@ -8,11 +8,11 @@ import {
   Avatar,
   Card,
   Alert,
-  Grid,
   CircularProgress,
   InputAdornment,
-  IconButton,
+  IconButton
 } from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
 import SaveIcon from "@mui/icons-material/Save";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";

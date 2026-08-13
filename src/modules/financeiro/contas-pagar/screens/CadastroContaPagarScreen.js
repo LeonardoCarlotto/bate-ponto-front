@@ -1,5 +1,7 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams } from "react-router-dom";
 import {
   Card,
   Container,
@@ -7,13 +9,13 @@ import {
   Button,
   Typography,
   Alert,
-  Grid,
   MenuItem,
   CircularProgress,
   Box,
   InputAdornment,
-  Autocomplete,
+  Autocomplete
 } from "@mui/material";
+import Grid from "@mui/material/GridLegacy";
 
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -312,11 +314,6 @@ export default function CadastroContaPagarScreen() {
                       size="small"
                       required
                       disabled={isViewing}
-                      sx={{
-                        '& .MuiOutlinedInput-input': {
-                          padding: '8.5px 100px'
-                        }
-                      }}
                     >
                       <MenuItem value="PENDENTE">Pendente</MenuItem>
                       <MenuItem value="PAGO">Pago</MenuItem>
@@ -373,11 +370,6 @@ export default function CadastroContaPagarScreen() {
                       size="small"
                       required
                       disabled={isViewing}
-                      sx={{
-                        '& .MuiOutlinedInput-input': {
-                          padding: '8.5px 100px'
-                        }
-                      }}
                     >
                       <MenuItem value="">
                         <em>Selecione</em>
