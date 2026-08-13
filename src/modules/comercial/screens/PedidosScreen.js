@@ -34,6 +34,7 @@ export default function PedidosScreen() {
   const [termoBusca, setTermoBusca] = React.useState("");
   const [loading, setLoading] = React.useState(true);
   const [erro, setErro] = React.useState(null);
+  const [mensagem, setMensagem] = React.useState(null);
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -72,7 +73,7 @@ export default function PedidosScreen() {
         setPedidosFiltrados(dados || []);
       } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
-        setErro('Erro ao carregar pedidos. Tente recarregar a página.');
+        setErro(error.message || 'Erro ao carregar pedidos. Tente recarregar a página.');
       } finally {
         setLoading(false);
       }
@@ -112,16 +113,19 @@ export default function PedidosScreen() {
   };
 
   const handleDeletar = async (pedidoId) => {
-    if (window.confirm('Tem certeza que deseja deletar este pedido?')) {
+    if (window.confirm('Tem certeza que deseja cancelar este pedido?')) {
       try {
+        setErro(null);
+        setMensagem(null);
         await pedidosService.deletar(pedidoId);
         // Recarregar a lista
         const dados = await pedidosService.listar();
         setPedidos(dados || []);
         setPedidosFiltrados(dados || []);
+        setMensagem('Pedido cancelado com sucesso');
       } catch (error) {
         console.error('Erro ao deletar pedido:', error);
-        setErro('Erro ao deletar pedido. Tente novamente.');
+        setErro(error.message || 'Erro ao cancelar pedido. Tente novamente.');
       }
     }
   };
@@ -169,8 +173,14 @@ export default function PedidosScreen() {
         </Grid>
 
         {erro && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setErro(null)}>
             {erro}
+          </Alert>
+        )}
+
+        {mensagem && (
+          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setMensagem(null)}>
+            {mensagem}
           </Alert>
         )}
 
@@ -247,8 +257,9 @@ export default function PedidosScreen() {
                           color="error"
                           startIcon={<DeleteIcon />}
                           onClick={() => handleDeletar(pedido.id)}
+                          disabled={pedido.status === 'CANCELADO'}
                         >
-                          Deletar
+                          Cancelar
                         </Button>
                       </TableCell>
                     </TableRow>

@@ -22,6 +22,7 @@ import {
 } from "@mui/icons-material";
 import BackButton from "../../../../shared/components/BackButton";
 import { contasReceberService } from "../services/api";
+import { parseDecimalInput, roundToCents } from "../../../../shared/utils/number";
 
 export default function RegistrarPagamentoScreen() {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export default function RegistrarPagamentoScreen() {
         setClienteData(dados);
       } catch (error) {
         console.error('Erro ao carregar dados do cliente:', error);
-        setErro('Erro ao carregar dados do cliente. Tente recarregar a página.');
+        setErro(error.message || 'Erro ao carregar dados do cliente. Tente recarregar a página.');
       } finally {
         setLoading(false);
       }
@@ -66,7 +67,9 @@ export default function RegistrarPagamentoScreen() {
   };
 
   const calcularTotalPago = (pagamentos) => {
-    return pagamentos?.reduce((total, pagamento) => total + parseFloat(pagamento.valor || 0), 0) || 0;
+    return pagamentos
+      ?.filter((pagamento) => pagamento.status !== 'ESTORNADO')
+      .reduce((total, pagamento) => total + parseFloat(pagamento.valor || 0), 0) || 0;
   };
 
   const handleInputChange = (field) => (event) => {
@@ -79,8 +82,15 @@ export default function RegistrarPagamentoScreen() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     
+    const valorPagamento = roundToCents(parseDecimalInput(formData.valor));
+
     if (!formData.valor || !formData.formaPagamento) {
       setErro('Preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    if (!Number.isFinite(valorPagamento) || valorPagamento <= 0 || valorPagamento - saldoDevedor > 0.009) {
+      setErro(`Valor deve ser maior que 0 e menor ou igual ao saldo devedor (R$ ${saldoDevedor.toFixed(2)})`);
       return;
     }
 
@@ -90,7 +100,7 @@ export default function RegistrarPagamentoScreen() {
 
       const pagamentoData = {
         clienteId: parseInt(clienteId),
-        valor: parseFloat(formData.valor),
+        valor: valorPagamento,
         formaPagamento: formData.formaPagamento,
         descricao: formData.descricao,
         data: formData.data,
@@ -99,12 +109,12 @@ export default function RegistrarPagamentoScreen() {
       await contasReceberService.registrarPagamento(pagamentoData);
       
       // Redirecionar para a tela de detalhes do cliente
-      navigate(`/contas-receber/cliente/${clienteId}`, {
+      navigate(`/financeiro/contas-receber/cliente/${clienteId}`, {
         state: { message: 'Pagamento registrado com sucesso!' }
       });
     } catch (error) {
       console.error('Erro ao registrar pagamento:', error);
-      setErro('Erro ao registrar pagamento. Tente novamente.');
+      setErro(error.message || 'Erro ao registrar pagamento. Tente novamente.');
     } finally {
       setSubmitting(false);
     }
@@ -113,7 +123,7 @@ export default function RegistrarPagamentoScreen() {
   if (loading) {
     return (
       <Box sx={{ paddingX: 2 }}>
-        <BackButton to={`/contas-receber/cliente/${clienteId}`} />
+        <BackButton to={`/financeiro/contas-receber/cliente/${clienteId}`} />
         <Container maxWidth="md">
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
             <CircularProgress size={40} />
@@ -129,7 +139,7 @@ export default function RegistrarPagamentoScreen() {
   if (erro && !clienteData) {
     return (
       <Box sx={{ paddingX: 2 }}>
-        <BackButton to="/contas-receber" />
+        <BackButton to="/financeiro/contas-receber" />
         <Container maxWidth="md">
           <Alert severity="error" sx={{ mb: 3 }}>
             {erro}
@@ -142,7 +152,7 @@ export default function RegistrarPagamentoScreen() {
   if (!clienteData) {
     return (
       <Box sx={{ paddingX: 2 }}>
-        <BackButton to="/contas-receber" />
+        <BackButton to="/financeiro/contas-receber" />
         <Container maxWidth="md">
           <Alert severity="warning">
             Cliente não encontrado.
@@ -152,13 +162,13 @@ export default function RegistrarPagamentoScreen() {
     );
   }
 
-  const totalEmAberto = calcularTotalEmAberto(clienteData.pedidos || []);
-  const totalPago = calcularTotalPago(clienteData.pagamentos);
-  const saldoDevedor = totalEmAberto - totalPago;
+  const totalEmAberto = clienteData.totalEmAberto ?? calcularTotalEmAberto(clienteData.pedidos || []);
+  const totalPago = clienteData.totalPago ?? calcularTotalPago(clienteData.pagamentos);
+  const saldoDevedor = clienteData.saldoDevedor ?? (totalEmAberto - totalPago);
 
   return (
     <Box sx={{ paddingX: 2 }}>
-      <BackButton to={`/contas-receber/cliente/${clienteId}`} />
+      <BackButton to={`/financeiro/contas-receber/cliente/${clienteId}`} />
       <Container maxWidth="md">
         <Typography variant="h4" gutterBottom>
           Registrar Pagamento - {clienteData.clienteNome}
@@ -217,13 +227,11 @@ export default function RegistrarPagamentoScreen() {
                 <TextField
                   fullWidth
                   label="Valor do Pagamento *"
-                  type="number"
+                  type="text"
                   value={formData.valor}
                   onChange={handleInputChange('valor')}
-                  inputProps={{ 
-                    min: 0.01, 
-                    step: 0.01,
-                    max: saldoDevedor 
+                  inputProps={{
+                    inputMode: 'decimal'
                   }}
                   helperText={`Valor máximo: R$ ${saldoDevedor.toFixed(2)}`}
                   required
@@ -277,13 +285,19 @@ export default function RegistrarPagamentoScreen() {
                 variant="contained"
                 color="success"
                 startIcon={submitting ? <CircularProgress size={20} /> : <SaveIcon />}
-                disabled={submitting || !formData.valor || parseFloat(formData.valor) <= 0 || parseFloat(formData.valor) > saldoDevedor}
+                disabled={
+                  submitting ||
+                  !formData.valor ||
+                  !Number.isFinite(parseDecimalInput(formData.valor)) ||
+                  parseDecimalInput(formData.valor) <= 0 ||
+                  parseDecimalInput(formData.valor) - saldoDevedor > 0.009
+                }
               >
                 {submitting ? 'Registrando...' : 'Registrar Pagamento'}
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => navigate(`/contas-receber/cliente/${clienteId}`)}
+                onClick={() => navigate(`/financeiro/contas-receber/cliente/${clienteId}`)}
               >
                 Cancelar
               </Button>

@@ -17,11 +17,14 @@ import {
   TextField,
   InputAdornment,
   Grid,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import BackButton from '../../../shared/components/BackButton';
 import { clientesService } from '../services/api';
 
@@ -84,6 +87,15 @@ export default function ClientesScreen() {
         alert('Erro ao deletar cliente');
       }
     }
+  };
+
+  const getWhatsAppUrl = (telefone) => {
+    const digits = String(telefone || '').replace(/\D/g, '');
+
+    if (!digits) return null;
+
+    const numeroComPais = digits.startsWith('55') ? digits : `55${digits}`;
+    return `https://wa.me/${numeroComPais}`;
   };
 
   return (
@@ -154,7 +166,28 @@ export default function ClientesScreen() {
                   <TableCell>{cliente.id}</TableCell>
                   <TableCell>{cliente.nome}</TableCell>
                   <TableCell>{cliente.email}</TableCell>
-                  <TableCell>{cliente.telefone}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="body2">
+                        {cliente.telefone || '-'}
+                      </Typography>
+                      {getWhatsAppUrl(cliente.telefone) && (
+                        <Tooltip title="Abrir WhatsApp">
+                          <IconButton
+                            size="small"
+                            color="success"
+                            component="a"
+                            href={getWhatsAppUrl(cliente.telefone)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Abrir WhatsApp de ${cliente.nome}`}
+                          >
+                            <WhatsAppIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </TableCell>
                   <TableCell>
                     <Button size="small" color="primary" startIcon={<EditIcon />} onClick={() => handleEditar(cliente.id)}>
                       Editar

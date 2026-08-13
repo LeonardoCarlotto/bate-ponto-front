@@ -17,12 +17,15 @@ import {
   IconButton,
   Box,
   CircularProgress,
+  InputAdornment,
+  Autocomplete,
 } from "@mui/material";
 
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 
 import BackButton from "../../../shared/components/BackButton";
 import { clientesService, pedidosService } from "../services/api";
@@ -124,7 +127,8 @@ export default function CadastroPedidoScreen() {
     }
 
     const item = {
-      id: parseInt(novoItem.itemId), // ID real do produto/pacote
+      localId: `${novoItem.tipo}-${novoItem.itemId}-${Date.now()}`,
+      itemId: parseInt(novoItem.itemId),
       tipo: novoItem.tipo,
       nome: selecionado.nome,
       quantidade: novoItem.quantidade,
@@ -141,8 +145,8 @@ export default function CadastroPedidoScreen() {
     });
   };
 
-  const removerItem = (id) => {
-    setItens((prev) => prev.filter((i) => i.id !== id));
+  const removerItem = (localId) => {
+    setItens((prev) => prev.filter((i) => i.localId !== localId));
   };
 
   const calcularTotal = () => {
@@ -196,7 +200,15 @@ export default function CadastroPedidoScreen() {
       const pedidoData = {
         ...formData,
         dataPedido: formatoLocal, // Enviando formato ISO local sem timezone
-        itens,
+        itens: itens.map((item) => ({
+          id: item.itemId,
+          itemId: item.itemId,
+          tipo: item.tipo,
+          nome: item.nome,
+          quantidade: item.quantidade,
+          preco: item.preco,
+          subtotal: item.subtotal,
+        })),
         total: calcularTotal(),
       };
 
@@ -210,7 +222,7 @@ export default function CadastroPedidoScreen() {
       }, 1200);
     } catch (error) {
       console.error('Erro ao salvar pedido:', error);
-      setErro("Erro ao salvar pedido. Tente novamente.");
+      setErro(error.message || "Erro ao salvar pedido. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -218,6 +230,12 @@ export default function CadastroPedidoScreen() {
 
   const total = calcularTotal();
   const listaAtual = novoItem.tipo === "produto" ? produtos : pacotes;
+  const clienteSelecionado = clientes.find(
+    (cliente) => cliente.id === parseInt(formData.clienteId, 10),
+  ) || null;
+  const itemSelecionado = listaAtual.find(
+    (item) => item.id === parseInt(novoItem.itemId, 10),
+  ) || null;
 
   return (
     <Box>
@@ -257,31 +275,49 @@ export default function CadastroPedidoScreen() {
 
             <Grid container spacing={2} mb={3}>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  select
-                  label="Cliente"
-                  name="clienteId"
-                  value={formData.clienteId}
-                  onChange={handleInputChange}
-                  size="small"
-                  required
-                  sx={{
-                    '& .MuiOutlinedInput-input': {
-                      padding: '8.5px 100px'
-                    }
-                  }}
-                >
-                  <MenuItem value="">
-                    <em>Selecione</em>
-                  </MenuItem>
-
-                  {clientes.map((cliente) => (
-                    <MenuItem key={cliente.id} value={cliente.id}>
-                      {cliente.nome}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                  <Autocomplete
+                    sx={{ flex: 1 }}
+                    options={clientes}
+                    value={clienteSelecionado}
+                    onChange={(event, value) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        clienteId: value?.id?.toString() || "",
+                      }));
+                      setErro(null);
+                    }}
+                    getOptionLabel={(option) => option.nome || ""}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Cliente"
+                        size="small"
+                        required
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: (
+                            <>
+                              <InputAdornment position="start">
+                                <SearchIcon />
+                              </InputAdornment>
+                              {params.InputProps.startAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={() => navigate("/comercial/clientes/cadastro")}
+                    sx={{ minWidth: { sm: 150 } }}
+                  >
+                    Cadastrar
+                  </Button>
+                </Box>
               </Grid>
 
               <Grid item xs={12} md={6}>
@@ -358,28 +394,50 @@ export default function CadastroPedidoScreen() {
               </Grid>
 
               <Grid item xs={12} md={5}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Item"
-                  name="itemId"
-                  value={novoItem.itemId}
-                  onChange={handleNovoItemChange}
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-input': {
-                      padding: '8.5px 100px'
+                <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                  <Autocomplete
+                    sx={{ flex: 1 }}
+                    options={listaAtual}
+                    value={itemSelecionado}
+                    onChange={(event, value) => {
+                      setNovoItem((prev) => ({
+                        ...prev,
+                        itemId: value?.id?.toString() || "",
+                      }));
+                      setErro(null);
+                    }}
+                    getOptionLabel={(option) =>
+                      `${option.nome} - R$ ${(option.preco || 0).toFixed(2)}`
                     }
-                  }}
-                >
-                  <MenuItem value="">Selecione</MenuItem>
-
-                  {listaAtual.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.nome} - R$ {item.preco.toFixed(2)}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Item"
+                        size="small"
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: (
+                            <>
+                              <InputAdornment position="start">
+                                <SearchIcon />
+                              </InputAdornment>
+                              {params.InputProps.startAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={() => navigate(novoItem.tipo === "pacote" ? "/produtos/pacotes/cadastro" : "/produtos/cadastro")}
+                    sx={{ minWidth: { sm: 150 } }}
+                  >
+                    Cadastrar
+                  </Button>
+                </Box>
               </Grid>
 
               <Grid item xs={12} md={2}>
@@ -423,7 +481,7 @@ export default function CadastroPedidoScreen() {
 
                 <TableBody>
                   {itens.map((item) => (
-                    <TableRow key={item.id}>
+                    <TableRow key={item.localId}>
                       <TableCell>{item.tipo}</TableCell>
                       <TableCell>{item.nome}</TableCell>
                       <TableCell align="right">{item.quantidade}</TableCell>
@@ -436,7 +494,7 @@ export default function CadastroPedidoScreen() {
                       <TableCell align="center">
                         <IconButton
                           color="error"
-                          onClick={() => removerItem(item.id)}
+                          onClick={() => removerItem(item.localId)}
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>

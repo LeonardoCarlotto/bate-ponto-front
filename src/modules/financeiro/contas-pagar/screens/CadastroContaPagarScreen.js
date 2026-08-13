@@ -11,10 +11,14 @@ import {
   MenuItem,
   CircularProgress,
   Box,
+  InputAdornment,
+  Autocomplete,
 } from "@mui/material";
 
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 
 import BackButton from "../../../../shared/components/BackButton";
 import { fornecedoresService } from "../../../fornecedores/services/api";
@@ -176,6 +180,10 @@ export default function CadastroContaPagarScreen() {
     }
   };
 
+  const fornecedorSelecionado = fornecedores.find(
+    (fornecedor) => fornecedor.id === parseInt(formData.fornecedorId, 10),
+  ) || null;
+
   return (
     <Box>
       <Box sx={{ paddingX: 2 }}>
@@ -214,32 +222,52 @@ export default function CadastroContaPagarScreen() {
 
                 <Grid container spacing={2} mb={3}>
                   <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      select
-                      label="Fornecedor"
-                      name="fornecedorId"
-                      value={formData.fornecedorId}
-                      onChange={handleInputChange}
-                      size="small"
-                      required
-                      disabled={isViewing}
-                      sx={{
-                        '& .MuiOutlinedInput-input': {
-                          padding: '8.5px 100px'
-                        }
-                      }}
-                    >
-                      <MenuItem value="">
-                        <em>Selecione</em>
-                      </MenuItem>
-
-                      {fornecedores.map((fornecedor) => (
-                        <MenuItem key={fornecedor.id} value={fornecedor.id}>
-                          {fornecedor.nome}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                      <Autocomplete
+                        sx={{ flex: 1 }}
+                        options={fornecedores}
+                        value={fornecedorSelecionado}
+                        disabled={isViewing}
+                        onChange={(event, value) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            fornecedorId: value?.id?.toString() || "",
+                          }));
+                          setErro(null);
+                        }}
+                        getOptionLabel={(option) => option.nome || ""}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Fornecedor"
+                            size="small"
+                            required
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: (
+                                <>
+                                  <InputAdornment position="start">
+                                    <SearchIcon />
+                                  </InputAdornment>
+                                  {params.InputProps.startAdornment}
+                                </>
+                              ),
+                            }}
+                          />
+                        )}
+                      />
+                      {!isViewing && (
+                        <Button
+                          variant="outlined"
+                          startIcon={<AddIcon />}
+                          onClick={() => navigate("/fornecedores/cadastro")}
+                          sx={{ minWidth: { sm: 150 } }}
+                        >
+                          Cadastrar
+                        </Button>
+                      )}
+                    </Box>
                   </Grid>
 
                   <Grid item xs={12} md={6}>

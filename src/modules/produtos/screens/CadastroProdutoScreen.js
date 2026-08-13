@@ -17,12 +17,15 @@ import {
   DialogContent,
   DialogActions,
   IconButton,
+  InputAdornment,
+  Autocomplete,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import BackButton from "../../../shared/components/BackButton";
 import CancelIcon from "@mui/icons-material/Cancel";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from "@mui/icons-material/Search";
 import { produtosService } from "../services/api";
 
 export default function CadastroProdutoScreen() {
@@ -232,6 +235,10 @@ export default function CadastroProdutoScreen() {
     }
   };
 
+  const categoriaSelecionada = categorias.find(
+    (categoria) => categoria.nome === formData.categoria,
+  ) || null;
+
   if (carregando && produtoId && !formData.nome) {
     return (
       <Box
@@ -326,88 +333,70 @@ export default function CadastroProdutoScreen() {
             <Grid container spacing={2}>
 
               <Grid item xs={12} md={8}>
-                <TextField
-                  fullWidth
-                  select
-                  name="categoria"
-                  value={formData.categoria}
-                  onChange={handleInputChange}
-                  size="small"
-                  required
-                  SelectProps={{
-                    displayEmpty: true,
-                    renderValue: (selected) => {
-                      if (!selected) {
-                        return <span style={{ color: '#9e9e9e' }}>Selecione uma categoria</span>;
-                      }
-                      return selected;
-                    },
-                    MenuProps: {
-                      PaperProps: {
-                        style: {
-                          maxHeight: 300,
-                        },
-                      },
-                    },
-                  }}
-                >
-                  <MenuItem value="">Selecione</MenuItem>
-
-                  {categorias.map((cat) => (
-                    <MenuItem 
-                      key={cat.id} 
-                      value={cat.nome}
-                      sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <Box sx={{ flex: 1 }}>{cat.nome}</Box>
-                      <Box 
-                        sx={{ 
-                          display: 'flex', 
-                          gap: 0.5,
-                          opacity: 0.6,
-                          '&:hover': { opacity: 1 }
-                        }}
-                      >
+                <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                  <Autocomplete
+                    sx={{ flex: 1 }}
+                    options={categorias}
+                    value={categoriaSelecionada}
+                    onChange={(event, value) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        categoria: value?.nome || "",
+                      }));
+                      setErro(null);
+                    }}
+                    getOptionLabel={(option) => option.nome || ""}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    renderOption={(props, option) => (
+                      <Box component="li" {...props} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ flex: 1 }}>{option.nome}</Box>
                         <IconButton
                           size="small"
                           onClick={(e) => {
                             e.stopPropagation();
-                            abrirEditCategoria(cat);
+                            abrirEditCategoria(option);
                           }}
-                          sx={{ 
+                          sx={{
                             p: 0.5,
-                            '&:hover': { 
-                              backgroundColor: 'primary.light', 
-                              color: 'primary.dark' 
-                            } 
+                            '&:hover': {
+                              backgroundColor: 'primary.light',
+                              color: 'primary.dark'
+                            }
                           }}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
                       </Box>
-                    </MenuItem>
-                  ))}
-                  
-                  <Divider />
-                  
-                  <MenuItem 
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Categoria"
+                        size="small"
+                        required
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: (
+                            <>
+                              <InputAdornment position="start">
+                                <SearchIcon />
+                              </InputAdornment>
+                              {params.InputProps.startAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
                     onClick={() => setOpenNovaCategoria(true)}
-                    sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 1,
-                      color: 'primary.main',
-                      fontWeight: 500
-                    }}
+                    sx={{ minWidth: { sm: 190 } }}
                   >
-                    <AddIcon fontSize="small" />
-                    Adicionar Nova Categoria
-                  </MenuItem>
-                </TextField>
+                    Cadastrar categoria
+                  </Button>
+                </Box>
               </Grid>
 
             </Grid>

@@ -48,7 +48,7 @@ export default function VisualizarPedidoScreen() {
         console.error('Erro ao carregar pedido:', error);
         console.error('Status do erro:', error.response?.status);
         console.error('Dados do erro:', error.response?.data);
-        setErro('Erro ao carregar dados do pedido. Tente recarregar a página.');
+        setErro(error.message || 'Erro ao carregar dados do pedido. Tente recarregar a página.');
       } finally {
         setLoading(false);
       }
@@ -243,6 +243,20 @@ export default function VisualizarPedidoScreen() {
                   </Typography>
                 </Grid>
               )}
+              {pedido.formaPagamento && (
+                <Grid item xs={12} md={6}>
+                  <Typography variant="body2" color="text.secondary">
+                    <strong>Forma de Pagamento:</strong> {pedido.formaPagamento}
+                  </Typography>
+                </Grid>
+              )}
+              {pedido.parcelas && (
+                <Grid item xs={12} md={6}>
+                  <Typography variant="body2" color="text.secondary">
+                    <strong>Parcelas:</strong> {pedido.parcelas}
+                  </Typography>
+                </Grid>
+              )}
               <Grid item xs={12}>
                 <Typography variant="h6" color="primary">
                   <strong>Valor Total:</strong> R$ {parseFloat(pedido.valor || 0).toFixed(2)}
@@ -269,8 +283,8 @@ export default function VisualizarPedidoScreen() {
                   {pedido.itens && pedido.itens.length > 0 ? (
                     pedido.itens.map((item, index) => (
                       <TableRow key={index}>
-                        <TableCell>{item.produtoNome ? 'Produto' : 'Pacote'}</TableCell>
-                        <TableCell>{item.produtoNome || item.nome}</TableCell>
+                        <TableCell>{item.tipo === 'pacote' ? 'Pacote' : 'Produto'}</TableCell>
+                        <TableCell>{item.nome || item.produtoNome || item.pacoteNome}</TableCell>
                         <TableCell align="right">{item.quantidade}</TableCell>
                         <TableCell align="right">
                           R$ {parseFloat(item.precoUnitario || 0).toFixed(2)}

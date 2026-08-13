@@ -17,6 +17,8 @@ import {
   Alert,
 } from "@mui/material";
 import { Payment as PaymentIcon } from "@mui/icons-material";
+import { contasReceberService } from "../services/api";
+import { parseDecimalInput, roundToCents } from "../../../../shared/utils/number";
 
 export default function ModalPagamento({ 
   open, 
@@ -35,8 +37,9 @@ export default function ModalPagamento({
 
   React.useEffect(() => {
     if (open && cliente) {
+      const valorDisponivel = cliente.pedidoSelecionado ? cliente.valorPedido : '';
       setFormData({
-        valor: cliente.pedidoSelecionado ? cliente.valorPedido.toFixed(2) : '',
+        valor: valorDisponivel ? valorDisponivel.toFixed(2).replace('.', ',') : '',
         formaPagamento: '',
         descricao: cliente.pedidoSelecionado ? `Pagamento pedido #${cliente.pedidoSelecionado.id}` : '',
         data: new Date().toISOString().split('T')[0],
@@ -60,10 +63,10 @@ export default function ModalPagamento({
       return;
     }
 
-    const valor = parseFloat(formData.valor);
+    const valor = roundToCents(parseDecimalInput(formData.valor));
     const valorMaximo = cliente.pedidoSelecionado ? cliente.valorPedido : (cliente?.saldoDevedor || 0);
     
-    if (valor <= 0 || valor > valorMaximo) {
+    if (!Number.isFinite(valor) || valor <= 0 || valor - valorMaximo > 0.009) {
       setErro(`Valor deve ser maior que 0 e menor ou igual ao ${cliente.pedidoSelecionado ? 'valor do pedido' : 'saldo devedor'} (R$ ${valorMaximo.toFixed(2)})`);
       return;
     }
@@ -85,21 +88,7 @@ export default function ModalPagamento({
         })
       };
 
-      // Enviar para endpoint (simulado por enquanto)
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/contas-receber/pagamento`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(pagamentoData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao registrar pagamento');
-      }
-
-      const resultado = await response.json();
+      const resultado = await contasReceberService.registrarPagamento(pagamentoData);
       
       // Atualizar dados do cliente
       const clienteAtualizado = {
@@ -114,6 +103,9 @@ export default function ModalPagamento({
             formaPagamento: formData.formaPagamento,
             descricao: formData.descricao,
             data: formData.data,
+            pedidoId: cliente.pedidoSelecionado?.id,
+            tipoPagamento: cliente.pedidoSelecionado ? 'pedido_individual' : undefined,
+            status: resultado.status || 'PAGO',
           }
         ]
       };
@@ -123,7 +115,7 @@ export default function ModalPagamento({
       
     } catch (error) {
       console.error('Erro ao registrar pagamento:', error);
-      setErro('Erro ao registrar pagamento. Tente novamente.');
+      setErro(error.message || 'Erro ao registrar pagamento. Tente novamente.');
     } finally {
       setSubmitting(false);
     }
@@ -152,7 +144,13 @@ export default function ModalPagamento({
                   Pedido ID: <strong>#{cliente.pedidoSelecionado.id}</strong>
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Valor do Pedido: <strong>R$ {cliente.valorPedido.toFixed(2)}</strong>
+                  Valor do Pedido: <strong>R$ {(cliente.valorTotalPedido || cliente.valorPedido).toFixed(2)}</strong>
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Já Pago: <strong>R$ {(cliente.valorPagoPedido || 0).toFixed(2)}</strong>
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Saldo do Pedido: <strong>R$ {cliente.valorPedido.toFixed(2)}</strong>
                 </Typography>
               </>
             ) : (
@@ -173,15 +171,13 @@ export default function ModalPagamento({
               <TextField
                 fullWidth
                 label="Valor do Pagamento *"
-                type="number"
+                type="text"
                 value={formData.valor}
                 onChange={handleInputChange('valor')}
-                inputProps={{ 
-                  min: 0.01, 
-                  step: 0.01,
-                  max: cliente.saldoDevedor || 0 
+                inputProps={{
+                  inputMode: 'decimal'
                 }}
-                helperText={`Valor máximo: R$ ${(cliente.saldoDevedor || 0).toFixed(2)}`}
+                helperText={`Valor máximo: R$ ${(cliente.pedidoSelecionado ? cliente.valorPedido : (cliente.saldoDevedor || 0)).toFixed(2)}`}
                 required
               />
             </Grid>
@@ -237,7 +233,13 @@ export default function ModalPagamento({
             variant="contained"
             color="success"
             startIcon={submitting ? <CircularProgress size={20} /> : <PaymentIcon />}
-            disabled={submitting || !formData.valor || parseFloat(formData.valor) <= 0 || parseFloat(formData.valor) > (cliente.saldoDevedor || 0)}
+            disabled={
+              submitting ||
+              !formData.valor ||
+              !Number.isFinite(parseDecimalInput(formData.valor)) ||
+              parseDecimalInput(formData.valor) <= 0 ||
+              parseDecimalInput(formData.valor) - (cliente.pedidoSelecionado ? cliente.valorPedido : (cliente.saldoDevedor || 0)) > 0.009
+            }
           >
             {submitting ? 'Registrando...' : 'Registrar Pagamento'}
           </Button>

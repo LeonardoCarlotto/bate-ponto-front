@@ -367,47 +367,58 @@ export default function CadastroPacoteScreen() {
 
               <Grid item xs={12} md={5}>
                 {novoItem.tipo === "produto" ? (
-                  <Autocomplete
-                    options={produtos}
-                    loading={carregandoProdutos}
-                    value={novoItem.produto}
-                    onChange={(event, value) =>
-                      setNovoItem((prev) => ({
-                        ...prev,
-                        produto: value,
-                      }))
-                    }
-                    getOptionLabel={(option) =>
-                      `${option.nome} - R$ ${option.preco.toFixed(2)}`
-                    }
-                    isOptionEqualToValue={(o, v) => o.id === v.id}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Produto"
-                        size="small"
-                        InputProps={{
-                          ...params.InputProps,
-                          startAdornment: (
-                            <>
-                              <InputAdornment position="start">
-                                <SearchIcon />
-                              </InputAdornment>
-                              {params.InputProps.startAdornment}
-                            </>
-                          ),
-                          endAdornment: (
-                            <>
-                              {carregandoProdutos && (
-                                <CircularProgress size={18} />
-                              )}
-                              {params.InputProps.endAdornment}
-                            </>
-                          ),
-                        }}
-                      />
-                    )}
-                  />
+                  <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                    <Autocomplete
+                      sx={{ flex: 1 }}
+                      options={produtos}
+                      loading={carregandoProdutos}
+                      value={novoItem.produto}
+                      onChange={(event, value) =>
+                        setNovoItem((prev) => ({
+                          ...prev,
+                          produto: value,
+                        }))
+                      }
+                      getOptionLabel={(option) =>
+                        `${option.nome} - R$ ${option.preco.toFixed(2)}`
+                      }
+                      isOptionEqualToValue={(o, v) => o.id === v.id}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Produto"
+                          size="small"
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <InputAdornment position="start">
+                                  <SearchIcon />
+                                </InputAdornment>
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                            endAdornment: (
+                              <>
+                                {carregandoProdutos && (
+                                  <CircularProgress size={18} />
+                                )}
+                                {params.InputProps.endAdornment}
+                              </>
+                            ),
+                          }}
+                        />
+                      )}
+                    />
+                    <Button
+                      variant="outlined"
+                      startIcon={<AddIcon />}
+                      onClick={() => navigate("/produtos/cadastro")}
+                      sx={{ minWidth: { sm: 150 } }}
+                    >
+                      Cadastrar
+                    </Button>
+                  </Box>
                 ) : (
                   <TextField
                     fullWidth

@@ -44,25 +44,25 @@ export default function ContasReceberScreen() {
   const [modalPagamentoOpen, setModalPagamentoOpen] = React.useState(false);
   const [clienteSelecionado, setClienteSelecionado] = React.useState(null);
 
-  React.useEffect(() => {
-    const carregarContas = async () => {
-      try {
-        setLoading(true);
-        setErro(null);
-        
-        const dados = await contasReceberService.listar();
-        setContas(dados || []);
-        setContasFiltradas(dados || []);
-      } catch (error) {
-        console.error('Erro ao carregar contas a receber:', error);
-        setErro('Erro ao carregar contas a receber. Tente recarregar a página.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const carregarContas = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      setErro(null);
 
-    carregarContas();
+      const dados = await contasReceberService.listar();
+      setContas(dados || []);
+      setContasFiltradas(dados || []);
+    } catch (error) {
+      console.error('Erro ao carregar contas a receber:', error);
+      setErro(error.message || 'Erro ao carregar contas a receber. Tente recarregar a página.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  React.useEffect(() => {
+    carregarContas();
+  }, [carregarContas]);
 
   React.useEffect(() => {
     if (termoBusca.trim() === "") {
@@ -96,14 +96,8 @@ export default function ContasReceberScreen() {
     setModalPagamentoOpen(true);
   };
 
-  const handlePagamentoRegistrado = (clienteAtualizado) => {
-    // Atualizar a lista de contas com o cliente atualizado
-    setContas(prev => prev.map(c => 
-      c.clienteId === clienteAtualizado.clienteId ? clienteAtualizado : c
-    ));
-    setContasFiltradas(prev => prev.map(c => 
-      c.clienteId === clienteAtualizado.clienteId ? clienteAtualizado : c
-    ));
+  const handlePagamentoRegistrado = async () => {
+    await carregarContas();
   };
 
   const handleCloseModal = () => {
@@ -123,6 +117,21 @@ export default function ContasReceberScreen() {
         return 'default';
     }
   };
+
+  const isPagamentoValido = (pagamento) => pagamento?.status !== 'ESTORNADO';
+
+  const getValorPagoPedido = (pedido, pagamentos = []) => {
+    return pagamentos
+      .filter((pagamento) => isPagamentoValido(pagamento) && pagamento.pedidoId === pedido.id)
+      .reduce((total, pagamento) => total + parseFloat(pagamento.valor || 0), 0);
+  };
+
+  const getSaldoPedido = (pedido, pagamentos = []) => {
+    const valorPedido = parseFloat(pedido.valor || 0);
+    return Math.max(valorPedido - getValorPagoPedido(pedido, pagamentos), 0);
+  };
+
+  const isPedidoPago = (pedido, pagamentos = []) => getSaldoPedido(pedido, pagamentos) <= 0.009;
 
   return (
     <Box sx={{ paddingX: 2 }}>
@@ -276,65 +285,93 @@ export default function ContasReceberScreen() {
                                 <Table size="small">
                                   <TableHead>
                                     <TableRow>
-                                      <TableCell>ID Pedido</TableCell>
-                                      <TableCell>Data</TableCell>
-                                      <TableCell>Status</TableCell>
-                                      <TableCell align="right">Valor</TableCell>
-                                      <TableCell align="center">Ações</TableCell>
+	                                      <TableCell>ID Pedido</TableCell>
+	                                      <TableCell>Data</TableCell>
+	                                      <TableCell>Status</TableCell>
+	                                      <TableCell align="right">Valor</TableCell>
+	                                      <TableCell align="right">Pago</TableCell>
+	                                      <TableCell align="right">Saldo</TableCell>
+	                                      <TableCell align="center">Ações</TableCell>
                                     </TableRow>
                                   </TableHead>
                                   <TableBody>
                                     {pedidosEmAberto.length === 0 ? (
                                       <TableRow>
-                                        <TableCell colSpan={5} align="center">
+	                                        <TableCell colSpan={7} align="center">
                                           <Typography variant="body2" color="textSecondary">
                                             Nenhum pedido em aberto
                                           </Typography>
                                         </TableCell>
                                       </TableRow>
                                     ) : (
-                                      pedidosEmAberto.map((pedido) => (
-                                        <TableRow key={pedido.id}>
-                                          <TableCell>{pedido.id}</TableCell>
-                                          <TableCell>
-                                            {new Date(pedido.data).toLocaleDateString("pt-BR")}
-                                          </TableCell>
-                                          <TableCell>
-                                            <Chip 
-                                              label={pedido.status} 
-                                              size="small" 
-                                              color={getStatusColor(pedido.status)}
-                                            />
-                                          </TableCell>
-                                          <TableCell align="right">
-                                            R$ {parseFloat(pedido.valor || 0).toFixed(2)}
-                                          </TableCell>
-                                          <TableCell align="center">
-                                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                                              <Button
-                                                size="small"
-                                                color="info"
-                                                startIcon={<VisibilityIcon />}
-                                                onClick={() => navigate(`/comercial/pedidos/visualizar/${pedido.id}`)}
-                                              >
-                                                Visualizar
-                                              </Button>
-                                              <Button
-                                                size="small"
-                                                color="success"
-                                                startIcon={<PaymentIcon />}
-                                                onClick={() => handleRegistrarPagamento({
-                                                  ...cliente,
-                                                  pedidoSelecionado: pedido,
-                                                  valorPedido: parseFloat(pedido.valor || 0)
-                                                })}
-                                              >
-                                                Pagar
-                                              </Button>
-                                            </Box>
-                                          </TableCell>
-                                        </TableRow>
-                                      ))
+	                                      pedidosEmAberto.map((pedido) => {
+	                                        const valorPedido = parseFloat(pedido.valor || 0);
+	                                        const valorPagoPedido = getValorPagoPedido(pedido, cliente.pagamentos || []);
+	                                        const saldoPedido = getSaldoPedido(pedido, cliente.pagamentos || []);
+	                                        const pedidoPago = isPedidoPago(pedido, cliente.pagamentos || []);
+
+	                                        return (
+	                                          <TableRow key={pedido.id}>
+	                                            <TableCell>{pedido.id}</TableCell>
+	                                            <TableCell>
+	                                              {new Date(pedido.data).toLocaleDateString("pt-BR")}
+	                                            </TableCell>
+	                                            <TableCell>
+	                                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+	                                                <Chip
+	                                                  label={pedido.status}
+	                                                  size="small"
+	                                                  color={getStatusColor(pedido.status)}
+	                                                />
+	                                                {pedidoPago && (
+	                                                  <Chip
+	                                                    label="Pago"
+	                                                    size="small"
+	                                                    color="success"
+	                                                  />
+	                                                )}
+	                                              </Box>
+	                                            </TableCell>
+	                                            <TableCell align="right">
+	                                              R$ {valorPedido.toFixed(2)}
+	                                            </TableCell>
+	                                            <TableCell align="right">
+	                                              R$ {valorPagoPedido.toFixed(2)}
+	                                            </TableCell>
+	                                            <TableCell align="right">
+	                                              R$ {saldoPedido.toFixed(2)}
+	                                            </TableCell>
+	                                            <TableCell align="center">
+	                                              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+	                                                <Button
+	                                                  size="small"
+	                                                  color="info"
+	                                                  startIcon={<VisibilityIcon />}
+	                                                  onClick={() => navigate(`/comercial/pedidos/visualizar/${pedido.id}`)}
+	                                                >
+	                                                  Visualizar
+	                                                </Button>
+	                                                {!pedidoPago && (
+	                                                  <Button
+	                                                    size="small"
+	                                                    color="success"
+	                                                    startIcon={<PaymentIcon />}
+	                                                    onClick={() => handleRegistrarPagamento({
+	                                                      ...cliente,
+	                                                      pedidoSelecionado: pedido,
+	                                                      valorPedido: saldoPedido,
+	                                                      valorTotalPedido: valorPedido,
+	                                                      valorPagoPedido
+	                                                    })}
+	                                                  >
+	                                                    Pagar
+	                                                  </Button>
+	                                                )}
+	                                              </Box>
+	                                            </TableCell>
+	                                          </TableRow>
+	                                        );
+	                                      })
                                     )}
                                   </TableBody>
                                 </Table>

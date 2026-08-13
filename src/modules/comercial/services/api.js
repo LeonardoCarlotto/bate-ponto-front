@@ -3,12 +3,33 @@
  * Gerencia: Pedidos, Produtos
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 const getHeaders = () => ({
   'Content-Type': 'application/json',
   'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
+
+const getErrorMessage = async (response, fallback) => {
+  try {
+    const data = await response.json();
+    return data.message || data.mensagem || fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
+const ensureOk = async (response, fallback) => {
+  if (response.status === 401) {
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+  if (response.status === 403) {
+    throw new Error('Você não tem permissão para acessar pedidos.');
+  }
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, fallback));
+  }
+};
 
 // ==================== PEDIDOS ====================
 
@@ -25,9 +46,7 @@ export const pedidosService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao listar pedidos');
-      }
+      await ensureOk(response, 'Erro ao listar pedidos');
 
       return await response.json();
     } catch (error) {
@@ -44,9 +63,7 @@ export const pedidosService = {
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao obter pedido');
-      }
+      await ensureOk(response, 'Erro ao obter pedido');
 
       return await response.json();
     } catch (error) {
@@ -64,9 +81,7 @@ export const pedidosService = {
         body: JSON.stringify(dados),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao criar pedido');
-      }
+      await ensureOk(response, 'Erro ao criar pedido');
 
       return await response.json();
     } catch (error) {
@@ -84,9 +99,7 @@ export const pedidosService = {
         body: JSON.stringify(dados),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao atualizar pedido');
-      }
+      await ensureOk(response, 'Erro ao atualizar pedido');
 
       return await response.json();
     } catch (error) {
@@ -95,7 +108,7 @@ export const pedidosService = {
     }
   },
 
-  // Deletar pedido
+  // Cancelar pedido
   async deletar(id) {
     try {
       const response = await fetch(`${API_BASE_URL}/pedidos/${id}`, {
@@ -103,9 +116,7 @@ export const pedidosService = {
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao deletar pedido');
-      }
+      await ensureOk(response, 'Erro ao cancelar pedido');
 
       return await response.json();
     } catch (error) {
@@ -123,9 +134,7 @@ export const pedidosService = {
         body: JSON.stringify({ status }),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao atualizar status');
-      }
+      await ensureOk(response, 'Erro ao atualizar status');
 
       return await response.json();
     } catch (error) {
@@ -142,9 +151,7 @@ export const pedidosService = {
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao listar itens');
-      }
+      await ensureOk(response, 'Erro ao listar itens');
 
       return await response.json();
     } catch (error) {
@@ -162,9 +169,7 @@ export const pedidosService = {
         body: JSON.stringify(itemData),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao adicionar item');
-      }
+      await ensureOk(response, 'Erro ao adicionar item');
 
       return await response.json();
     } catch (error) {
@@ -184,9 +189,7 @@ export const pedidosService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao remover item');
-      }
+      await ensureOk(response, 'Erro ao remover item');
 
       return await response.json();
     } catch (error) {

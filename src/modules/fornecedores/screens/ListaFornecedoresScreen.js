@@ -21,6 +21,8 @@ import {
   TextField,
   InputAdornment,
   Grid,
+  Alert,
+  Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -38,6 +40,9 @@ export default function ListaFornecedoresScreen() {
   const [fornecedorParaDeletar, setFornecedorParaDeletar] =
     React.useState(null);
   const [termoBusca, setTermoBusca] = React.useState("");
+  const [erro, setErro] = React.useState("");
+  const [mensagem, setMensagem] = React.useState("");
+  const [excluindo, setExcluindo] = React.useState(false);
 
   React.useEffect(() => {
     carregarFornecedores();
@@ -48,7 +53,7 @@ export default function ListaFornecedoresScreen() {
       setFornecedoresFiltrados(fornecedores);
     } else {
       const filtrados = fornecedores.filter(fornecedor => 
-        fornecedor.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        fornecedor.nome?.toLowerCase().includes(termoBusca.toLowerCase()) ||
         fornecedor.cnpj?.toLowerCase().includes(termoBusca.toLowerCase()) ||
         fornecedor.email?.toLowerCase().includes(termoBusca.toLowerCase()) ||
         fornecedor.telefone?.toLowerCase().includes(termoBusca.toLowerCase())
@@ -60,11 +65,13 @@ export default function ListaFornecedoresScreen() {
   const carregarFornecedores = async () => {
     try {
       setCarregando(true);
+      setErro("");
       const dados = await fornecedoresService.listar();
       setFornecedores(dados);
       setFornecedoresFiltrados(dados);
     } catch (error) {
       console.error("Erro ao carregar fornecedores:", error);
+      setErro(error.message);
     } finally {
       setCarregando(false);
     }
@@ -85,14 +92,20 @@ export default function ListaFornecedoresScreen() {
 
   const handleConfirmarDelecao = async () => {
     try {
-      setDialogOpen(false);
+      setExcluindo(true);
+      setErro("");
+      setMensagem("");
       await fornecedoresService.deletar(fornecedorParaDeletar.id);
       await carregarFornecedores();
+      setMensagem("Fornecedor inativado com sucesso");
+      setDialogOpen(false);
     } catch (error) {
       console.error("Erro ao deletar fornecedor:", error);
-      alert("Erro ao deletar fornecedor");
+      setErro(error.message);
+    } finally {
+      setExcluindo(false);
+      setFornecedorParaDeletar(null);
     }
-    setFornecedorParaDeletar(null);
   };
 
   if (carregando) {
@@ -130,6 +143,20 @@ export default function ListaFornecedoresScreen() {
           </Box>
 
           <Grid container spacing={2} sx={{ mb: 3 }}>
+            {erro && (
+              <Grid item xs={12}>
+                <Alert severity="error" onClose={() => setErro("")}>
+                  {erro}
+                </Alert>
+              </Grid>
+            )}
+            {mensagem && (
+              <Grid item xs={12}>
+                <Alert severity="success" onClose={() => setMensagem("")}>
+                  {mensagem}
+                </Alert>
+              </Grid>
+            )}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -156,13 +183,14 @@ export default function ListaFornecedoresScreen() {
                   <TableCell>CNPJ</TableCell>
                   <TableCell>Email</TableCell>
                   <TableCell>Telefone</TableCell>
+                  <TableCell>Status</TableCell>
                   <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {fornecedoresFiltrados.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ padding: 3 }}>
+                    <TableCell colSpan={6} align="center" sx={{ padding: 3 }}>
                       <Typography color="textSecondary">
                         {termoBusca.trim() === "" ? "Nenhum fornecedor cadastrado" : "Nenhum fornecedor encontrado"}
                       </Typography>
@@ -175,6 +203,13 @@ export default function ListaFornecedoresScreen() {
                       <TableCell>{fornecedor.cnpj}</TableCell>
                       <TableCell>{fornecedor.email}</TableCell>
                       <TableCell>{fornecedor.telefone}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={fornecedor.ativo === false ? "Inativo" : "Ativo"}
+                          color={fornecedor.ativo === false ? "default" : "success"}
+                          size="small"
+                        />
+                      </TableCell>
                       <TableCell>
                         <Button
                           size="small"
@@ -189,8 +224,9 @@ export default function ListaFornecedoresScreen() {
                           color="error"
                           startIcon={<DeleteIcon />}
                           onClick={() => handleAbrirDialogDeletar(fornecedor)}
+                          disabled={fornecedor.ativo === false}
                         >
-                          Deletar
+                          Inativar
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -204,8 +240,9 @@ export default function ListaFornecedoresScreen() {
             <DialogTitle>Confirmar Exclusão</DialogTitle>
             <DialogContent>
               <DialogContentText>
-                Tem certeza que deseja deletar o fornecedor "
-                {fornecedorParaDeletar?.nome}"? Esta ação não pode ser desfeita.
+                Tem certeza que deseja inativar o fornecedor "
+                {fornecedorParaDeletar?.nome}"? Ele continuará no histórico,
+                mas ficará marcado como inativo.
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -214,8 +251,9 @@ export default function ListaFornecedoresScreen() {
                 onClick={handleConfirmarDelecao}
                 color="error"
                 variant="contained"
+                disabled={excluindo}
               >
-                Deletar
+                {excluindo ? "Inativando..." : "Inativar"}
               </Button>
             </DialogActions>
           </Dialog>

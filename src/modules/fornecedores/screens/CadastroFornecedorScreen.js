@@ -11,6 +11,8 @@ import {
   Grid,
   Box,
   Divider,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -30,6 +32,7 @@ export default function CadastroFornecedorScreen() {
     cnpj: "",
     email: "",
     telefone: "",
+    inscricaoEstadual: "",
     contato: "",
     endereco: "",
     cidade: "",
@@ -49,6 +52,7 @@ export default function CadastroFornecedorScreen() {
         cnpj: fornecedor.cnpj || "",
         email: fornecedor.email || "",
         telefone: fornecedor.telefone || "",
+        inscricaoEstadual: fornecedor.inscricaoEstadual || "",
         contato: fornecedor.contato || "",
         endereco: fornecedor.endereco || "",
         cidade: fornecedor.cidade || "",
@@ -70,14 +74,15 @@ export default function CadastroFornecedorScreen() {
   }, [fornecedorId, carregarFornecedor]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, checked, type } = e.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     setErro(null);
+    setSucesso(false);
   };
 
   const validarFormulario = () => {
@@ -91,13 +96,13 @@ export default function CadastroFornecedorScreen() {
       return false;
     }
 
-    if (!formData.email.trim()) {
-      setErro("Email é obrigatório");
+    if (formData.email.trim() && !formData.email.includes("@")) {
+      setErro("Email inválido");
       return false;
     }
 
-    if (!formData.email.includes("@")) {
-      setErro("Email inválido");
+    if (formData.estado && formData.estado.trim().length !== 2) {
+      setErro("Estado deve conter a sigla com 2 caracteres");
       return false;
     }
 
@@ -111,6 +116,8 @@ export default function CadastroFornecedorScreen() {
 
     try {
       setCarregando(true);
+      setErro(null);
+      setSucesso(false);
 
       if (fornecedorId) {
         await fornecedoresService.atualizar(fornecedorId, formData);
@@ -200,6 +207,30 @@ export default function CadastroFornecedorScreen() {
               />
             </Grid>
 
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Inscrição Estadual"
+                name="inscricaoEstadual"
+                value={formData.inscricaoEstadual}
+                onChange={handleInputChange}
+                size="small"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="ativo"
+                    checked={formData.ativo}
+                    onChange={handleInputChange}
+                  />
+                }
+                label={formData.ativo ? "Fornecedor ativo" : "Fornecedor inativo"}
+              />
+            </Grid>
+
           </Grid>
 
           <Divider sx={{ my: 4 }} />
@@ -220,7 +251,6 @@ export default function CadastroFornecedorScreen() {
                 onChange={handleInputChange}
                 type="email"
                 size="small"
-                required
               />
             </Grid>
 

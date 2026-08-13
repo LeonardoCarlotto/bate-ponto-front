@@ -3,12 +3,33 @@
  * Gerencia: Fornecedores
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 const getHeaders = () => ({
   'Content-Type': 'application/json',
   'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
+
+const getErrorMessage = async (response, fallback) => {
+  try {
+    const data = await response.json();
+    return data.message || data.mensagem || fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
+const ensureOk = async (response, fallback) => {
+  if (response.status === 401) {
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+  if (response.status === 403) {
+    throw new Error('Você não tem permissão para acessar fornecedores.');
+  }
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, fallback));
+  }
+};
 
 // ==================== FORNECEDORES ====================
 
@@ -25,9 +46,7 @@ export const fornecedoresService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao listar fornecedores');
-      }
+      await ensureOk(response, 'Erro ao listar fornecedores');
 
       return await response.json();
     } catch (error) {
@@ -44,9 +63,7 @@ export const fornecedoresService = {
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao obter fornecedor');
-      }
+      await ensureOk(response, 'Erro ao obter fornecedor');
 
       return await response.json();
     } catch (error) {
@@ -64,9 +81,7 @@ export const fornecedoresService = {
         body: JSON.stringify(dados),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao criar fornecedor');
-      }
+      await ensureOk(response, 'Erro ao criar fornecedor');
 
       return await response.json();
     } catch (error) {
@@ -84,9 +99,7 @@ export const fornecedoresService = {
         body: JSON.stringify(dados),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao atualizar fornecedor');
-      }
+      await ensureOk(response, 'Erro ao atualizar fornecedor');
 
       return await response.json();
     } catch (error) {
@@ -103,9 +116,7 @@ export const fornecedoresService = {
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao deletar fornecedor');
-      }
+      await ensureOk(response, 'Erro ao inativar fornecedor');
 
       return await response.json();
     } catch (error) {
@@ -125,9 +136,10 @@ export const fornecedoresService = {
         }
       );
 
-      if (!response.ok) {
+      if (response.status === 404) {
         return null; // Fornecedor não encontrado
       }
+      await ensureOk(response, 'Erro ao buscar fornecedor');
 
       return await response.json();
     } catch (error) {
@@ -147,9 +159,7 @@ export const fornecedoresService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao listar contatos');
-      }
+      await ensureOk(response, 'Erro ao listar contatos');
 
       return await response.json();
     } catch (error) {
@@ -170,9 +180,7 @@ export const fornecedoresService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao adicionar contato');
-      }
+      await ensureOk(response, 'Erro ao adicionar contato');
 
       return await response.json();
     } catch (error) {
@@ -192,9 +200,7 @@ export const fornecedoresService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao remover contato');
-      }
+      await ensureOk(response, 'Erro ao remover contato');
 
       return await response.json();
     } catch (error) {
@@ -214,9 +220,7 @@ export const fornecedoresService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao listar endereços');
-      }
+      await ensureOk(response, 'Erro ao listar endereços');
 
       return await response.json();
     } catch (error) {
@@ -237,9 +241,7 @@ export const fornecedoresService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao adicionar endereço');
-      }
+      await ensureOk(response, 'Erro ao adicionar endereço');
 
       return await response.json();
     } catch (error) {
@@ -259,9 +261,7 @@ export const fornecedoresService = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Erro ao remover endereço');
-      }
+      await ensureOk(response, 'Erro ao remover endereço');
 
       return await response.json();
     } catch (error) {

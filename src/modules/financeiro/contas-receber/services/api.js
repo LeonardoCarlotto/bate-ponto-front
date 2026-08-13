@@ -3,12 +3,33 @@
  * Gerencia: Contas a receber de clientes
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 const getHeaders = () => ({
   'Content-Type': 'application/json',
   'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
+
+const getErrorMessage = async (response, fallback) => {
+  try {
+    const data = await response.json();
+    return data.message || data.mensagem || fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
+const ensureOk = async (response, fallback) => {
+  if (response.status === 401) {
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+  if (response.status === 403) {
+    throw new Error('Você não tem permissão para acessar contas a receber.');
+  }
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, fallback));
+  }
+};
 
 // ==================== CONTAS A RECEBER ====================
 
@@ -16,78 +37,15 @@ export const contasReceberService = {
   // Listar contas a receber agrupadas por cliente
   async listar(filtros = {}) {
     try {
-      // Buscar todos os pedidos
-      const response = await fetch(`${API_BASE_URL}/pedidos`, {
+      const queryString = new URLSearchParams(filtros).toString();
+      const response = await fetch(`${API_BASE_URL}/contas-receber/resumo${queryString ? '?' + queryString : ''}`, {
         method: 'GET',
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao listar pedidos');
-      }
+      await ensureOk(response, 'Erro ao listar contas a receber');
 
-      const pedidos = await response.json();
-      
-      // Filtrar pedidos com status diferente de pendente e aprovado
-      const pedidosFiltrados = pedidos.filter(pedido => {
-        const status = pedido.status?.toLowerCase();
-        return status !== 'pendente' && status !== 'aprovado';
-      });
-
-      // Agrupar por cliente
-      const contasPorCliente = {};
-      
-      pedidosFiltrados.forEach(pedido => {
-        const clienteId = pedido.clienteId || 'sem_cliente';
-        const clienteNome = pedido.clienteNome || 'Cliente não identificado';
-        
-        if (!contasPorCliente[clienteId]) {
-          contasPorCliente[clienteId] = {
-            clienteId,
-            clienteNome,
-            pedidos: [],
-            totalEmAberto: 0,
-            totalPago: 0,
-            saldoDevedor: 0
-          };
-        }
-        
-        contasPorCliente[clienteId].pedidos.push(pedido);
-        contasPorCliente[clienteId].totalEmAberto += parseFloat(pedido.valor || 0);
-      });
-
-      // Buscar pagamentos de cada cliente
-      const resultado = await Promise.all(
-        Object.values(contasPorCliente).map(async (cliente) => {
-          try {
-            const pagamentosResponse = await fetch(
-              `${API_BASE_URL}/contas-receber/cliente/${cliente.clienteId}/pagamentos`,
-              {
-                method: 'GET',
-                headers: getHeaders(),
-              }
-            );
-            
-            if (pagamentosResponse.ok) {
-              const pagamentos = await pagamentosResponse.json();
-              cliente.pagamentos = pagamentos || [];
-              cliente.totalPago = pagamentos.reduce((total, pgto) => 
-                total + parseFloat(pgto.valor || 0), 0);
-            } else {
-              cliente.pagamentos = [];
-              cliente.totalPago = 0;
-            }
-          } catch (error) {
-            cliente.pagamentos = [];
-            cliente.totalPago = 0;
-          }
-          
-          cliente.saldoDevedor = cliente.totalEmAberto - cliente.totalPago;
-          return cliente;
-        })
-      );
-
-      return resultado;
+      return await response.json();
     } catch (error) {
       console.error('Erro ao listar contas a receber:', error);
       throw error;
@@ -102,9 +60,7 @@ export const contasReceberService = {
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao obter contas do cliente');
-      }
+      await ensureOk(response, 'Erro ao obter contas do cliente');
 
       return await response.json();
     } catch (error) {
@@ -122,9 +78,7 @@ export const contasReceberService = {
         body: JSON.stringify(dados),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao registrar pagamento');
-      }
+      await ensureOk(response, 'Erro ao registrar pagamento');
 
       return await response.json();
     } catch (error) {
@@ -141,9 +95,7 @@ export const contasReceberService = {
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao obter histórico de pagamentos');
-      }
+      await ensureOk(response, 'Erro ao obter histórico de pagamentos');
 
       return await response.json();
     } catch (error) {
@@ -160,9 +112,7 @@ export const contasReceberService = {
         headers: getHeaders(),
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao estornar pagamento');
-      }
+      await ensureOk(response, 'Erro ao estornar pagamento');
 
       return await response.json();
     } catch (error) {

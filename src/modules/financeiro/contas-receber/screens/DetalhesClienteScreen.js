@@ -34,31 +34,33 @@ export default function DetalhesClienteScreen() {
   const [clienteData, setClienteData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [erro, setErro] = React.useState(null);
+  const [mensagem, setMensagem] = React.useState(null);
+
+  const carregarDadosCliente = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      setErro(null);
+      
+      const dados = await contasReceberService.obterPorCliente(clienteId);
+      setClienteData(dados);
+    } catch (error) {
+      console.error('Erro ao carregar dados do cliente:', error);
+      setErro(error.message || 'Erro ao carregar dados do cliente. Tente recarregar a página.');
+    } finally {
+      setLoading(false);
+    }
+  }, [clienteId]);
 
   React.useEffect(() => {
-    const carregarDadosCliente = async () => {
-      try {
-        setLoading(true);
-        setErro(null);
-        
-        const dados = await contasReceberService.obterPorCliente(clienteId);
-        setClienteData(dados);
-      } catch (error) {
-        console.error('Erro ao carregar dados do cliente:', error);
-        setErro('Erro ao carregar dados do cliente. Tente recarregar a página.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (clienteId) {
       carregarDadosCliente();
     }
-  }, [clienteId]);
+  }, [clienteId, carregarDadosCliente]);
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'preparação':
+      case 'preparacao':
         return 'warning';
       case 'enviado':
         return 'info';
@@ -70,27 +72,40 @@ export default function DetalhesClienteScreen() {
   };
 
   const calcularTotalEmAberto = (pedidos) => {
-    return pedidos
-      .filter(p => ['preparação', 'enviado', 'entregue'].includes(p.status?.toLowerCase()))
-      .reduce((total, pedido) => total + parseFloat(pedido.valor || 0), 0);
+    return pedidos.reduce((total, pedido) => total + parseFloat(pedido.valor || 0), 0);
   };
 
   const calcularTotalPago = (pagamentos) => {
-    return pagamentos?.reduce((total, pagamento) => total + parseFloat(pagamento.valor || 0), 0) || 0;
+    return pagamentos
+      ?.filter((pagamento) => pagamento.status !== 'ESTORNADO')
+      .reduce((total, pagamento) => total + parseFloat(pagamento.valor || 0), 0) || 0;
   };
 
   const handleRegistrarPagamento = () => {
-    navigate(`/contas-receber/cliente/${clienteId}/pagar`);
+    navigate(`/financeiro/contas-receber/cliente/${clienteId}/pagar`);
   };
 
-  const handleVerPagamento = (pagamentoId) => {
-    navigate(`/contas-receber/pagamento/${pagamentoId}`);
+  const handleEstornarPagamento = async (pagamentoId) => {
+    if (!window.confirm('Tem certeza que deseja estornar este pagamento?')) {
+      return;
+    }
+
+    try {
+      setErro(null);
+      setMensagem(null);
+      await contasReceberService.estornarPagamento(pagamentoId);
+      setMensagem('Pagamento estornado com sucesso');
+      await carregarDadosCliente();
+    } catch (error) {
+      console.error('Erro ao estornar pagamento:', error);
+      setErro(error.message || 'Erro ao estornar pagamento. Tente novamente.');
+    }
   };
 
   if (loading) {
     return (
       <Box sx={{ paddingX: 2 }}>
-        <BackButton to="/contas-receber" />
+        <BackButton to="/financeiro/contas-receber" />
         <Container maxWidth="lg">
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
             <CircularProgress size={40} />
@@ -103,10 +118,10 @@ export default function DetalhesClienteScreen() {
     );
   }
 
-  if (erro) {
+  if (erro && !clienteData) {
     return (
       <Box sx={{ paddingX: 2 }}>
-        <BackButton to="/contas-receber" />
+        <BackButton to="/financeiro/contas-receber" />
         <Container maxWidth="lg">
           <Alert severity="error" sx={{ mb: 3 }}>
             {erro}
@@ -119,7 +134,7 @@ export default function DetalhesClienteScreen() {
   if (!clienteData) {
     return (
       <Box sx={{ paddingX: 2 }}>
-        <BackButton to="/contas-receber" />
+        <BackButton to="/financeiro/contas-receber" />
         <Container maxWidth="lg">
           <Alert severity="warning">
             Cliente não encontrado.
@@ -129,16 +144,14 @@ export default function DetalhesClienteScreen() {
     );
   }
 
-  const pedidosEmAberto = clienteData.pedidos?.filter(p => 
-    ['preparação', 'enviado', 'entregue'].includes(p.status?.toLowerCase())
-  ) || [];
-  const totalEmAberto = calcularTotalEmAberto(clienteData.pedidos || []);
-  const totalPago = calcularTotalPago(clienteData.pagamentos);
-  const saldoDevedor = totalEmAberto - totalPago;
+  const pedidosEmAberto = clienteData.pedidos || [];
+  const totalEmAberto = clienteData.totalEmAberto ?? calcularTotalEmAberto(clienteData.pedidos || []);
+  const totalPago = clienteData.totalPago ?? calcularTotalPago(clienteData.pagamentos);
+  const saldoDevedor = clienteData.saldoDevedor ?? (totalEmAberto - totalPago);
 
   return (
     <Box sx={{ paddingX: 2 }}>
-      <BackButton to="/contas-receber" />
+      <BackButton to="/financeiro/contas-receber" />
       <Container maxWidth="lg">
         <Box
           sx={{
@@ -161,6 +174,18 @@ export default function DetalhesClienteScreen() {
             Registrar Pagamento
           </Button>
         </Box>
+
+        {erro && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setErro(null)}>
+            {erro}
+          </Alert>
+        )}
+
+        {mensagem && (
+          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setMensagem(null)}>
+            {mensagem}
+          </Alert>
+        )}
 
         {/* Resumo Financeiro */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -297,13 +322,14 @@ export default function DetalhesClienteScreen() {
                 <TableCell>Valor</TableCell>
                 <TableCell>Forma Pagamento</TableCell>
                 <TableCell>Descrição</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell align="right">Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {(!clienteData.pagamentos || clienteData.pagamentos.length === 0) ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ padding: 3 }}>
+                  <TableCell colSpan={6} align="center" sx={{ padding: 3 }}>
                     <Typography color="textSecondary">
                       Nenhum pagamento registrado
                     </Typography>
@@ -322,14 +348,15 @@ export default function DetalhesClienteScreen() {
                     </TableCell>
                     <TableCell>{pagamento.formaPagamento || 'N/A'}</TableCell>
                     <TableCell>{pagamento.descricao || '-'}</TableCell>
+                    <TableCell>{pagamento.status || '-'}</TableCell>
                     <TableCell align="right">
                       <Button
                         size="small"
-                        color="info"
-                        startIcon={<VisibilityIcon />}
-                        onClick={() => handleVerPagamento(pagamento.id)}
+                        color="error"
+                        disabled={pagamento.status === 'ESTORNADO'}
+                        onClick={() => handleEstornarPagamento(pagamento.id)}
                       >
-                        Ver
+                        Estornar
                       </Button>
                     </TableCell>
                   </TableRow>
