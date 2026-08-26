@@ -17,11 +17,15 @@ Create a `.env.local` file in the project root to configure your backend API URL
 
 ```bash
 REACT_APP_API_URL=http://localhost:8080
+REACT_APP_NFSE_API_URL=http://localhost:8081
+REACT_APP_NFSE_API_KEY=sua-chave-local-do-nfse-service
 ```
 
 **For production**: Set `REACT_APP_API_URL` to your production backend URL (e.g., `https://api.yourdomain.com`).
 
-The frontend will use this URL for all API calls. Defaults to `http://localhost:8080` if not specified.
+The frontend will use `REACT_APP_API_URL` for the main backend calls. NFS-e actions in the orders table use `REACT_APP_NFSE_API_URL` and `REACT_APP_NFSE_API_KEY`.
+
+For production, prefer exposing NFS-e through your backend/API gateway instead of publishing a sensitive `nfse-service` key in the browser bundle.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.

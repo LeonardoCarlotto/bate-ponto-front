@@ -4,6 +4,9 @@
  */
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const NFSE_API_BASE_URL = process.env.REACT_APP_NFSE_API_URL || 'http://localhost:8081';
+const NFSE_API_KEY = process.env.REACT_APP_NFSE_API_KEY || '';
+const NFSE_CODIGO_SERVICO = process.env.REACT_APP_NFSE_CODIGO_SERVICO || '';
 
 const getHeaders = () => ({
   'Content-Type': 'application/json',
@@ -29,6 +32,144 @@ const ensureOk = async (response, fallback) => {
   if (!response.ok) {
     throw new Error(await getErrorMessage(response, fallback));
   }
+};
+
+const getNfseHeaders = () => ({
+  'Content-Type': 'application/json',
+  'X-API-Key': NFSE_API_KEY,
+});
+
+const getNfseErrorMessage = async (response, fallback) => {
+  try {
+    const data = await response.json();
+    return data.message || data.mensagem || fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
+const ensureNfseConfigured = () => {
+  if (!NFSE_API_KEY) {
+    throw new Error('Configure REACT_APP_NFSE_API_KEY para usar o nfse-service.');
+  }
+};
+
+const getTipoPessoa = (cpfCnpj = '') => {
+  const digits = String(cpfCnpj).replace(/\D/g, '');
+  return digits.length > 11 ? 'PJ' : 'PF';
+};
+
+const downloadBlob = (blob, fileName) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+// ==================== NFS-E ====================
+
+export const nfseService = {
+  isConfigured() {
+    return Boolean(NFSE_API_KEY);
+  },
+
+  async consultarPorPedido(pedidoId) {
+    ensureNfseConfigured();
+
+    const response = await fetch(`${NFSE_API_BASE_URL}/api/v1/nfse/pedido/${pedidoId}`, {
+      method: 'GET',
+      headers: getNfseHeaders(),
+    });
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(await getNfseErrorMessage(response, 'Erro ao consultar NFS-e'));
+    }
+
+    return await response.json();
+  },
+
+  async emitirPorPedido(pedido, cliente) {
+    ensureNfseConfigured();
+
+    const cpfCnpj = cliente?.cpfCnpj || '';
+    if (!cpfCnpj) {
+      throw new Error('Cliente sem CPF/CNPJ cadastrado.');
+    }
+
+    const payload = {
+      pedidoId: Number(pedido.id),
+      cliente: {
+        tipoPessoa: getTipoPessoa(cpfCnpj),
+        cpfCnpj,
+        nome: cliente?.nome || pedido.clienteNome || 'Cliente',
+        email: cliente?.email || undefined,
+      },
+      servico: {
+        descricao: pedido.descricao || `Pedido #${pedido.id}`,
+        valor: Number(pedido.valor || 0),
+        codigoServico: NFSE_CODIGO_SERVICO || undefined,
+      },
+    };
+
+    const response = await fetch(`${NFSE_API_BASE_URL}/api/v1/nfse`, {
+      method: 'POST',
+      headers: {
+        ...getNfseHeaders(),
+        'Idempotency-Key': `pedido-${pedido.id}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(await getNfseErrorMessage(response, 'Erro ao emitir NFS-e'));
+    }
+
+    return await response.json();
+  },
+
+  async baixarPdf(nfseId, pedidoId) {
+    ensureNfseConfigured();
+
+    const response = await fetch(`${NFSE_API_BASE_URL}/api/v1/nfse/${nfseId}/pdf`, {
+      method: 'GET',
+      headers: {
+        'X-API-Key': NFSE_API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(await getNfseErrorMessage(response, 'Erro ao baixar DANFSe'));
+    }
+
+    const blob = await response.blob();
+    downloadBlob(blob, `danfse-pedido-${pedidoId}.pdf`);
+  },
+
+  async baixarXml(nfseId, pedidoId) {
+    ensureNfseConfigured();
+
+    const response = await fetch(`${NFSE_API_BASE_URL}/api/v1/nfse/${nfseId}/xml`, {
+      method: 'GET',
+      headers: {
+        'X-API-Key': NFSE_API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(await getNfseErrorMessage(response, 'Erro ao baixar XML'));
+    }
+
+    const xml = await response.text();
+    downloadBlob(new Blob([xml], { type: 'application/xml' }), `nfse-pedido-${pedidoId}.xml`);
+  },
 };
 
 // ==================== PEDIDOS ====================
